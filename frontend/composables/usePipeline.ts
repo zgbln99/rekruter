@@ -5,7 +5,6 @@ import type {
   JobPosting,
   Paginated,
   PipelineBoard,
-  PipelineStage,
 } from '~/types'
 
 export function useJobPostingsQuery(companyId: MaybeRefOrGetter<string> = '') {
@@ -32,14 +31,6 @@ export function useCreateJobPosting() {
   })
 }
 
-export function usePipelineStagesQuery() {
-  const api = useApi()
-  return useQuery({
-    queryKey: ['pipeline-stages'] as const,
-    queryFn: () => api<PipelineStage[]>('/pipeline-stages'),
-  })
-}
-
 export function usePipelineBoardQuery(jobPostingId: MaybeRefOrGetter<string>) {
   const api = useApi()
   return useQuery({
@@ -53,10 +44,10 @@ export function useMoveApplication(jobPostingId: MaybeRefOrGetter<string>) {
   const api = useApi()
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: (input: { id: string; stage_id: string }) =>
+    mutationFn: (input: { id: string; status: string }) =>
       api<Application>(`/applications/${input.id}`, {
         method: 'PATCH',
-        body: { stage_id: input.stage_id },
+        body: { status: input.status },
       }),
     onSuccess: () =>
       queryClient.invalidateQueries({

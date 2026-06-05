@@ -65,6 +65,7 @@ class CandidateController extends Controller
         $candidate->load([
             'contactLogs' => fn ($q) => $q->with('user')->latest('contacted_at'),
             'tasks' => fn ($q) => $q->latest('due_at'),
+            'applications' => fn ($q) => $q->with('jobPosting')->latest(),
         ]);
 
         return new CandidateResource($candidate);

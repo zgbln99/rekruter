@@ -10,9 +10,9 @@ const moveApplication = useMoveApplication(id)
 
 const selected = ref<Application | null>(null)
 
-async function moveTo(stageId: string) {
+async function moveTo(status: string) {
   if (!selected.value) return
-  await moveApplication.mutateAsync({ id: selected.value.id, stage_id: stageId })
+  await moveApplication.mutateAsync({ id: selected.value.id, status })
   selected.value = null
 }
 </script>
@@ -72,13 +72,13 @@ async function moveTo(stageId: string) {
             v-for="stage in board.stages"
             :key="stage.id"
             class="flex w-full items-center gap-3 rounded-xl border border-hairline p-3.5 text-left transition active:bg-surface"
-            :class="{ 'opacity-40': stage.id === selected.stage_id }"
-            :disabled="stage.id === selected.stage_id || moveApplication.isPending.value"
+            :class="{ 'opacity-40': stage.id === selected.status }"
+            :disabled="stage.id === selected.status || moveApplication.isPending.value"
             @click="moveTo(stage.id)"
           >
             <span class="h-2.5 w-2.5 rounded-full" :style="{ background: stage.color }" />
             <span class="font-medium text-ink">{{ stage.name }}</span>
-            <span v-if="stage.id === selected.stage_id" class="ml-auto text-xs text-muted">obecny</span>
+            <span v-if="stage.id === selected.status" class="ml-auto text-xs text-muted">obecny</span>
           </button>
         </div>
         <button class="mt-4 w-full py-2 text-sm font-medium text-stone" @click="selected = null">Zamknij</button>

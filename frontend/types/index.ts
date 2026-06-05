@@ -57,11 +57,22 @@ export interface Candidate {
   license_categories: LicenseCategory[]
   has_adr: boolean
   has_code_95: boolean
+  has_hds?: boolean
+  exp_reefer?: boolean
+  exp_tilt?: boolean
+  exp_international?: boolean
+  lang_de?: boolean
+  lang_en?: boolean
+  nationality?: string | null
+  availability_from?: string | null
+  experience_notes?: string | null
   source: string | null
+  profile_photo_id?: string | null
   internal_notes: string | null
   created_at: string | null
   contact_logs?: ContactLog[]
   tasks?: Task[]
+  applications?: Application[]
 }
 
 export interface ContactLog {
@@ -173,13 +184,31 @@ export interface Company {
   created_at: string | null
 }
 
+export type OfferRequirementKey =
+  | 'c' | 'ce' | 'code_95' | 'driver_card' | 'adr' | 'hds'
+  | 'exp_reefer' | 'exp_tilt' | 'exp_international' | 'lang_de' | 'lang_en'
+
 export interface JobPosting {
   id: string
   company_id: string
   company?: Company
   title: string
+  driver_type: string | null
+  trailer_type: string | null
+  country: string | null
+  region_base: string | null
+  work_system: string | null
+  salary_amount: string | null
+  currency: string | null
+  start_date: string | null
+  required_language: string | null
+  required_experience: string | null
   description: string | null
+  public_description: string | null
+  recruiter_notes: string | null
+  call_script: string[]
   required_categories: LicenseCategory[]
+  requirements: Partial<Record<OfferRequirementKey, boolean>>
   location: string | null
   salary_range: string | null
   status: 'open' | 'paused' | 'closed'
@@ -188,26 +217,54 @@ export interface JobPosting {
   created_at: string | null
 }
 
-export interface PipelineStage {
-  id: string
-  name: string
-  color: string
-  position: number
-  is_terminal: boolean
-}
+export type ApplicationStatus =
+  | 'new' | 'interested' | 'missing_data' | 'ready_for_pdf' | 'sent_to_company'
+  | 'accepted_by_company' | 'rejected_by_company' | 'hired' | 'failed'
 
 export interface Application {
   id: string
   candidate_id: string
   job_posting_id: string
-  stage_id: string
+  status: ApplicationStatus
+  status_label: string
   position: number
   notes: string | null
   candidate?: Candidate
+  job_posting?: JobPosting
 }
 
-export interface PipelineColumn extends PipelineStage {
+export interface PipelineColumn {
+  id: string
+  name: string
+  color: string
   applications: Application[]
+}
+
+export interface MatchResult {
+  result: 'match' | 'partial' | 'no_match'
+  required: number
+  met: number
+  missing: string[]
+}
+
+export interface CompletenessItem {
+  key: string
+  label: string
+  done: boolean
+}
+
+export interface Completeness {
+  items: CompletenessItem[]
+  missing: string[]
+  complete: boolean
+  percent: number
+}
+
+export interface TimelineItem {
+  at: string | null
+  type: string
+  label: string
+  by?: string | null
 }
 
 export interface PipelineBoard {

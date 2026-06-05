@@ -11,6 +11,10 @@ const uploadDocument = useUploadDocument(id)
 const uploadProfilePhoto = useUploadProfilePhoto(id)
 const sendProfile = useSendProfile(id)
 
+// Faza 5: kompletność profilu + timeline.
+const { data: completeness } = useCompletenessQuery(id)
+const { data: timeline } = useTimelineQuery(id)
+
 // Przypisanie do ogłoszenia (pipeline).
 const { data: postingsData } = useJobPostingsQuery()
 const postings = computed(() => postingsData.value?.data ?? [])
@@ -33,17 +37,21 @@ async function addToPipeline() {
   }
 }
 
-// --- Upload dokumentu ---
+// --- Upload dokumentu (plik / aparat) ---
 const docType = ref<DocumentType>('cv')
 const fileInput = ref<HTMLInputElement | null>(null)
+const cameraInput = ref<HTMLInputElement | null>(null)
 
 function pickDocument() {
   fileInput.value?.click()
 }
+function pickDocumentCamera() {
+  cameraInput.value?.click()
+}
 async function onDocumentSelected(e: Event) {
   const file = (e.target as HTMLInputElement).files?.[0]
   if (file) await uploadDocument.mutateAsync({ file, type: docType.value })
-  if (fileInput.value) fileInput.value.value = ''
+  ;(e.target as HTMLInputElement).value = ''
 }
 
 async function download(doc: CandidateDocument) {
@@ -155,7 +163,44 @@ async function doSend() {
       </div>
       <span class="badge badge-neutral shrink-0">{{ candidate.status_label }}</span>
     </div>
-    <input ref="photoInput" type="file" accept="image/*" class="hidden" @change="onPhotoSelected" />
+    <input ref="photoInput" type="file" accept="image/*" capture="user" class="hidden" @change="onPhotoSelected" />
+
+    <!-- Kompletność profilu + braki do wysłania -->
+    <div v-if="completeness" class="card p-4">
+      <div class="mb-2 flex items-center justify-between">
+        <p class="text-[13px] font-medium text-steel">Kompletność profilu</p>
+        <span class="text-sm font-semibold" :class="completeness.complete ? 'text-brand-deep' : 'text-amber-600'">
+          {{ completeness.percent }}%
+        </span>
+      </div>
+      <div class="mb-3 h-2 overflow-hidden rounded-full bg-surface">
+        <div class="h-full rounded-full bg-brand" :style="{ width: completeness.percent + '%' }" />
+      </div>
+      <div class="flex flex-wrap gap-1.5">
+        <span
+          v-for="item in completeness.items"
+          :key="item.key"
+          class="badge"
+          :class="item.done ? 'badge-accent' : 'bg-surface text-stone'"
+        >{{ item.label }}</span>
+      </div>
+      <p v-if="completeness.missing.length" class="mt-2 text-sm text-amber-700">
+        Braki do wysłania: {{ completeness.missing.join(', ') }}
+      </p>
+    </div>
+
+    <!-- Status w ogłoszeniach -->
+    <div v-if="candidate.applications?.length" class="card p-4">
+      <p class="mb-2.5 text-[13px] font-medium text-steel">W rekrutacjach</p>
+      <ul class="space-y-2">
+        <li v-for="app in candidate.applications" :key="app.id" class="flex items-center justify-between gap-2">
+          <NuxtLink :to="`/job-offers/${app.job_posting_id}`" class="min-w-0 truncate text-sm font-medium text-ink">
+            {{ app.job_posting?.title || 'Ogłoszenie' }}
+          </NuxtLink>
+          <span class="badge badge-neutral shrink-0">{{ app.status_label }}</span>
+        </li>
+      </ul>
+    </div>
 
     <!-- Uprawnienia -->
     <div class="card p-4">
@@ -217,11 +262,18 @@ async function doSend() {
             </option>
           </select>
           <button class="btn-sm" @click="pickDocument">
-            <AppIcon name="plus" :size="16" /> Dodaj
+            <AppIcon name="plus" :size="16" /> Plik
+          </button>
+          <button
+            class="inline-flex h-9 items-center justify-center gap-1 rounded-full border border-hairline px-3 text-sm font-medium text-ink"
+            @click="pickDocumentCamera"
+          >
+            <AppIcon name="camera" :size="16" /> Aparat
           </button>
         </div>
       </div>
       <input ref="fileInput" type="file" accept="image/*,application/pdf" class="hidden" @change="onDocumentSelected" />
+      <input ref="cameraInput" type="file" accept="image/*" capture="environment" class="hidden" @change="onDocumentSelected" />
 
       <ul v-if="documents?.length" class="space-y-2">
         <li v-for="doc in documents" :key="doc.id" class="card flex items-center justify-between p-3.5">
@@ -274,6 +326,20 @@ async function doSend() {
           <AppIcon name="x" :size="16" /> Usuń trwale
         </button>
       </div>
+    </div>
+
+    <!-- Timeline -->
+    <div v-if="timeline?.length">
+      <h2 class="mb-3 text-lg font-semibold text-ink">Historia (timeline)</h2>
+      <ul class="space-y-3 border-l border-hairline pl-4">
+        <li v-for="(ev, i) in timeline" :key="i" class="relative">
+          <span class="absolute -left-[1.32rem] top-1.5 h-2 w-2 rounded-full bg-brand" />
+          <p class="text-sm font-medium text-ink">{{ ev.label }}</p>
+          <p class="text-xs text-stone">
+            {{ ev.at ? new Date(ev.at).toLocaleString('pl-PL') : '' }}<span v-if="ev.by"> · {{ ev.by }}</span>
+          </p>
+        </li>
+      </ul>
     </div>
 
     <!-- Cropper -->
