@@ -2,13 +2,13 @@
 
 namespace App\Actions\Pipeline;
 
+use App\Enums\ApplicationStatus;
 use App\Models\Application;
-use App\Models\PipelineStage;
 use Illuminate\Validation\ValidationException;
 
 /**
- * Dodaje kandydata do pipeline danego ogłoszenia. Domyślnie trafia do
- * pierwszego etapu i na koniec kolumny.
+ * Dodaje kandydata do pipeline danego ogłoszenia ze statusem startowym `new`
+ * (lub wskazanym). Kandydat może być w ogłoszeniu tylko raz.
  */
 class AddCandidateToPipelineAction
 {
@@ -17,15 +17,7 @@ class AddCandidateToPipelineAction
      */
     public function execute(array $data): Application
     {
-        $stageId = $data['stage_id'] ?? optional(
-            PipelineStage::orderBy('position')->first()
-        )->id;
-
-        if ($stageId === null) {
-            throw ValidationException::withMessages([
-                'stage_id' => ['Brak zdefiniowanych etapów pipeline.'],
-            ]);
-        }
+        $status = $data['status'] ?? ApplicationStatus::New->value;
 
         $exists = Application::where('candidate_id', $data['candidate_id'])
             ->where('job_posting_id', $data['job_posting_id'])
@@ -38,13 +30,13 @@ class AddCandidateToPipelineAction
         }
 
         $position = (int) Application::where('job_posting_id', $data['job_posting_id'])
-            ->where('stage_id', $stageId)
+            ->where('status', $status)
             ->max('position');
 
         return Application::create([
             'candidate_id' => $data['candidate_id'],
             'job_posting_id' => $data['job_posting_id'],
-            'stage_id' => $stageId,
+            'status' => $status,
             'position' => $position + 1,
             'notes' => $data['notes'] ?? null,
         ]);

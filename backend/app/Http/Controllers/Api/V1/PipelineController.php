@@ -2,35 +2,32 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Enums\ApplicationStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\ApplicationResource;
 use App\Http\Resources\JobPostingResource;
 use App\Models\JobPosting;
-use App\Models\PipelineStage;
 use Illuminate\Http\JsonResponse;
 
 class PipelineController extends Controller
 {
     /**
-     * Tablica kanban dla ogłoszenia: etapy + przypisani kandydaci.
+     * Tablica kanban dla ogłoszenia: kolumny = statusy kandydata w ogłoszeniu.
      */
     public function board(JobPosting $jobPosting): JsonResponse
     {
-        $stages = PipelineStage::orderBy('position')->get();
-
         $applications = $jobPosting->applications()
             ->with('candidate')
             ->orderBy('position')
             ->get()
-            ->groupBy('stage_id');
+            ->groupBy(fn ($app) => $app->status->value);
 
-        $columns = $stages->map(fn (PipelineStage $stage) => [
-            'id' => $stage->id,
-            'name' => $stage->name,
-            'color' => $stage->color,
-            'is_terminal' => $stage->is_terminal,
+        $columns = collect(ApplicationStatus::cases())->map(fn (ApplicationStatus $status) => [
+            'id' => $status->value,
+            'name' => $status->label(),
+            'color' => $status->color(),
             'applications' => ApplicationResource::collection(
-                $applications->get($stage->id, collect())
+                $applications->get($status->value, collect())
             ),
         ]);
 

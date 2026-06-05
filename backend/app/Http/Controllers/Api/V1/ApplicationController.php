@@ -31,7 +31,7 @@ class ApplicationController extends Controller
     ): ApplicationResource {
         $action->execute(
             $application,
-            $request->string('stage_id')->toString(),
+            $request->string('status')->toString(),
             $request->has('position') ? $request->integer('position') : null
         );
 

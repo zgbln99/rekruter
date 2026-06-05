@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\ApplicationStatus;
 use App\Support\Audit\RecordsActivity;
 use App\Support\Tenancy\BelongsToTenant;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
@@ -17,6 +18,7 @@ class Application extends Model
         'candidate_id',
         'job_posting_id',
         'stage_id',
+        'status',
         'position',
         'notes',
     ];
@@ -24,6 +26,7 @@ class Application extends Model
     protected function casts(): array
     {
         return [
+            'status' => ApplicationStatus::class,
             'position' => 'integer',
         ];
     }

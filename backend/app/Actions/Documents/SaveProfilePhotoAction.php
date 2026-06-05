@@ -20,7 +20,9 @@ class SaveProfilePhotoAction
 {
     public function execute(Candidate $candidate, UploadedFile $image, User $user): Document
     {
-        return DB::transaction(function () use ($candidate, $image, $user) {
+        $disk = config('rekruter.documents_disk');
+
+        return DB::transaction(function () use ($candidate, $image, $user, $disk) {
             $path = sprintf(
                 'tenants/%s/candidates/%s/photo/%s.%s',
                 $candidate->tenant_id,
@@ -29,7 +31,7 @@ class SaveProfilePhotoAction
                 $image->getClientOriginalExtension() ?: 'jpg'
             );
 
-            Storage::disk('s3')->putFileAs(
+            Storage::disk($disk)->putFileAs(
                 dirname($path),
                 $image,
                 basename($path),
@@ -39,7 +41,7 @@ class SaveProfilePhotoAction
             $document = Document::create([
                 'candidate_id' => $candidate->id,
                 'type' => DocumentType::Photo,
-                'disk' => 's3',
+                'disk' => $disk,
                 'path' => $path,
                 'original_name' => $image->getClientOriginalName() ?: 'profile.jpg',
                 'mime' => $image->getMimeType() ?: 'image/jpeg',
@@ -50,6 +52,7 @@ class SaveProfilePhotoAction
 
             $candidate->profile_photo_id = $document->id;
             $candidate->save();
+            $candidate->logActivity('photo_set');
 
             return $document;
         });

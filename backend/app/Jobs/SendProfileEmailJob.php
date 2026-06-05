@@ -33,12 +33,14 @@ class SendProfileEmailJob implements ShouldQueue
         $candidate = $send->candidate;
 
         try {
+            $offer = $send->job_posting_id ? $send->jobPosting : null;
+
             if (empty($send->pdf_path)) {
-                $send->pdf_path = $generatePdf->execute($candidate);
+                $send->pdf_path = $generatePdf->execute($candidate, $offer);
                 $send->save();
             }
 
-            $pdf = Storage::disk('s3')->get($send->pdf_path);
+            $pdf = Storage::disk(config('rekruter.documents_disk'))->get($send->pdf_path);
 
             Mail::to($send->recipient_email)->send(new ProfileMail($candidate, $pdf));
 

@@ -3,26 +3,33 @@
 namespace App\Actions\Profiles;
 
 use App\Models\Candidate;
+use App\Models\JobPosting;
 use App\Support\Pdf\GotenbergClient;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\Str;
 
 /**
- * Generuje profesjonalny profil kandydata w PDF (Gotenberg) i zapisuje go w S3.
+ * Generuje profesjonalny profil kandydata w PDF (Gotenberg) i zapisuje go
+ * na dysku dokumentów (MEGA S3 w prod).
  *
  * PDF NIE zawiera notatek wewnętrznych ani danych nadmiarowych
- * (minimalizacja danych — DESIGN.md sekcje 7.3 i 12).
+ * (minimalizacja danych — DESIGN.md sekcje 7.3, 12 i 19.13).
  */
 class GenerateProfilePdfAction
 {
     /**
      * Renderuje PDF i zwraca jego zawartość binarną (podgląd / pobranie).
+     * Opcjonalnie w kontekście konkretnego ogłoszenia (firma docelowa, oferta).
      */
-    public function render(Candidate $candidate): string
+    public function render(Candidate $candidate, ?JobPosting $offer = null): string
     {
+        $offer ??= $this->resolveOffer($candidate);
+
         $html = View::make('pdf.profile', [
             'candidate' => $candidate,
+            'offer' => $offer,
+            'company' => $offer?->company,
             'photoDataUri' => $this->photoDataUri($candidate),
             'agencyName' => config('app.name'),
             'generatedAt' => now()->format('d.m.Y'),
@@ -32,11 +39,11 @@ class GenerateProfilePdfAction
     }
 
     /**
-     * Renderuje PDF i zapisuje go w prywatnym S3, zwracając ścieżkę (wysyłka).
+     * Renderuje PDF i zapisuje go na dysku dokumentów, zwracając ścieżkę.
      */
-    public function execute(Candidate $candidate): string
+    public function execute(Candidate $candidate, ?JobPosting $offer = null): string
     {
-        $pdf = $this->render($candidate);
+        $pdf = $this->render($candidate, $offer);
 
         $path = sprintf(
             'tenants/%s/candidates/%s/profiles/%s.pdf',
@@ -45,13 +52,27 @@ class GenerateProfilePdfAction
             Str::uuid()
         );
 
-        Storage::disk('s3')->put($path, $pdf, ['visibility' => 'private']);
+        Storage::disk(config('rekruter.documents_disk'))->put($path, $pdf, ['visibility' => 'private']);
+
+        $candidate->logActivity('pdf_generated');
 
         return $path;
     }
 
     /**
-     * Wczytuje zdjęcie profilowe z S3 i zwraca jako data-URI (do osadzenia w HTML).
+     * Najświeższe przypisane ogłoszenie kandydata (firma docelowa w PDF).
+     */
+    private function resolveOffer(Candidate $candidate): ?JobPosting
+    {
+        $application = $candidate->applications()->latest()->first();
+
+        return $application
+            ? JobPosting::with('company')->find($application->job_posting_id)
+            : null;
+    }
+
+    /**
+     * Wczytuje zdjęcie profilowe i zwraca jako data-URI (do osadzenia w HTML).
      */
     private function photoDataUri(Candidate $candidate): ?string
     {

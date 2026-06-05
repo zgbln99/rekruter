@@ -60,6 +60,21 @@ return [
             'report' => false,
         ],
 
+        // S3-compatible storage dokumentów kandydatów (docelowo MEGA S3).
+        // Konfiguracja przez zmienne S3_* (sekcja README: konfiguracja MEGA S3).
+        'mega_s3' => [
+            'driver' => 's3',
+            'key' => env('S3_ACCESS_KEY_ID'),
+            'secret' => env('S3_SECRET_ACCESS_KEY'),
+            'region' => env('S3_REGION', 'us-east-1'),
+            'bucket' => env('S3_BUCKET'),
+            'endpoint' => env('S3_ENDPOINT'),
+            'use_path_style_endpoint' => env('S3_USE_PATH_STYLE_ENDPOINT', true),
+            'visibility' => 'private',
+            'throw' => false,
+            'report' => false,
+        ],
+
     ],
 
     /*

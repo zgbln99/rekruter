@@ -2,12 +2,11 @@
 
 namespace Tests\Feature\Pipeline;
 
-use App\Actions\Pipeline\EnsurePipelineStagesAction;
+use App\Enums\ApplicationStatus;
 use App\Models\Application;
 use App\Models\Candidate;
 use App\Models\Company;
 use App\Models\JobPosting;
-use App\Models\PipelineStage;
 use App\Models\Tenant;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -28,7 +27,6 @@ class PipelineTest extends TestCase
         $this->tenant = Tenant::factory()->create();
         $this->user = User::factory()->for($this->tenant)->create();
         Sanctum::actingAs($this->user);
-        app(EnsurePipelineStagesAction::class)->execute($this->tenant);
     }
 
     private function jobPosting(): JobPosting
@@ -61,25 +59,15 @@ class PipelineTest extends TestCase
         ])->assertCreated()->assertJsonPath('title', 'Kierowca C+E');
     }
 
-    public function test_default_pipeline_stages_are_seeded(): void
-    {
-        $this->getJson('/api/v1/pipeline-stages')
-            ->assertOk()
-            ->assertJsonCount(6);
-    }
-
-    public function test_can_add_candidate_to_pipeline_in_first_stage(): void
+    public function test_can_add_candidate_to_pipeline_with_new_status(): void
     {
         $posting = $this->jobPosting();
         $candidate = Candidate::factory()->for($this->tenant)->create();
-        $firstStage = PipelineStage::orderBy('position')->first();
 
-        $response = $this->postJson('/api/v1/applications', [
+        $this->postJson('/api/v1/applications', [
             'candidate_id' => $candidate->id,
             'job_posting_id' => $posting->id,
-        ]);
-
-        $response->assertCreated()->assertJsonPath('stage_id', $firstStage->id);
+        ])->assertCreated()->assertJsonPath('status', ApplicationStatus::New->value);
     }
 
     public function test_candidate_cannot_be_added_twice_to_same_posting(): void
@@ -94,46 +82,41 @@ class PipelineTest extends TestCase
             ->assertJsonValidationErrors(['candidate_id']);
     }
 
-    public function test_can_move_application_between_stages(): void
+    public function test_can_move_application_between_statuses(): void
     {
         $posting = $this->jobPosting();
         $candidate = Candidate::factory()->for($this->tenant)->create();
-        $stages = PipelineStage::orderBy('position')->get();
 
         $application = Application::factory()->for($this->tenant)->create([
             'candidate_id' => $candidate->id,
             'job_posting_id' => $posting->id,
-            'stage_id' => $stages->first()->id,
+            'status' => ApplicationStatus::New,
         ]);
 
-        $target = $stages->get(1);
-
         $this->patchJson("/api/v1/applications/{$application->id}", [
-            'stage_id' => $target->id,
-        ])->assertOk()->assertJsonPath('stage_id', $target->id);
+            'status' => ApplicationStatus::Interested->value,
+        ])->assertOk()->assertJsonPath('status', ApplicationStatus::Interested->value);
 
-        // Przeniesienie zostało zapisane w audit logu.
         $this->assertDatabaseHas('activities', [
             'subject_id' => $application->id,
-            'event' => 'moved',
+            'event' => 'status_changed',
         ]);
     }
 
-    public function test_pipeline_board_groups_applications_by_stage(): void
+    public function test_pipeline_board_groups_applications_by_status(): void
     {
         $posting = $this->jobPosting();
         $candidate = Candidate::factory()->for($this->tenant)->create();
-        $firstStage = PipelineStage::orderBy('position')->first();
 
         Application::factory()->for($this->tenant)->create([
             'candidate_id' => $candidate->id,
             'job_posting_id' => $posting->id,
-            'stage_id' => $firstStage->id,
+            'status' => ApplicationStatus::New,
         ]);
 
-        $this->getJson("/api/v1/job-postings/{$posting->id}/pipeline")
+        $this->getJson("/api/v1/job-offers/{$posting->id}/pipeline")
             ->assertOk()
             ->assertJsonPath('stages.0.applications.0.candidate_id', $candidate->id)
-            ->assertJsonCount(6, 'stages');
+            ->assertJsonCount(count(ApplicationStatus::cases()), 'stages');
     }
 }

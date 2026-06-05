@@ -97,8 +97,9 @@ class DocumentTest extends TestCase
             'size' => 11,
         ]);
 
-        $this->get("/api/v1/candidates/{$this->candidate->id}/documents/{$document->id}/download")
-            ->assertOk();
+        // Dysk wspierający signed URL → przekierowanie; w innym wypadku stream (200).
+        $response = $this->get("/api/v1/candidates/{$this->candidate->id}/documents/{$document->id}/download");
+        $this->assertContains($response->getStatusCode(), [200, 302]);
 
         $this->assertDatabaseHas('activities', [
             'subject_id' => $document->id,

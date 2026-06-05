@@ -727,6 +727,7 @@ Architektura przygotowana (bez przedwczesnej implementacji) pod:
 - **Faza 2 — Dokumenty + Profil** ✅ **ZREALIZOWANA** (2026-06-05): upload dokumentów do prywatnego S3 (Flysystem), enum `DocumentType` (CV/dowód/paszport/prawo jazdy/karta kierowcy/ADR/Kod95/zdjęcie), zdjęcie profilowe z Cropper (`SaveProfilePhotoAction`), generator PDF premium przez **Gotenberg** (`GotenbergClient` + szablon Blade, bez notatek wewnętrznych), wysyłka profilu mailem w kolejce (`SendProfileEmailJob` + `ProfileMail`), **audit log** (`activities` + trait `RecordsActivity`), pobieranie dokumentów przez uwierzytelniony/audytowany endpoint. 10 nowych testów (łącznie 25 zielonych). Frontend: zdjęcie profilowe z CropperJS, sekcja dokumentów (upload/pobieranie), „Generuj PDF" i „Wyślij profil".
 - **Faza 3 — Pipeline + Klienci** ✅ **ZREALIZOWANA** (2026-06-05): modele Company / JobPosting / PipelineStage / Application (UUID, audit), domyślne etapy pipeline (`EnsurePipelineStagesAction`, 6 etapów z terminalnymi), Akcje `AddCandidateToPipelineAction` (deduplikacja w ogłoszeniu) i `MoveApplicationAction` (zmiana etapu + audit „moved"), endpointy `companies` i `job-postings` (CRUD), `pipeline-stages`, `job-postings/{id}/pipeline` (tablica kanban), `applications` (dodanie/przeniesienie/usunięcie). 7 nowych testów (łącznie 32 zielone). Frontend: lista i szczegóły firm z dodawaniem ogłoszeń, lista pipeline, **tablica kanban** z poziomym przewijaniem kolumn i **bottom-sheet zmiany etapu** (mitygacja R10), przypisanie kandydata do ogłoszenia z ekranu kandydata.
 - **Faza 4 — Utwardzenie** ✅ **ZREALIZOWANA** (2026-06-05): RODO — eksport danych kandydata (`ExportCandidateAction`, art. 15), zarządzanie zgodą (`consent`), trwałe usunięcie z czyszczeniem plików S3 i audit logu (`ForgetCandidateAction`, art. 17, admin-only); autoryzacja per rola (Policies: forget/usuwanie firm i ogłoszeń tylko admin); throttling (login, lookup); middleware `SecurityHeaders`; **offline queue** w PWA (kolejkowanie Quick-Add bez sieci + auto-synchronizacja po powrocie online, baner trybu offline); `docker-compose.prod.yml` (realny S3/SMTP, współdzielony wolumen kodu, restart policy). 8 nowych testów (łącznie 39 zielonych).
+- **Faza 5 — Ogłoszenia jako centrum systemu** 🔜 **W TRAKCIE** (specyfikacja: sekcja 19): pełny moduł ogłoszeń (job offers) z opisem publicznym, notatką rekruterki i skryptem rozmowy; szybkie tworzenie kandydata z ogłoszenia; status kandydata w ramach ogłoszenia (pivot `applications` + enum); dopasowanie kandydat↔ogłoszenie; dysk `mega_s3`; rozbudowa dokumentów/zdjęcia/croppera/aparatu; checklista kompletności i braki; historia wysyłki + decyzja firmy; timeline kandydata; PDF ze zdjęciem.
 
 Każda faza kończy się działającym, przetestowanym przyrostem. Po każdej fazie aktualizacja `design.md`.
 
@@ -752,7 +753,251 @@ Każda faza kończy się działającym, przetestowanym przyrostem. Po każdej fa
 
 ---
 
-> **Status:** Fazy 0–4 zrealizowane (MVP kompletne) — fundament, rdzeń KPI (Quick-Add < 60s,
-> Call Log), dokumenty + profil PDF (Gotenberg), pipeline + klienci (kanban), utwardzenie
-> (RODO, autoryzacja, offline, deployment prod). 39 testów funkcjonalnych zielonych.
-> Dalszy rozwój: integracje (OCR/AI/WhatsApp/SMS), multi-tenant SaaS, testy E2E — sekcja 15.
+> **Status:** Fazy 0–4 zrealizowane (MVP). Faza 5 (sekcja 19) rozbudowuje system wokół
+> **ogłoszeń jako centrum** — pełny moduł ofert, szybkie tworzenie kandydata z ogłoszenia,
+> dopasowanie, MEGA S3, dokumenty/zdjęcie/cropper/aparat, timeline, PDF ze zdjęciem.
+
+---
+
+## 19. Faza 5 — Ogłoszenia jako centrum systemu
+
+> Cel biznesowy: ogłoszenie (oferta pracy klienta) staje się punktem wyjścia całej pracy
+> rekruterki. Kierowca dzwoni „po ogłoszeniu", więc rekruterka pracuje **na ogłoszeniu**:
+> widzi wymagania, skrypt rozmowy, gotowy opis do skopiowania, i jednym tapnięciem tworzy
+> kandydata przypisanego do tej oferty. Priorytet: funkcje biznesowe, nie wygląd.
+
+### 19.1 Decyzje architektoniczne
+
+| # | Decyzja | Uzasadnienie |
+|---|---|---|
+| ADR-9 | „Ogłoszenie / job offer" = istniejący model **`JobPosting`** mocno rozszerzony (nie nowa tabela) | Brak duplikacji; pipeline/aplikacje już się o niego opierają |
+| ADR-10 | Endpointy `/api/v1/job-offers` jako podstawowe; `/api/v1/job-postings` zachowane jako alias (te same kontrolery) | Spójność z wymaganiem biznesowym bez łamania istniejącego frontu/testów |
+| ADR-11 | **`candidate_job_offer` = tabela `applications`** rozszerzona o kolumnę `status` (enum biznesowy) | Pivot kandydat↔ogłoszenie już istnieje; dodajemy status per ogłoszenie zamiast jednego globalnego |
+| ADR-12 | Kanban (board) grupuje po `applications.status` (enum), `pipeline_stages` **deprecated** (tabela zostaje dla zgodności, `stage_id` nullable) | Zadanie definiuje stały zestaw statusów biznesowych; eliminujemy podwójne źródło prawdy |
+| ADR-13 | Dysk **`mega_s3`** (S3-compatible) jako domyślny storage dokumentów w prod; lokalny tylko w dev | Wymóg: dokumenty wyłącznie w MEGA S3 poza developmentem |
+| ADR-14 | Timeline kandydata budowany z istniejącego **audit logu (`activities`)** agregowanego po kandydacie i encjach powiązanych | Zero nowej tabeli; audit już rejestruje zdarzenia |
+| ADR-15 | Dopasowanie i kompletność profilu liczone **w locie** (Action), bez materializacji | Reguły będą się zmieniać; brak ryzyka rozjazdu danych |
+
+### 19.2 Rozszerzenie modelu `job_postings` (ogłoszenie)
+
+Nowe kolumny (migracja `add_offer_fields_to_job_postings`):
+
+```
+driver_type        string  null   -- typ kierowcy (np. solo, team, wywrotka)
+trailer_type       string  null   -- typ naczepy (plandeka, chłodnia, cysterna, ...)
+country            string  null   -- kraj pracy
+region_base        string  null   -- region / baza
+work_system        string  null   -- system pracy (np. 2/1, 3/1, 4/2)
+salary_amount      string  null   -- wynagrodzenie (kwota/zakres)
+currency           string  null   -- waluta (PLN, EUR, ...)
+start_date         date    null   -- data startu
+required_language  string  null   -- wymagany język (opis)
+required_experience string null   -- wymagane doświadczenie (opis)
+public_description text    null   -- GOTOWY opis do kopiowania (FB/OLX/Jooble)
+recruiter_notes    text    null   -- notatka wewnętrzna (NIE w PDF, NIE publiczna)
+call_script        jsonb   '[]'   -- checklista pytań do rozmowy (lista stringów)
+requirements       jsonb   '{}'   -- wymagania-checkboxy (mapa boolean, p. 19.3)
+```
+
+`status` (już istnieje): `open` (aktywne) / `paused` (wstrzymane) / `closed` (zamknięte).
+`required_categories` (już istnieje) zachowane dla C / C+E.
+
+### 19.3 Wymagania ogłoszenia ↔ atrybuty kandydata (dopasowanie)
+
+Wymagania ogłoszenia w `requirements` (jsonb, klucze boolean):
+
+```
+c, ce, code_95, driver_card, adr, hds,
+exp_reefer (chłodnia), exp_tilt (plandeka), exp_international,
+lang_de (niemiecki), lang_en (angielski)
+```
+
+Aby dopasowanie miało sens, **rozszerzamy `candidates`** o odpowiadające atrybuty
+(migracja `add_driver_attributes_to_candidates`):
+
+```
+has_hds           bool  default false
+exp_reefer        bool  default false
+exp_tilt          bool  default false
+exp_international  bool  default false
+lang_de           bool  default false
+lang_en           bool  default false
+nationality       string null
+availability_from date   null
+experience_notes  text   null
+```
+
+Mapowanie wymaganie → atrybut kandydata (dla `MatchCandidateToOfferAction`):
+
+| Wymaganie | Spełnione gdy |
+|---|---|
+| c / ce | `'C'` / `'C+E'` w `license_categories` |
+| code_95 | `has_code_95` |
+| driver_card | `driver_card_expiry` ustawione |
+| adr | `has_adr` |
+| hds | `has_hds` |
+| exp_reefer / exp_tilt / exp_international | odpowiednie pole bool |
+| lang_de / lang_en | `lang_de` / `lang_en` |
+
+**Wynik dopasowania:** `match` (pasuje — wszystkie wymagane spełnione), `partial`
+(częściowo — część spełniona), `no_match` (żadne wymagane lub brak danych). Zwracana lista
+braków w czytelnej formie PL (np. „brak ADR", „brak doświadczenia na chłodni", „brak języka
+niemieckiego"). Endpoint: `GET /candidates/{id}/match/{jobOfferId}`. Pokazywane też na
+profilu kandydata i na widoku ogłoszenia (dla przypisanych kandydatów).
+
+### 19.4 Status kandydata w ramach ogłoszenia (`applications.status`)
+
+Enum `ApplicationStatus` (kolumna `status` na `applications`, domyślnie `new`):
+
+```
+new (nowy) · interested (zainteresowany) · missing_data (brakuje_danych) ·
+ready_for_pdf (gotowy_do_pdf) · sent_to_company (wysłany_do_firmy) ·
+accepted_by_company (zaakceptowany_przez_firmę) · rejected_by_company (odrzucony_przez_firmę) ·
+hired (zatrudniony) · failed (nieudany)
+```
+
+`stage_id` staje się nullable (deprecated). Kanban (`GET /job-offers/{id}/pipeline`)
+grupuje aplikacje po `status`. `MoveApplicationAction` zmienia `status` (+ wpis `moved`
+w audit logu). `AddCandidateToPipelineAction` ustawia `status = new`.
+
+### 19.5 Szybkie tworzenie kandydata z ogłoszenia
+
+`POST /job-offers/{id}/create-candidate` — krok 1: tylko `first_name`, `last_name`,
+`phone`. Po zapisie kandydat jest automatycznie tworzony (z deduplikacją po numerze) i
+**przypisywany do ogłoszenia i firmy** (rekord `applications` ze statusem `new`). Resztę
+uzupełnia się później. Cel: < 60 s. Realizacja: `CreateCandidateFromOfferAction`
+(reużywa `CreateCandidateAction` + `AddCandidateToPipelineAction`).
+
+### 19.6 MEGA S3 — storage dokumentów
+
+Nowy dysk `mega_s3` w `config/filesystems.php`, konfigurowany ENV:
+
+```
+S3_ENDPOINT, S3_ACCESS_KEY_ID, S3_SECRET_ACCESS_KEY, S3_BUCKET,
+S3_REGION, S3_USE_PATH_STYLE_ENDPOINT=true
+```
+
+`DOCUMENTS_DISK` (ENV) wskazuje dysk dokumentów: `mega_s3` w prod, `local` w dev.
+Akcje storage przestają hardkodować `'s3'` — używają `config('rekruter.documents_disk')`.
+Pobieranie: najpierw **tymczasowy signed URL** (gdy dysk wspiera `temporaryUrl`), w razie
+braku wsparcia **fallback do stream download** przez uwierzytelniony endpoint (jak dziś).
+
+### 19.7 Dokumenty — mapowanie nazw
+
+Zadanie wymienia kolumny `storage_disk`, `storage_path`, `original_filename`, `mime_type`.
+W projekcie istnieją równoważne: `disk`, `path`, `original_name`, `mime` (+ `size`,
+`uploaded_by`, `created_at`, `candidate_id`, `type`). **Zachowujemy istniejące nazwy**
+(brak ryzykownej migracji), a w API Resource wystawiamy też aliasy zgodne z zadaniem.
+Typy (`DocumentType`) bez zmian: cv, profile photo (`photo`), id_card, passport,
+driving_license, driver_card, adr, code_95, other.
+
+### 19.8 Zdjęcie profilowe + cropper + aparat
+
+- `candidate.profile_photo_id` (już istnieje) = `profile_photo_document_id` z zadania.
+- Endpointy: `POST /candidates/{id}/profile-photo` (upload/aparat), `POST .../profile-photo/from-crop` (wykadrowany blob z CropperJS), `DELETE .../profile-photo`.
+- Front: input z `capture="user"` (twarz) i `capture="environment"` (dokumenty); CropperJS już zintegrowany — flow „Wytnij z dokumentu" → zapis jako zdjęcie profilowe. Walidacja typu (jpg/jpeg/png/webp) i rozmiaru.
+
+### 19.9 Checklista kompletności i braki
+
+`CandidateCompletenessAction` liczy w locie pozycje: dane podstawowe, telefon, przypisane
+ogłoszenie, doświadczenie, uprawnienia, dokumenty, zdjęcie, gotowy PDF. Zwraca listę
+spełnione/braki. „Braki do wysłania do firmy" (np. brak zdjęcia, brak uprawnień, brak
+przypisanego ogłoszenia) pokazywane na profilu kandydata. Endpoint:
+`GET /candidates/{id}/completeness`.
+
+### 19.10 Historia wysyłki + decyzja firmy
+
+`profile_sends` rozszerzone o `decision` (enum `CompanyDecision`: `pending` (oczekuje),
+`accepted` (zaakceptowany), `rejected` (odrzucony), `hired` (zatrudniony)). Przy wysyłce
+ustawiamy `job_posting_id` + `company_id` (z aplikacji). Endpoint ustawienia decyzji:
+`PATCH /profile-sends/{id}/decision` — synchronizuje też `applications.status`
+(accepted→accepted_by_company, rejected→rejected_by_company, hired→hired).
+`send-profile` przyjmuje `job_offer_id` (wybór ogłoszenia/firmy docelowej).
+
+### 19.11 Źródło kandydata
+
+`candidate.source` (istnieje) z enumem `CandidateSource`: facebook, olx, jooble,
+facebook_group, whatsapp, phone, referral, other. Walidacja + etykiety PL.
+
+### 19.12 Timeline kandydata
+
+`CandidateTimelineAction` agreguje wpisy `activities` dla kandydata **oraz** encji
+powiązanych (documents, applications, profile_sends tego kandydata), sortuje malejąco i
+mapuje na czytelne zdarzenia PL: utworzono kandydata, przypisano do ogłoszenia, dodano
+dokument, ustawiono zdjęcie, wygenerowano PDF, wysłano profil, zmieniono status, dodano
+notatkę. Dodajemy logowanie brakujących zdarzeń (przypisanie do ogłoszenia, ustawienie
+zdjęcia, wygenerowanie PDF, zmiana statusu). Endpoint: `GET /candidates/{id}/timeline`.
+
+### 19.13 PDF profilu (rozbudowa)
+
+Szablon Blade rozszerzony o: zdjęcie (z `mega_s3`, placeholder gdy brak), imię i nazwisko,
+narodowość, dostępność (`availability_from`), języki, uprawnienia, doświadczenie,
+**ogłoszenie na które kandyduje + firma docelowa**, publiczne uwagi (`public_description`
+ogłoszenia). **Bez** uwag wewnętrznych (`recruiter_notes`, `internal_notes`).
+`POST /candidates/{id}/generate-pdf` (zapis do storage + zwrot), obok istniejącego
+podglądu `GET .../profile-pdf`.
+
+### 19.14 Endpointy (Faza 5)
+
+```
+# Ogłoszenia (job offers) — alias job-postings
+GET    /api/v1/job-offers
+POST   /api/v1/job-offers
+GET    /api/v1/job-offers/{id}
+PUT    /api/v1/job-offers/{id}
+DELETE /api/v1/job-offers/{id}
+POST   /api/v1/job-offers/{id}/create-candidate
+GET    /api/v1/job-offers/{id}/pipeline
+
+# Dopasowanie
+GET    /api/v1/candidates/{id}/match/{jobOfferId}
+
+# Kompletność / timeline
+GET    /api/v1/candidates/{id}/completeness
+GET    /api/v1/candidates/{id}/timeline
+
+# Zdjęcie profilowe
+POST   /api/v1/candidates/{id}/profile-photo
+POST   /api/v1/candidates/{id}/profile-photo/from-crop
+DELETE /api/v1/candidates/{id}/profile-photo
+
+# PDF / wysyłka / decyzja firmy
+POST   /api/v1/candidates/{id}/generate-pdf
+POST   /api/v1/candidates/{id}/send-profile        (job_offer_id, recipient_email)
+PATCH  /api/v1/profile-sends/{id}/decision
+```
+
+(Dokumenty kandydata bez zmian ścieżek; dodajemy aliasy nazewnictwa w Resource.)
+
+### 19.15 Frontend (Faza 5)
+
+Widoki: lista ogłoszeń, szczegóły ogłoszenia (wymagania, skrypt rozmowy jako czytelna
+checklista, przycisk „Kopiuj opis", duży przycisk „Nowy kandydat z tego ogłoszenia"),
+formularz szybkiego kandydata (krok 1: imię/nazwisko/telefon), profil kandydata (zdjęcie,
+dopasowanie, kompletność/braki, status w ogłoszeniu, timeline), dokumenty + aparat +
+cropper, lista/szczegóły firm. Mobile-first: dolna nawigacja (Ogłoszenia jako nowa
+zakładka centralna), duże przyciski, formularze w krokach.
+
+### 19.16 Testy (Faza 5)
+
+Tworzenie ogłoszenia · tworzenie kandydata z ogłoszenia (auto-przypisanie) · upload
+dokumentu na skonfigurowany dysk · ustawienie zdjęcia profilowego · upload wykadrowanego
+zdjęcia (from-crop) · generowanie PDF · wysyłka PDF (+ decyzja firmy) · dopasowanie
+kandydata do ogłoszenia (match/partial/no_match + braki). Cel: utrzymać 100% zielonych.
+
+### 19.17 Responsywność — wersja desktopowa (korekta)
+
+> **Korekta do sekcji 10/11:** „mobile-first" oznacza, że telefon jest punktem wyjścia
+> projektowania — **nie** brak wersji desktopowej. Obecny UI był wyłącznie mobilny
+> (wąski, wycentrowany `max-w-2xl`, tylko dolna nawigacja). Dodajemy responsywny layout
+> tak, by aplikacja była w pełni użyteczna również na komputerze (desktop jako dodatek).
+
+Strategia (breakpointy Tailwind):
+- **< `lg` (telefon/tablet):** bez zmian — dolna nawigacja (`BottomNav`) + FAB „Nowy kandydat", kontener wąski.
+- **≥ `lg` (desktop):** **stała boczna nawigacja** (`SideNav`, lewa kolumna ~240px) z tymi samymi pozycjami + akcja „Nowy kandydat"; dolna nawigacja i pływający FAB ukryte; główny kontener szerszy (np. `max-w-5xl`/`max-w-6xl`) wyśrodkowany obok sidebara; górny pasek (logo, użytkownik, wyloguj) pełnej szerokości.
+- Listy/siatki (kandydaci, ogłoszenia, firmy, dokumenty) mogą na desktopie przechodzić w **2 kolumny**; tablica kanban zyskuje więcej przestrzeni (kolumny widoczne bez przewijania, gdy się mieszczą).
+- Komponenty (karty, przyciski, pola) pozostają te same — zmienia się jedynie **chrome nawigacyjny** i szerokość/siatka kontenera, co utrzymuje jedno źródło prawdy dla widoków.
+
+Realizacja: `layouts/default.vue` warunkowo renderuje `SideNav` (`hidden lg:flex`) oraz
+`BottomNav`/`NewCandidateFab` (`lg:hidden`); kontener `max-w` i `padding` sterowane klasami
+responsywnymi. Brak osobnych „desktopowych" stron — ten sam routing i komponenty.

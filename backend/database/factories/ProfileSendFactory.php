@@ -2,16 +2,16 @@
 
 namespace Database\Factories;
 
-use App\Enums\ApplicationStatus;
+use App\Enums\CompanyDecision;
+use App\Enums\ProfileSendStatus;
 use App\Models\Candidate;
-use App\Models\JobPosting;
 use App\Models\Tenant;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Application>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\ProfileSend>
  */
-class ApplicationFactory extends Factory
+class ProfileSendFactory extends Factory
 {
     /**
      * @return array<string, mixed>
@@ -21,9 +21,10 @@ class ApplicationFactory extends Factory
         return [
             'tenant_id' => Tenant::factory(),
             'candidate_id' => Candidate::factory(),
-            'job_posting_id' => JobPosting::factory(),
-            'status' => ApplicationStatus::New,
-            'position' => 1,
+            'recipient_email' => fake()->companyEmail(),
+            'status' => ProfileSendStatus::Sent,
+            'decision' => CompanyDecision::Pending,
+            'sent_at' => now(),
         ];
     }
 }

@@ -11,6 +11,7 @@ use App\Http\Resources\DocumentResource;
 use App\Models\Candidate;
 use App\Models\Document;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -53,10 +54,11 @@ class DocumentController extends Controller
     }
 
     /**
-     * Pobranie dokumentu przez uwierzytelniony, audytowany endpoint
-     * (dokumenty nigdy nie są publiczne — RODO).
+     * Pobranie dokumentu: najpierw tymczasowy signed URL (gdy dysk wspiera),
+     * w razie braku wsparcia fallback do stream download. Zawsze audytowane
+     * i uwierzytelnione (dokumenty nigdy nie są publiczne — RODO).
      */
-    public function download(Candidate $candidate, Document $document): StreamedResponse
+    public function download(Candidate $candidate, Document $document): StreamedResponse|RedirectResponse
     {
         abort_unless($document->candidate_id === $candidate->id, 404);
 
@@ -64,7 +66,14 @@ class DocumentController extends Controller
 
         $disk = Storage::disk($document->disk);
 
-        return $disk->download($document->path, $document->original_name);
+        try {
+            $url = $disk->temporaryUrl($document->path, now()->addMinutes(5));
+
+            return redirect($url);
+        } catch (\Throwable) {
+            // MEGA S3 / dysk lokalny bez wsparcia signed URL → strumień.
+            return $disk->download($document->path, $document->original_name);
+        }
     }
 
     public function destroy(Candidate $candidate, Document $document): JsonResponse
@@ -74,5 +83,21 @@ class DocumentController extends Controller
         $document->delete();
 
         return response()->json(['message' => 'Dokument usunięty.']);
+    }
+
+    /**
+     * Usunięcie zdjęcia profilowego kandydata.
+     */
+    public function destroyProfilePhoto(Candidate $candidate): JsonResponse
+    {
+        $photoId = $candidate->profile_photo_id;
+
+        $candidate->forceFill(['profile_photo_id' => null])->save();
+
+        if ($photoId) {
+            Document::where('id', $photoId)->delete();
+        }
+
+        return response()->json(['message' => 'Zdjęcie profilowe usunięte.']);
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\CompanyDecision;
 use App\Enums\ProfileSendStatus;
 use App\Support\Audit\RecordsActivity;
 use App\Support\Tenancy\BelongsToTenant;
@@ -21,6 +22,8 @@ class ProfileSend extends Model
         'pdf_path',
         'recipient_email',
         'status',
+        'decision',
+        'decision_at',
         'sent_by',
         'sent_at',
         'viewed_at',
@@ -31,6 +34,8 @@ class ProfileSend extends Model
     {
         return [
             'status' => ProfileSendStatus::class,
+            'decision' => CompanyDecision::class,
+            'decision_at' => 'datetime',
             'sent_at' => 'datetime',
             'viewed_at' => 'datetime',
         ];
@@ -39,5 +44,10 @@ class ProfileSend extends Model
     public function candidate(): BelongsTo
     {
         return $this->belongsTo(Candidate::class);
+    }
+
+    public function jobPosting(): BelongsTo
+    {
+        return $this->belongsTo(JobPosting::class);
     }
 }

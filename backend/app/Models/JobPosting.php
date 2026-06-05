@@ -19,8 +19,22 @@ class JobPosting extends Model
     protected $fillable = [
         'company_id',
         'title',
+        'driver_type',
+        'trailer_type',
+        'country',
+        'region_base',
+        'work_system',
+        'salary_amount',
+        'currency',
+        'start_date',
+        'required_language',
+        'required_experience',
         'description',
+        'public_description',
+        'recruiter_notes',
+        'call_script',
         'required_categories',
+        'requirements',
         'location',
         'salary_range',
         'status',
@@ -31,6 +45,9 @@ class JobPosting extends Model
     {
         return [
             'required_categories' => 'array',
+            'requirements' => 'array',
+            'call_script' => 'array',
+            'start_date' => 'date',
             'status' => JobPostingStatus::class,
         ];
     }

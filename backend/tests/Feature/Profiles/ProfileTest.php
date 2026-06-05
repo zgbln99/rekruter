@@ -81,4 +81,44 @@ class ProfileTest extends TestCase
             ['recipient_email' => 'nieprawidlowy']
         )->assertStatus(422)->assertJsonValidationErrors(['recipient_email']);
     }
+
+    public function test_generate_pdf_stores_file_on_documents_disk(): void
+    {
+        Http::fake([
+            '*/forms/chromium/convert/html' => Http::response('%PDF-1.4 fake', 200),
+        ]);
+
+        $response = $this->postJson("/api/v1/candidates/{$this->candidate->id}/generate-pdf")
+            ->assertOk();
+
+        $path = $response->json('pdf_path');
+        $this->assertNotNull($path);
+        \Illuminate\Support\Facades\Storage::disk(config('rekruter.documents_disk'))->assertExists($path);
+    }
+
+    public function test_company_decision_updates_application_status(): void
+    {
+        $company = \App\Models\Company::factory()->for($this->tenant)->create();
+        $offer = \App\Models\JobPosting::factory()->for($this->tenant)->for($company)->create();
+        $application = \App\Models\Application::factory()->for($this->tenant)->create([
+            'candidate_id' => $this->candidate->id,
+            'job_posting_id' => $offer->id,
+            'status' => \App\Enums\ApplicationStatus::SentToCompany,
+        ]);
+        $send = \App\Models\ProfileSend::factory()->for($this->tenant)->create([
+            'candidate_id' => $this->candidate->id,
+            'job_posting_id' => $offer->id,
+            'company_id' => $company->id,
+            'recipient_email' => 'klient@firma.pl',
+        ]);
+
+        $this->patchJson("/api/v1/profile-sends/{$send->id}/decision", ['decision' => 'accepted'])
+            ->assertOk()
+            ->assertJsonPath('decision', 'accepted');
+
+        $this->assertSame(
+            \App\Enums\ApplicationStatus::AcceptedByCompany,
+            $application->fresh()->status
+        );
+    }
 }

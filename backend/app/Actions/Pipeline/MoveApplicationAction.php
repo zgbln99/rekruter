@@ -5,30 +5,30 @@ namespace App\Actions\Pipeline;
 use App\Models\Application;
 
 /**
- * Przenosi aplikację do innego etapu (drag&drop / bottom-sheet w UI).
+ * Zmienia status kandydata w ramach ogłoszenia (drag&drop / bottom-sheet w UI).
  * Zapisuje pozycję w kolumnie i loguje zdarzenie w audit logu.
  */
 class MoveApplicationAction
 {
-    public function execute(Application $application, string $stageId, ?int $position = null): Application
+    public function execute(Application $application, string $status, ?int $position = null): Application
     {
-        $fromStage = $application->stage_id;
+        $fromStatus = $application->status?->value;
 
         if ($position === null) {
             $position = (int) Application::where('job_posting_id', $application->job_posting_id)
-                ->where('stage_id', $stageId)
+                ->where('status', $status)
                 ->max('position') + 1;
         }
 
         $application->forceFill([
-            'stage_id' => $stageId,
+            'status' => $status,
             'position' => $position,
         ])->save();
 
-        if ($fromStage !== $stageId) {
-            $application->logActivity('moved', [
-                'from_stage' => $fromStage,
-                'to_stage' => $stageId,
+        if ($fromStatus !== $status) {
+            $application->logActivity('status_changed', [
+                'from' => $fromStatus,
+                'to' => $status,
             ]);
         }
 

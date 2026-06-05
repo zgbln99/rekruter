@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests\Applications;
 
+use App\Enums\ApplicationStatus;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rules\Enum;
 
 class StoreApplicationRequest extends FormRequest
 {
@@ -19,7 +21,7 @@ class StoreApplicationRequest extends FormRequest
         return [
             'candidate_id' => ['required', 'uuid', 'exists:candidates,id'],
             'job_posting_id' => ['required', 'uuid', 'exists:job_postings,id'],
-            'stage_id' => ['nullable', 'uuid', 'exists:pipeline_stages,id'],
+            'status' => ['nullable', new Enum(ApplicationStatus::class)],
             'notes' => ['nullable', 'string'],
         ];
     }

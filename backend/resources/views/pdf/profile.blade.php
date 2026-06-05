@@ -108,6 +108,16 @@
             @if ($candidate->city)
                 <div class="row"><div class="label">Miejscowość</div><div class="value">{{ $candidate->city }}{{ $candidate->country ? ', '.$candidate->country : '' }}</div></div>
             @endif
+            @if ($candidate->nationality)
+                <div class="row"><div class="label">Narodowość</div><div class="value">{{ $candidate->nationality }}</div></div>
+            @endif
+            @if ($candidate->availability_from)
+                <div class="row"><div class="label">Dostępność od</div><div class="value">{{ $candidate->availability_from->format('d.m.Y') }}</div></div>
+            @endif
+            @php($langs = collect([$candidate->lang_de ? 'niemiecki' : null, $candidate->lang_en ? 'angielski' : null])->filter()->all())
+            @if (count($langs))
+                <div class="row"><div class="label">Języki</div><div class="value">{{ implode(', ', $langs) }}</div></div>
+            @endif
         </div>
     </div>
 
@@ -123,8 +133,37 @@
             @if ($candidate->driver_card_expiry)
                 <div class="row"><div class="label">Karta kierowcy</div><div class="value">ważna do {{ $candidate->driver_card_expiry->format('d.m.Y') }}</div></div>
             @endif
+            @php($exp = collect([$candidate->exp_reefer ? 'chłodnia' : null, $candidate->exp_tilt ? 'plandeka' : null, $candidate->exp_international ? 'międzynarodowe' : null, $candidate->has_hds ? 'HDS' : null])->filter()->all())
+            @if (count($exp))
+                <div class="row"><div class="label">Doświadczenie</div><div class="value">{{ implode(', ', $exp) }}</div></div>
+            @endif
         </div>
     </div>
+
+    @if (! empty($candidate->experience_notes))
+        <div class="section">
+            <div class="section-title">Opis doświadczenia</div>
+            <div>{{ $candidate->experience_notes }}</div>
+        </div>
+    @endif
+
+    @if ($offer)
+        <div class="section">
+            <div class="section-title">Aplikuje na</div>
+            <div class="grid">
+                <div class="row"><div class="label">Ogłoszenie</div><div class="value">{{ $offer->title }}</div></div>
+                @if ($company)
+                    <div class="row"><div class="label">Firma docelowa</div><div class="value">{{ $company->name }}</div></div>
+                @endif
+                @if ($offer->country)
+                    <div class="row"><div class="label">Kraj pracy</div><div class="value">{{ $offer->country }}</div></div>
+                @endif
+            </div>
+            @if (! empty($offer->public_description))
+                <div style="margin-top:10px; color:#374151;">{{ $offer->public_description }}</div>
+            @endif
+        </div>
+    @endif
 
     <div class="footer">
         Profil wygenerowany przez {{ $agencyName }} &middot; {{ $generatedAt }}

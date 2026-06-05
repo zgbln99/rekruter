@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Actions\Candidates\CreateCandidateFromOfferAction;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\JobPostings\CreateCandidateFromOfferRequest;
 use App\Http\Requests\JobPostings\StoreJobPostingRequest;
 use App\Http\Requests\JobPostings\UpdateJobPostingRequest;
+use App\Http\Resources\CandidateResource;
 use App\Http\Resources\JobPostingResource;
 use App\Models\JobPosting;
 use Illuminate\Http\JsonResponse;
@@ -53,5 +56,22 @@ class JobPostingController extends Controller
         $jobPosting->delete();
 
         return response()->json(['message' => 'Ogłoszenie usunięte.']);
+    }
+
+    /**
+     * Szybkie utworzenie kandydata z ogłoszenia (auto-przypisanie do oferty/firmy).
+     */
+    public function createCandidate(
+        CreateCandidateFromOfferRequest $request,
+        JobPosting $jobPosting,
+        CreateCandidateFromOfferAction $action
+    ): JsonResponse {
+        $result = $action->execute($jobPosting, $request->validated(), $request->user());
+
+        $payload = (new CandidateResource($result['candidate']->load('applications')))
+            ->resolve($request);
+        $payload['duplicate'] = $result['duplicate'];
+
+        return response()->json($payload, $result['duplicate'] ? 200 : 201);
     }
 }

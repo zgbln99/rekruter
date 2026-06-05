@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests\Applications;
 
+use App\Enums\ApplicationStatus;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rules\Enum;
 
 class MoveApplicationRequest extends FormRequest
 {
@@ -17,7 +19,7 @@ class MoveApplicationRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'stage_id' => ['required', 'uuid', 'exists:pipeline_stages,id'],
+            'status' => ['required', new Enum(ApplicationStatus::class)],
             'position' => ['nullable', 'integer', 'min:0'],
             'notes' => ['nullable', 'string'],
         ];

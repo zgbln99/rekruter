@@ -25,6 +25,9 @@ class Candidate extends Model
         'email',
         'city',
         'country',
+        'nationality',
+        'availability_from',
+        'experience_notes',
         'status',
         'license_categories',
         'has_adr',
@@ -32,6 +35,12 @@ class Candidate extends Model
         'has_code_95',
         'code_95_expiry',
         'driver_card_expiry',
+        'has_hds',
+        'exp_reefer',
+        'exp_tilt',
+        'exp_international',
+        'lang_de',
+        'lang_en',
         'profile_photo_id',
         'source',
         'consent_rodo_at',
@@ -46,9 +55,16 @@ class Candidate extends Model
             'license_categories' => 'array',
             'has_adr' => 'boolean',
             'has_code_95' => 'boolean',
+            'has_hds' => 'boolean',
+            'exp_reefer' => 'boolean',
+            'exp_tilt' => 'boolean',
+            'exp_international' => 'boolean',
+            'lang_de' => 'boolean',
+            'lang_en' => 'boolean',
             'adr_expiry' => 'date',
             'code_95_expiry' => 'date',
             'driver_card_expiry' => 'date',
+            'availability_from' => 'date',
             'consent_rodo_at' => 'datetime',
         ];
     }
@@ -91,6 +107,11 @@ class Candidate extends Model
     public function applications(): HasMany
     {
         return $this->hasMany(Application::class);
+    }
+
+    public function profileSends(): HasMany
+    {
+        return $this->hasMany(ProfileSend::class);
     }
 
     public function profilePhoto(): BelongsTo

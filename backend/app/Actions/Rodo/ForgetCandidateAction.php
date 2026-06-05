@@ -32,7 +32,7 @@ class ForgetCandidateAction
                 ->whereNotNull('pdf_path')
                 ->pluck('pdf_path');
             foreach ($pdfPaths as $path) {
-                Storage::disk('s3')->delete($path);
+                Storage::disk(config('rekruter.documents_disk'))->delete($path);
             }
 
             // 3. Audit log z danymi osobowymi tego kandydata.

@@ -2,9 +2,11 @@
 
 namespace App\Http\Requests\Profiles;
 
+use App\Enums\CompanyDecision;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rules\Enum;
 
-class SendProfileRequest extends FormRequest
+class SetCompanyDecisionRequest extends FormRequest
 {
     public function authorize(): bool
     {
@@ -17,10 +19,7 @@ class SendProfileRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'recipient_email' => ['required', 'email'],
-            'company_id' => ['nullable', 'uuid'],
-            'job_posting_id' => ['nullable', 'uuid'],
-            'job_offer_id' => ['nullable', 'uuid', 'exists:job_postings,id'],
+            'decision' => ['required', new Enum(CompanyDecision::class)],
         ];
     }
 }

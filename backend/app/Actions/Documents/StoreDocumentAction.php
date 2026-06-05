@@ -17,6 +17,8 @@ class StoreDocumentAction
 {
     public function execute(Candidate $candidate, UploadedFile $file, string $type, User $user): Document
     {
+        $disk = config('rekruter.documents_disk');
+
         $path = sprintf(
             'tenants/%s/candidates/%s/documents/%s.%s',
             $candidate->tenant_id,
@@ -25,7 +27,7 @@ class StoreDocumentAction
             $file->getClientOriginalExtension() ?: 'bin'
         );
 
-        Storage::disk('s3')->putFileAs(
+        Storage::disk($disk)->putFileAs(
             dirname($path),
             $file,
             basename($path),
@@ -35,7 +37,7 @@ class StoreDocumentAction
         return Document::create([
             'candidate_id' => $candidate->id,
             'type' => $type,
-            'disk' => 's3',
+            'disk' => $disk,
             'path' => $path,
             'original_name' => $file->getClientOriginalName(),
             'mime' => $file->getMimeType(),

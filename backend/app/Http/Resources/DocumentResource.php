@@ -24,6 +24,12 @@ class DocumentResource extends JsonResource
             'mime' => $this->mime,
             'size' => $this->size,
             'is_profile_photo' => $this->is_profile_photo,
+            // Aliasy nazewnictwa zgodne z DESIGN.md 19.7.
+            'storage_disk' => $this->disk,
+            'storage_path' => $this->path,
+            'original_filename' => $this->original_name,
+            'mime_type' => $this->mime,
+            'uploaded_by' => $this->uploaded_by,
             'created_at' => $this->created_at?->toIso8601String(),
             // Pobieranie wyłącznie przez uwierzytelniony endpoint (RODO).
             'download_url' => route('candidates.documents.download', [
