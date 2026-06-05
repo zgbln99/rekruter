@@ -4,11 +4,21 @@ namespace App\Actions\Profiles;
 
 use App\Models\JobPosting;
 use App\Support\Ai\OpenAiClient;
-use Illuminate\Validation\ValidationException;
+use App\Support\Pdf\GotenbergClient;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\View;
 
 /**
- * Generuje grafikę ogłoszenia (PNG) do social media — przez OpenAI (gpt-image-1).
- * Format: feed (pionowy 4:5) lub reels (pionowy 9:16) → obraz pionowy 1024x1536.
+ * Generuje grafikę ogłoszenia (PNG) do social media w dwóch etapach:
+ *
+ *  Etap A — OpenAI (gpt-image-1) generuje WYŁĄCZNIE tło/ilustrację (bez żadnych
+ *           napisów). Dzięki temu nie ma literówek w polskich tekstach.
+ *  Etap B — backend deterministycznie nakłada tekst oferty (Chromium/Gotenberg
+ *           renderuje HTML z tłem w data-URI), gwarantując poprawną pisownię,
+ *           dokładny rozmiar (1080x1350 / 1080x1920) i kontrolowany layout.
+ *
+ * Gdy tło z AI jest niedostępne (brak klucza API / błąd / brak sieci), grafika
+ * i tak powstaje — na czystym, jasnym tle (bez ilustracji z AI).
  */
 class GeneratePosterAction
 {
@@ -16,68 +26,100 @@ class GeneratePosterAction
     {
         $offer->loadMissing('company');
         $tenant = $offer->tenant;
+        $settings = $tenant?->settings ?? [];
 
-        $client = OpenAiClient::fromTenant($tenant);
+        [$w, $h] = $format === 'reels' ? [1080, 1920] : [1080, 1350];
 
-        if (! $client) {
-            throw ValidationException::withMessages([
-                'openai' => ['Skonfiguruj klucz API OpenAI w Ustawieniach, aby generować grafiki.'],
-            ]);
-        }
+        // Etap A: tło z AI (opcjonalne — bez napisów).
+        $backgroundUri = $this->generateBackground($offer, $format);
 
-        $prompt = $this->buildPrompt($offer, $tenant?->agencyName() ?? config('app.name'), $format);
+        // Etap B: deterministyczny render tekstu na tle.
+        $html = View::make('pdf.poster', [
+            'offer' => $offer,
+            'company' => $offer->company,
+            'width' => $w,
+            'height' => $h,
+            'backgroundUri' => $backgroundUri,
+            'agencyName' => $tenant?->agencyName() ?? config('app.name'),
+            'agencyPhone' => $settings['agency_phone'] ?? null,
+            'agencyEmail' => $settings['agency_email'] ?? null,
+            'agencyWebsite' => $settings['agency_website'] ?? null,
+        ])->render();
 
-        return $client->image($prompt, '1024x1536', 'medium');
+        return GotenbergClient::make()->htmlToImage($html, $w, $h, 'png');
     }
 
-    private function buildPrompt(JobPosting $offer, string $agencyName, string $format): string
+    /**
+     * Etap A — wygeneruj samo tło (PNG) i zwróć je jako data-URI gotowe do
+     * osadzenia w HTML. Zwraca null, gdy AI jest niedostępne.
+     */
+    private function generateBackground(JobPosting $offer, string $format): ?string
     {
-        $location = trim(implode(', ', array_filter([
-            $offer->country,
-            $offer->region_base,
-        ])));
+        $client = OpenAiClient::fromTenant($offer->tenant);
 
-        $salary = trim(($offer->salary_amount ?? '').' '.($offer->currency ?? ''));
-        $categories = is_array($offer->required_categories)
-            ? implode(', ', $offer->required_categories)
-            : '';
+        if (! $client) {
+            return null;
+        }
 
-        // Krótkie, konkretne napisy do umieszczenia na grafice (po polsku).
-        $lines = collect([
-            'NAGŁÓWEK' => 'PRACA DLA KIEROWCY',
-            'STANOWISKO' => $offer->title,
-            'LOKALIZACJA' => $location ?: null,
-            'KATEGORIE' => $categories ?: null,
-            'SYSTEM PRACY' => $offer->work_system,
-            'WYNAGRODZENIE' => $salary ?: null,
-            'CTA' => 'APLIKUJ TERAZ',
-            'AGENCJA' => $agencyName,
-        ])->filter()->map(fn ($v, $k) => "{$k}: {$v}")->implode("\n");
+        try {
+            $png = $client->image($this->buildBackgroundPrompt($offer, $format), '1024x1536', 'medium');
 
+            return 'data:image/png;base64,'.base64_encode($png);
+        } catch (\Throwable $e) {
+            // Tło to dodatek — nie blokujemy generowania grafiki przy błędzie AI.
+            Log::warning('Nie udało się wygenerować tła plakatu przez OpenAI: '.$e->getMessage());
+
+            return null;
+        }
+    }
+
+    /**
+     * Prompt dla modelu obrazu — wyłącznie tło, bez jakiegokolwiek tekstu.
+     */
+    private function buildBackgroundPrompt(JobPosting $offer, string $format): string
+    {
         $ratio = $format === 'reels'
-            ? 'format pionowy pod Instagram/Facebook Reels (proporcje ok. 9:16)'
-            : 'format pionowy pod post na Instagramie/Facebooku (proporcje ok. 4:5)';
+            ? 'vertical 9:16 social media story/reels background'
+            : 'vertical 4:5 social media feed background';
 
         return <<<PROMPT
-        Zaprojektuj profesjonalny, nowoczesny i czysty plakat rekrutacyjny dla kierowców
-        zawodowych (transport ciężarowy), {$ratio}.
+        Create a {$ratio} for a professional truck driver recruitment ad.
 
-        Styl: elegancki, minimalistyczny, korporacyjny. Jasne, czyste tło (biel/jasny szary)
-        z mocnymi akcentami w kolorze czerwonym (#dc2626) i ciemnym grafitowym (#0f172a).
-        Subtelna, realistyczna fotografia lub czysta ilustracja nowoczesnej ciężarówki
-        (naczepa/ciągnik siodłowy) jako element tła lub boczny, dobrze skomponowana,
-        nie zasłaniająca tekstu. Dużo światła, wyraźna hierarchia, profesjonalna typografia
-        bezszeryfowa. Ma wyglądać jak praca zawodowego grafika, NIE jak amatorski baner.
+        Scene:
+        - modern white semi-truck / tractor trailer
+        - truck positioned on the right side or lower-right corner
+        - clean white and light-gray corporate background
+        - subtle red accent shapes, no text
+        - large empty bright space on the left and upper area for later text overlay
+        - realistic, premium, polished recruitment agency style
+        - sharp, high-quality, balanced composition
 
-        Umieść na grafice DOKŁADNIE poniższe napisy po polsku (poprawna polska pisownia,
-        bez literówek, czytelne, dobrze rozmieszczone — nagłówek u góry, wynagrodzenie
-        wyróżnione dużą czcionką, „APLIKUJ TERAZ" jako wyraźny przycisk/baner na dole,
-        nazwa agencji dyskretnie przy dole):
+        STRICT RULES:
+        - no text
+        - no letters
+        - no numbers
+        - no logos
+        - no brand names
+        - no license plate text
+        - no watermark
+        - no signs or banners
+        - no fake typography
 
-        {$lines}
-
-        Nie dodawaj żadnych innych, zmyślonych napisów, numerów telefonu ani logotypów.
-        Tekst ma być ostry i w pełni czytelny.
+        Avoid:
+        - text
+        - letters
+        - fake words
+        - misspellings
+        - logos
+        - phone numbers
+        - QR codes
+        - readable license plates
+        - brand names
+        - watermark
+        - UI elements
+        - crowded layout
+        - dark background
+        - low contrast
         PROMPT;
     }
 }

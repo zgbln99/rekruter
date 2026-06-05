@@ -53,7 +53,7 @@ async function generatePoster(format: 'feed' | 'reels') {
       const json = text ? JSON.parse(text) : null
       msg = json?.errors?.openai?.[0] || json?.message || msg
     } catch {}
-    posterError.value = msg + ' (Wymaga klucza API OpenAI w Ustawieniach. Generowanie może potrwać kilkanaście sekund.)'
+    posterError.value = msg + ' (Generowanie tła AI może potrwać kilkanaście sekund — wymaga klucza OpenAI i usługi Gotenberg.)'
   } finally {
     posterLoading.value = ''
   }

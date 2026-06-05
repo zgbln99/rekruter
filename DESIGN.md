@@ -38,7 +38,7 @@
 19. [Faza 5 — Ogłoszenia jako centrum systemu](#19-faza-5--ogłoszenia-jako-centrum-systemu)
 20. [Faza 6 — Pełna kartoteka kandydata + użytkownicy](#20-faza-6--pełna-kartoteka-kandydata--użytkownicy)
 21. [Faza 7 — Skierowania, kalendarz przyjazdów i rozliczenia](#21-faza-7--skierowania-kalendarz-przyjazdów-i-rozliczenia)
-22. [Faza 8 — Grafiki ogłoszeń generowane przez AI](#22-faza-8--grafiki-ogłoszeń-generowane-przez-ai)
+22. [Faza 8 — Grafiki ogłoszeń (AI generuje tło, backend nakłada tekst)](#22-faza-8--grafiki-ogłoszeń-ai-generuje-tło-backend-nakłada-tekst)
 
 ---
 
@@ -1211,32 +1211,36 @@ Cel: 100% zielonych.
 
 ---
 
-## 22. Faza 8 — Grafiki ogłoszeń generowane przez AI
+## 22. Faza 8 — Grafiki ogłoszeń (AI generuje tło, backend nakłada tekst)
 
-> Cel: grafiki ogłoszeń na social media (post / reels) mają wyglądać profesjonalnie.
-> Zamiast renderu HTML→PNG (Gotenberg) generujemy je modelem obrazowym **OpenAI
-> `gpt-image-1`**.
+> Cel: profesjonalne grafiki ofert na social media (post / reels) **bez literówek
+> w polskich napisach**. Generowanie całego plakatu (z tekstem) przez model obrazu
+> dawało błędy typu „STANOWISKD", „Kierowea", „Dvstrybucja". Rozdzielamy więc
+> grafikę na dwa etapy.
 
-### 22.1 Zmiana podejścia
+### 22.1 Architektura dwuetapowa
 
-Dotychczas plakat powstawał z szablonu Blade renderowanego do PNG (Gotenberg
-screenshot). Efekt był „amatorski". Teraz `GeneratePosterAction` buduje
-szczegółowy prompt po polsku z danych ogłoszenia (stanowisko, lokalizacja,
-kategorie, system pracy, wynagrodzenie, nazwa agencji, CTA „APLIKUJ TERAZ")
-i wywołuje **OpenAI Images API** (`POST /v1/images/generations`, model
-`gpt-image-1`, rozmiar `1024x1536`, jakość `medium`). Zwracane są surowe bajty
-PNG (z `data[0].b64_json`).
+**Etap A — tło z AI (bez tekstu).** `GeneratePosterAction::buildBackgroundPrompt()`
+buduje prompt opisujący wyłącznie scenę (nowoczesna biała ciężarówka po prawej/
+dolnej stronie, jasne korporacyjne tło, czerwone akcenty, pusta jasna przestrzeń
+po lewej/górze na tekst) ze **stanowczymi zakazami** generowania jakichkolwiek
+napisów, liter, cyfr, logotypów, tablic rejestracyjnych, znaków wodnych.
+Wywołanie: `OpenAiClient::image($prompt, '1024x1536', 'medium')` → bajty PNG.
 
-- Klient: `OpenAiClient::image($prompt, $size, $quality)` — używa tego samego
-  klucza API z ustawień organizacji co generowanie opisów.
-- Brak klucza → `ValidationException` (`errors.openai`) z komunikatem, by
-  uzupełnić klucz w Ustawieniach (spójnie z generowaniem opisu).
+**Etap B — tekst deterministyczny.** Tło jest osadzane jako `data-URI` w szablonie
+`pdf/poster.blade.php`, a **Chromium (Gotenberg) renderuje na nim tekst oferty**
+(stanowisko, lokalizacja, kategorie, wynagrodzenie, benefity, CTA „APLIKUJ",
+nazwa agencji). Dzięki temu polskie napisy są zawsze poprawne, layout
+kontrolowany, a wynik ma dokładny rozmiar **1080×1350** (feed) lub **1080×1920**
+(reels). Warstwa „scrim" (gradienty) utrzymuje czytelność tekstu nad zdjęciem.
+
+### 22.2 Odporność i wymagania
+
+- Tło z AI jest **opcjonalne**: brak klucza API / błąd / brak sieci → grafika i
+  tak powstaje na czystym, jasnym tle (deterministyczny tekst bez ilustracji).
+  Błąd AI jest logowany (`Log::warning`), nie przerywa generowania.
+- `OpenAiClient::image()` używa tego samego klucza z ustawień organizacji co opisy.
 - Endpoint bez zmian: `GET /job-offers/{jobPosting}/poster?format=feed|reels`.
-- `nginx`: `fastcgi_read_timeout` podniesiony do `180s` (generowanie obrazu
-  trwa kilkanaście–kilkadziesiąt sekund).
-
-### 22.2 Wymagania środowiskowe
-
-Serwer musi mieć dostęp wychodzący do `api.openai.com` (polityka sieci
-środowiska). Stary szablon `pdf/poster.blade.php` i `GotenbergClient::htmlToImage`
-pozostają w kodzie, ale nie są już używane przez moduł grafik.
+- `nginx`: `fastcgi_read_timeout` = `180s` (generowanie tła trwa kilkanaście–
+  kilkadziesiąt sekund). Serwer potrzebuje dostępu do `api.openai.com`
+  (polityka sieci) oraz działającego kontenera Gotenberg.
