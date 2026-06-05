@@ -4,28 +4,28 @@ import { NAV_ITEMS } from '~/utils/nav'
 </script>
 
 <template>
-  <aside
-    class="hidden w-60 shrink-0 flex-col border-r border-hairline bg-canvas lg:flex"
-  >
-    <NuxtLink
-      to="/candidates/new"
-      class="m-4 inline-flex h-11 items-center justify-center gap-2 rounded-full bg-ink text-[15px] font-semibold text-white transition active:scale-[0.98]"
-    >
-      <AppIcon name="plus" :size="18" /> Nowy kandydat
-    </NuxtLink>
-
-    <nav class="flex flex-col gap-1 px-3">
+  <aside class="hidden w-64 shrink-0 border-r border-hairline bg-canvas lg:block">
+    <div class="sticky top-14 flex max-h-[calc(100vh-3.5rem)] flex-col px-3 py-5">
       <NuxtLink
-        v-for="item in NAV_ITEMS"
-        :key="item.to"
-        :to="item.to"
-        class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-steel transition hover:bg-surface"
-        :active-class="item.exact ? '' : 'bg-surface !text-ink'"
-        :exact-active-class="item.exact ? 'bg-surface !text-ink' : ''"
+        to="/candidates/new"
+        class="mx-1 mb-5 inline-flex h-11 items-center justify-center gap-2 rounded-full bg-ink text-[15px] font-semibold text-white shadow-subtle transition hover:opacity-90 active:scale-[0.98]"
       >
-        <AppIcon :name="item.icon" :size="20" />
-        {{ item.label }}
+        <AppIcon name="plus" :size="18" /> Nowy kandydat
       </NuxtLink>
-    </nav>
+
+      <nav class="flex flex-col gap-1">
+        <NuxtLink
+          v-for="item in NAV_ITEMS"
+          :key="item.to"
+          :to="item.to"
+          class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-steel transition hover:bg-surface hover:text-ink"
+          :active-class="item.exact ? '' : 'bg-surface !text-ink'"
+          :exact-active-class="item.exact ? 'bg-surface !text-ink' : ''"
+        >
+          <AppIcon :name="item.icon" :size="20" />
+          {{ item.label }}
+        </NuxtLink>
+      </nav>
+    </div>
   </aside>
 </template>

@@ -48,9 +48,9 @@ async function add() {
       <p class="mt-1 text-sm text-stone">Dodaj pierwszego klienta.</p>
     </div>
 
-    <ul v-else class="space-y-2.5">
+    <ul v-else class="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
       <li v-for="c in companies" :key="c.id">
-        <NuxtLink :to="`/companies/${c.id}`" class="card flex items-center gap-3 p-4 transition active:bg-surface-soft">
+        <NuxtLink :to="`/companies/${c.id}`" class="card-tile flex h-full items-center gap-3 p-4 active:bg-surface-soft">
           <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-surface text-stone">
             <AppIcon name="building" :size="20" />
           </span>

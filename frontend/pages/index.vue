@@ -42,7 +42,7 @@ function timeLabel(due: string | null) {
       <p class="mt-1 text-sm text-stone">Brak zadań na dziś.</p>
     </div>
 
-    <ul v-else class="space-y-3">
+    <ul v-else class="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
       <li v-for="task in tasks" :key="task.id" class="card p-4">
         <div class="flex items-start justify-between gap-3">
           <NuxtLink

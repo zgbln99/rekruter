@@ -93,7 +93,7 @@ const canSave = computed(
 </script>
 
 <template>
-  <section class="pb-8">
+  <section class="mx-auto max-w-3xl pb-8">
     <div class="mb-5 flex items-center justify-between">
       <h1 class="text-[26px] font-bold tracking-tight text-ink">Nowy kandydat</h1>
       <NuxtLink

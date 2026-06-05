@@ -36,11 +36,11 @@ const candidates = computed(() => data.value?.data ?? [])
       <p class="mt-1 text-sm text-stone">Dodaj pierwszego przyciskiem „Nowy kandydat".</p>
     </div>
 
-    <ul v-else class="space-y-2.5">
+    <ul v-else class="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
       <li v-for="c in candidates" :key="c.id">
         <NuxtLink
           :to="`/candidates/${c.id}`"
-          class="card flex items-center gap-3 p-4 transition active:bg-surface-soft"
+          class="card-tile flex h-full items-center gap-3 p-4 active:bg-surface-soft"
         >
           <div
             class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-ink text-sm font-semibold text-white"

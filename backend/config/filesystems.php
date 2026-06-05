@@ -60,16 +60,16 @@ return [
             'report' => false,
         ],
 
-        // S3-compatible storage dokumentów kandydatów (docelowo MEGA S3).
-        // Konfiguracja przez zmienne S3_* (sekcja README: konfiguracja MEGA S3).
+        // MEGA S4 — S3-compatible storage dokumentów kandydatów.
+        // Konfiguracja przez zmienne MEGA_S4_* (sekcja README: MEGA S4).
         'mega_s3' => [
             'driver' => 's3',
-            'key' => env('S3_ACCESS_KEY_ID'),
-            'secret' => env('S3_SECRET_ACCESS_KEY'),
-            'region' => env('S3_REGION', 'us-east-1'),
-            'bucket' => env('S3_BUCKET'),
-            'endpoint' => env('S3_ENDPOINT'),
-            'use_path_style_endpoint' => env('S3_USE_PATH_STYLE_ENDPOINT', true),
+            'key' => env('MEGA_S4_ACCESS_KEY_ID'),
+            'secret' => env('MEGA_S4_SECRET_ACCESS_KEY'),
+            'region' => env('MEGA_S4_REGION', 'eu-amsterdam'),
+            'bucket' => env('MEGA_S4_BUCKET'),
+            'endpoint' => env('MEGA_S4_ENDPOINT'),
+            'use_path_style_endpoint' => env('MEGA_S4_USE_PATH_STYLE_ENDPOINT', true),
             'visibility' => 'private',
             'throw' => false,
             'report' => false,

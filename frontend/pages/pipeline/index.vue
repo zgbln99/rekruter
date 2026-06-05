@@ -21,9 +21,9 @@ const postings = computed(() => data.value?.data ?? [])
       <p class="mt-1 text-sm text-stone">Dodaj ogłoszenie w sekcji „Firmy".</p>
     </div>
 
-    <ul v-else class="space-y-2.5">
+    <ul v-else class="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
       <li v-for="p in postings" :key="p.id">
-        <NuxtLink :to="`/pipeline/${p.id}`" class="card flex items-center gap-3 p-4 transition active:bg-surface-soft">
+        <NuxtLink :to="`/pipeline/${p.id}`" class="card-tile flex h-full items-center gap-3 p-4 active:bg-surface-soft">
           <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-surface text-stone">
             <AppIcon name="board" :size="20" />
           </span>

@@ -53,7 +53,7 @@ async function saveQuick() {
 <template>
   <section v-if="isLoading" class="py-10 text-center text-muted">Ładowanie…</section>
 
-  <section v-else-if="offer" class="space-y-5 pb-8">
+  <section v-else-if="offer" class="mx-auto max-w-4xl space-y-5 pb-8">
     <div>
       <h1 class="text-2xl font-bold tracking-tight text-ink">{{ offer.title }}</h1>
       <p class="text-sm text-stone">{{ offer.company?.name }} · {{ offer.status_label }}</p>
@@ -100,6 +100,12 @@ async function saveQuick() {
           </template>
         </template>
       </dl>
+    </div>
+
+    <!-- Opis stanowiska -->
+    <div v-if="offer.description" class="card p-4">
+      <p class="mb-2 text-[13px] font-medium text-steel">Opis stanowiska</p>
+      <p class="whitespace-pre-line text-sm text-charcoal">{{ offer.description }}</p>
     </div>
 
     <!-- Wymagania -->

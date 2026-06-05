@@ -142,7 +142,7 @@ async function doSend() {
 <template>
   <section v-if="isLoading" class="py-10 text-center text-muted">Ładowanie…</section>
 
-  <section v-else-if="candidate" class="space-y-5 pb-8">
+  <section v-else-if="candidate" class="mx-auto max-w-4xl space-y-5 pb-8">
     <!-- Nagłówek + zdjęcie -->
     <div class="flex items-start gap-4">
       <button

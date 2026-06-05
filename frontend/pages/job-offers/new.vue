@@ -21,6 +21,7 @@ const form = reactive<Partial<JobPosting>>({
   currency: 'EUR',
   required_language: '',
   required_experience: '',
+  description: '',
   public_description: '',
   recruiter_notes: '',
   status: 'open',
@@ -66,7 +67,7 @@ async function submit() {
 </script>
 
 <template>
-  <section class="pb-8">
+  <section class="mx-auto max-w-3xl pb-8">
     <div class="mb-5 flex items-center justify-between">
       <h1 class="text-[26px] font-bold tracking-tight text-ink">Nowe ogłoszenie</h1>
       <NuxtLink to="/job-offers" class="text-sm text-stone">Anuluj</NuxtLink>
@@ -140,6 +141,11 @@ async function submit() {
             {{ r.label }}
           </UiChip>
         </div>
+      </div>
+
+      <div>
+        <label class="field-label">Opis stanowiska (wewnętrzny)</label>
+        <textarea v-model="form.description" rows="3" class="input-field !h-auto py-2.5" placeholder="Szczegóły oferty, warunki, dodatkowe informacje…" />
       </div>
 
       <div>

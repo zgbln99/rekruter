@@ -23,9 +23,9 @@ const offers = computed(() => data.value?.data ?? [])
       <p class="mt-1 text-sm text-stone">Dodaj pierwsze ogłoszenie.</p>
     </div>
 
-    <ul v-else class="space-y-2.5">
+    <ul v-else class="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
       <li v-for="o in offers" :key="o.id">
-        <NuxtLink :to="`/job-offers/${o.id}`" class="card flex items-center gap-3 p-4 transition active:bg-surface-soft">
+        <NuxtLink :to="`/job-offers/${o.id}`" class="card-tile flex h-full items-center gap-3 p-4 active:bg-surface-soft">
           <div class="min-w-0 flex-1">
             <p class="truncate font-semibold text-ink">{{ o.title }}</p>
             <p class="truncate text-sm text-stone">
