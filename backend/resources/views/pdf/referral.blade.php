@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pl">
+<html lang="{{ $lang ?? 'pl' }}">
 <head>
     <meta charset="utf-8">
     <style>
@@ -74,16 +74,16 @@
     $candidateName = $candidateName ?? null;
     $arrival = ($arrivalOverride ?? null) ?: ($offer->arrival_info ?: ($offer->start_date ? $offer->start_date->format('d.m.Y') : null));
 
-    // Parametry pracy → wyświetlane w równej siatce 2-kolumnowej.
+    // Parametry pracy → wyświetlane w równej siatce 2-kolumnowej (etykiety z $t).
     $params = [];
-    if ($offer->work_system) $params[] = ['System pracy', $offer->work_system];
-    if ($vehicle) $params[] = ['Typ auta', $vehicle];
-    if ($offer->cargo) $params[] = ['Przewożony towar', $offer->cargo];
-    if ($offer->contract_type) $params[] = ['Rodzaj umowy', $offer->contract_type];
-    if ($offer->points_per_day) $params[] = ['Punktów dziennie', $offer->points_per_day];
-    if ($offer->daily_km) $params[] = ['Średni przebieg', $offer->daily_km];
-    if ($offer->loading_info) $params[] = ['Załadunek / rozładunek', $offer->loading_info];
-    if ($offer->required_language) $params[] = ['Wymagany język', $offer->required_language];
+    if ($offer->work_system) $params[] = [$t['f_system'], $offer->work_system];
+    if ($vehicle) $params[] = [$t['p_vehicle'], $vehicle];
+    if ($offer->cargo) $params[] = [$t['p_cargo'], $offer->cargo];
+    if ($offer->contract_type) $params[] = [$t['p_contract'], $offer->contract_type];
+    if ($offer->points_per_day) $params[] = [$t['p_points'], $offer->points_per_day];
+    if ($offer->daily_km) $params[] = [$t['p_km'], $offer->daily_km];
+    if ($offer->loading_info) $params[] = [$t['p_loading'], $offer->loading_info];
+    if ($offer->required_language) $params[] = [$t['p_language'], $offer->required_language];
     $left = []; $right = [];
     foreach ($params as $i => $p) { if ($i % 2 === 0) { $left[] = $p; } else { $right[] = $p; } }
 @endphp
@@ -91,12 +91,12 @@
 <div class="page">
     <div class="head">
         <div>
-            <div class="title">Skierowanie do <span class="accent">pracy</span></div>
-            <div class="sub">Informacje dla kierowcy</div>
+            <div class="title">{{ $t['title_main'] }} <span class="accent">{{ $t['title_accent'] }}</span></div>
+            <div class="sub">{{ $t['sub'] }}</div>
         </div>
         <div class="brand">
             <div class="logo">{{ $agencyName }} <span class="dot">●</span></div>
-            <div class="hr">Rekrutacja kierowców</div>
+            <div class="hr">{{ $t['brand_hr'] }}</div>
         </div>
     </div>
     <div class="topline"></div>
@@ -104,19 +104,19 @@
     {{-- HERO: stanowisko + firma + 3 kluczowe fakty --}}
     <div class="hero">
         <div class="hero-top">
-            @if ($candidateName)<div class="forwho">Kierowca: <b>{{ $candidateName }}</b></div>@endif
+            @if ($candidateName)<div class="forwho">{{ $t['forwho'] }}: <b>{{ $candidateName }}</b></div>@endif
             <div class="pos">{{ $offer->title }}</div>
-            <div class="co">Pracodawca: <b>{{ $company?->name ?? '—' }}</b>@if ($region) · {{ $region }} @endif</div>
+            <div class="co">{{ $t['employer'] }}: <b>{{ $company?->name ?? '—' }}</b>@if ($region) · {{ $region }} @endif</div>
         </div>
         <div class="hero-facts">
             @if ($salary)
-                <div class="f"><div class="lbl">Wynagrodzenie</div><div class="val salary">{{ $salary }}</div></div>
+                <div class="f"><div class="lbl">{{ $t['f_salary'] }}</div><div class="val salary">{{ $salary }}</div></div>
             @endif
             @if ($offer->work_system)
-                <div class="f"><div class="lbl">System pracy</div><div class="val">{{ $offer->work_system }}</div></div>
+                <div class="f"><div class="lbl">{{ $t['f_system'] }}</div><div class="val">{{ $offer->work_system }}</div></div>
             @endif
             @if ($arrival)
-                <div class="f"><div class="lbl">Data przyjazdu</div><div class="val">{{ $arrival }}</div></div>
+                <div class="f"><div class="lbl">{{ $t['f_arrival'] }}</div><div class="val">{{ $arrival }}</div></div>
             @endif
         </div>
     </div>
@@ -124,7 +124,7 @@
     {{-- WARUNKI PRACY: równa siatka --}}
     @if (count($params))
         <div class="section">
-            <div class="s-head">Warunki pracy</div>
+            <div class="s-head">{{ $t['sec_conditions'] }}</div>
             <div class="grid">
                 <div class="col">
                     @foreach ($left as $p)
@@ -143,16 +143,16 @@
     {{-- TRASY / ZAKWATEROWANIE: dłuższe opisy w panelach obok siebie --}}
     @if ($routes || $offer->accommodation)
         <div class="section">
-            <div class="s-head">Trasy i zakwaterowanie</div>
+            <div class="s-head">{{ $t['sec_routes'] }}</div>
             <div class="two">
                 <div class="c">
                     @if ($routes)
-                        <div class="panel"><div class="ph">Trasy</div><div class="pb">{{ $routes }}</div></div>
+                        <div class="panel"><div class="ph">{{ $t['routes'] }}</div><div class="pb">{{ $routes }}</div></div>
                     @endif
                 </div>
                 <div class="c">
                     @if ($offer->accommodation)
-                        <div class="panel"><div class="ph">Zakwaterowanie</div><div class="pb">{{ $offer->accommodation }}</div></div>
+                        <div class="panel"><div class="ph">{{ $t['accommodation'] }}</div><div class="pb">{{ $offer->accommodation }}</div></div>
                     @endif
                 </div>
             </div>
@@ -161,20 +161,20 @@
 
     {{-- PRACODAWCA I KONTAKTY --}}
     <div class="section">
-        <div class="s-head">Pracodawca i kontakt</div>
+        <div class="s-head">{{ $t['sec_employer'] }}</div>
         @if ($company?->description)
-            <div class="panel"><div class="ph">O firmie {{ $company?->name }}</div><div class="pb">{{ $company->description }}</div></div>
+            <div class="panel"><div class="ph">{{ $t['about'] }} {{ $company?->name }}</div><div class="pb">{{ $company->description }}</div></div>
         @endif
         <div class="two">
             <div class="c">
                 <div class="panel">
-                    <div class="ph">Kontakt na miejscu</div>
+                    <div class="ph">{{ $t['contact_onsite'] }}</div>
                     <div class="pb">{{ $onsite ?: '—' }}</div>
                 </div>
             </div>
             <div class="c">
                 <div class="panel">
-                    <div class="ph">Kontakt w Polsce (rekrutacja)</div>
+                    <div class="ph">{{ $t['contact_office'] }}</div>
                     <div class="pb"><b>{{ $recruiterName }}</b>@if ($recruiterPhone) · {{ $recruiterPhone }} @endif
 @if ($recruiterEmail){{ $recruiterEmail }} @endif</div>
                 </div>
@@ -185,13 +185,13 @@
     {{-- DODATKOWE INFORMACJE --}}
     @if ($offer->public_description)
         <div class="section">
-            <div class="s-head">Dodatkowe informacje</div>
+            <div class="s-head">{{ $t['sec_extra'] }}</div>
             <div class="panel"><div class="pb">{{ $offer->public_description }}</div></div>
         </div>
     @endif
 
     <div class="footer">
-        <span>Dokument przygotowany przez <b>{{ $agencyName }}</b></span>
+        <span>{{ $t['footer_by'] }} <b>{{ $agencyName }}</b></span>
         <span>{{ $generatedAt }}</span>
     </div>
 </div>

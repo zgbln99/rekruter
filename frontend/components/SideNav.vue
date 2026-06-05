@@ -2,6 +2,7 @@
 import { NAV_ITEMS } from '~/utils/nav'
 // Boczna nawigacja — desktop (≥ lg). Ciemny panel, jak w dojrzałych SaaS-ach.
 const auth = useAuthStore()
+const searchOpen = useState('global-search-open', () => false)
 const items = computed(() =>
   NAV_ITEMS.filter((i) => !i.adminOnly || auth.isAdmin),
 )
@@ -26,6 +27,17 @@ const items = computed(() =>
         >
           <AppIcon name="plus" :size="18" /> Nowy kandydat
         </NuxtLink>
+      </div>
+
+      <!-- Szukaj -->
+      <div class="px-4 pb-1">
+        <button
+          class="flex w-full items-center gap-2.5 rounded-xl bg-white/5 px-3 py-2.5 text-sm font-medium text-white/60 transition hover:bg-white/10 hover:text-white"
+          @click="searchOpen = true"
+        >
+          <AppIcon name="search" :size="18" /> Szukaj…
+          <kbd class="ml-auto rounded border border-white/15 px-1.5 py-0.5 text-[10px] text-white/40">⌘K</kbd>
+        </button>
       </div>
 
       <!-- Nawigacja -->

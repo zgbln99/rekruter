@@ -189,6 +189,43 @@ const showSend = ref(false)
 const recipient = ref('')
 const sendMsg = ref('')
 
+// --- WhatsApp + szablony wiadomości ---
+const { data: settings } = useSettingsQuery()
+const templates = computed(() => settings.value?.message_templates ?? [])
+const showWa = ref(false)
+function openWhatsApp(body: string) {
+  const c = candidate.value
+  const text = fillTemplate(body, {
+    imie: c?.first_name,
+    nazwisko: c?.last_name,
+    telefon: c?.phone,
+    agencja: auth.user?.agency_name,
+  })
+  window.open(waLink(c?.phone, text), '_blank')
+  showWa.value = false
+}
+
+// --- Łączenie duplikatów ---
+const showMerge = ref(false)
+const mergeQuery = ref('')
+const { data: mergeResults } = useSearchQuery(mergeQuery)
+const mergeCandidate = useMergeCandidate(id)
+const mergeError = ref('')
+const mergeCandidates = computed(() =>
+  (mergeResults.value?.candidates ?? []).filter((c) => c.id !== id.value),
+)
+async function doMerge(sourceId: string, name: string) {
+  if (!confirm(`Połączyć „${name}" z tym kandydatem? Dane i powiązania duplikatu przejdą tutaj, a duplikat zostanie usunięty.`)) return
+  mergeError.value = ''
+  try {
+    await mergeCandidate.mutateAsync(sourceId)
+    showMerge.value = false
+    mergeQuery.value = ''
+  } catch {
+    mergeError.value = 'Nie udało się połączyć kandydatów.'
+  }
+}
+
 // --- RODO ---
 const auth = useAuthStore()
 const api = useApi()
@@ -239,9 +276,38 @@ async function doSend() {
       </button>
       <div class="min-w-0 flex-1">
         <h1 class="truncate text-2xl font-bold tracking-tight text-ink">{{ candidate.full_name }}</h1>
-        <a :href="`tel:${candidate.phone}`" class="mt-0.5 inline-flex items-center gap-1.5 font-medium text-brand-deep">
-          <AppIcon name="phone" :size="15" /> {{ candidate.phone }}
-        </a>
+        <div class="mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-1">
+          <a :href="`tel:${candidate.phone}`" class="inline-flex items-center gap-1.5 font-medium text-brand-deep">
+            <AppIcon name="phone" :size="15" /> {{ candidate.phone }}
+          </a>
+          <!-- WhatsApp + szablony -->
+          <div class="relative">
+            <button
+              class="inline-flex h-8 items-center gap-1.5 rounded-full bg-emerald-600 px-3 text-xs font-semibold text-white transition hover:bg-emerald-700"
+              @click="showWa = !showWa"
+            >
+              <AppIcon name="chat" :size="15" /> WhatsApp
+            </button>
+            <div v-if="showWa" class="absolute left-0 top-9 z-30 w-72 overflow-hidden rounded-xl border border-hairline bg-canvas shadow-lg">
+              <button
+                class="block w-full px-3.5 py-2.5 text-left text-sm text-ink transition hover:bg-surface"
+                @click="openWhatsApp('')"
+              >
+                Otwórz czat (bez treści)
+              </button>
+              <div class="border-t border-hairline" />
+              <button
+                v-for="(t, i) in templates"
+                :key="i"
+                class="block w-full px-3.5 py-2.5 text-left transition hover:bg-surface"
+                @click="openWhatsApp(t.body)"
+              >
+                <span class="block text-sm font-medium text-ink">{{ t.name || 'Szablon' }}</span>
+                <span class="line-clamp-2 block text-xs text-stone">{{ t.body }}</span>
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
       <span class="badge badge-neutral shrink-0">{{ candidate.status_label }}</span>
       <NuxtLink
@@ -552,6 +618,39 @@ async function doSend() {
               </p>
             </li>
           </ul>
+        </div>
+
+        <!-- Łączenie duplikatów -->
+        <div class="card p-4">
+          <div class="flex items-center justify-between">
+            <p class="inline-flex items-center gap-1.5 text-[13px] font-medium text-steel">
+              <AppIcon name="merge" :size="15" /> Duplikat
+            </p>
+            <button class="text-sm font-medium text-brand-deep" @click="showMerge = !showMerge">
+              {{ showMerge ? 'Anuluj' : 'Połącz duplikat' }}
+            </button>
+          </div>
+          <div v-if="showMerge" class="mt-3">
+            <p class="mb-2 text-xs text-stone">Znajdź drugą kartę tego samego kierowcy — jej dane i powiązania przejdą tutaj, a duplikat zostanie usunięty.</p>
+            <input v-model="mergeQuery" placeholder="Szukaj po nazwisku / telefonie…" class="input-field" />
+            <ul v-if="mergeCandidates.length" class="mt-2 space-y-1">
+              <li v-for="c in mergeCandidates" :key="c.id">
+                <button
+                  class="flex w-full items-center justify-between gap-2 rounded-lg border border-hairline px-3 py-2 text-left text-sm transition hover:bg-surface"
+                  :disabled="mergeCandidate.isPending.value"
+                  @click="doMerge(c.id, c.full_name)"
+                >
+                  <span class="min-w-0">
+                    <span class="block truncate font-medium text-ink">{{ c.full_name }}</span>
+                    <span class="block truncate text-xs text-stone">{{ c.phone }}</span>
+                  </span>
+                  <AppIcon name="merge" :size="16" class="shrink-0 text-stone" />
+                </button>
+              </li>
+            </ul>
+            <p v-else-if="mergeQuery.trim().length >= 2" class="mt-2 text-sm text-muted">Brak innych kandydatów.</p>
+            <p v-if="mergeError" class="mt-2 text-sm text-red-600">{{ mergeError }}</p>
+          </div>
         </div>
 
         <!-- RODO -->

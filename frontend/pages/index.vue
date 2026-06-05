@@ -94,6 +94,47 @@ const metrics = computed(() => {
       </component>
     </div>
 
+    <!-- Przypomnienia: przyjazdy dziś + terminy rozliczeń -->
+    <div
+      v-if="(stats?.reminders?.arrivals_today?.length || stats?.reminders?.installments_due?.length)"
+      class="rounded-2xl border border-amber-200 bg-amber-50/60 p-4"
+    >
+      <p class="mb-2.5 inline-flex items-center gap-1.5 text-[13px] font-semibold text-amber-800">
+        <AppIcon name="calendar" :size="16" /> Przypomnienia
+      </p>
+      <div class="grid gap-2 sm:grid-cols-2">
+        <NuxtLink
+          v-for="a in stats?.reminders?.arrivals_today ?? []"
+          :key="a.placement_id"
+          :to="`/candidates/${a.candidate_id}`"
+          class="flex items-center gap-3 rounded-xl border border-amber-200 bg-canvas px-3.5 py-2.5 transition hover:bg-surface"
+        >
+          <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-amber-100 text-amber-700">
+            <AppIcon name="truck" :size="18" />
+          </span>
+          <span class="min-w-0">
+            <span class="block truncate text-sm font-semibold text-ink">Dziś przyjazd: {{ a.candidate_name }}</span>
+            <span class="block truncate text-xs text-stone">{{ a.time }}<span v-if="a.offer_title"> · {{ a.offer_title }}</span> — zweryfikuj, czy dotarł</span>
+          </span>
+        </NuxtLink>
+
+        <NuxtLink
+          v-for="i in stats?.reminders?.installments_due ?? []"
+          :key="i.installment_id"
+          to="/calendar"
+          class="flex items-center gap-3 rounded-xl border border-indigo-200 bg-canvas px-3.5 py-2.5 transition hover:bg-surface"
+        >
+          <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-indigo-100 text-indigo-700">
+            <AppIcon name="cash" :size="18" />
+          </span>
+          <span class="min-w-0">
+            <span class="block truncate text-sm font-semibold text-ink">Rozliczenie {{ i.sequence }}/2: {{ i.candidate_name }}</span>
+            <span class="block truncate text-xs text-stone">termin {{ i.due_date }}<span v-if="i.amount"> · {{ i.amount }} {{ i.currency }}</span> — wystaw fakturę</span>
+          </span>
+        </NuxtLink>
+      </div>
+    </div>
+
     <div class="grid gap-6 lg:grid-cols-3 lg:items-start">
       <!-- Zadania na dziś -->
       <div class="space-y-3 lg:col-span-2">

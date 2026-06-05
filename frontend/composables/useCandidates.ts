@@ -38,6 +38,24 @@ export async function lookupPhone(phone: string): Promise<LookupResponse> {
   return api<LookupResponse>('/candidates/lookup', { query: { phone } })
 }
 
+/** Łączenie duplikatu (source) z bieżącym kandydatem (target). */
+export function useMergeCandidate(targetId: MaybeRefOrGetter<string>) {
+  const api = useApi()
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (sourceId: string) =>
+      api<Candidate>(`/candidates/${toValue(targetId)}/merge`, {
+        method: 'POST',
+        body: { source_id: sourceId },
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['candidates'] })
+      queryClient.invalidateQueries({ queryKey: ['candidate', toValue(targetId)] })
+      queryClient.invalidateQueries({ queryKey: ['documents'] })
+    },
+  })
+}
+
 export function useUpdateCandidate(id: MaybeRefOrGetter<string>) {
   const api = useApi()
   const queryClient = useQueryClient()

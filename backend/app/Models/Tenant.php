@@ -64,4 +64,25 @@ class Tenant extends Model
     {
         return $this->settings['placement_currency'] ?? 'EUR';
     }
+
+    /**
+     * Szablony wiadomości (WhatsApp/SMS). Placeholdery: {imie} {nazwisko}
+     * {telefon} {agencja}. Zwraca skonfigurowane lub domyślne.
+     *
+     * @return array<int, array{name: string, body: string}>
+     */
+    public function messageTemplates(): array
+    {
+        $tpl = $this->settings['message_templates'] ?? null;
+
+        if (is_array($tpl) && $tpl) {
+            return array_values(array_filter($tpl, fn ($t) => ! empty($t['body'])));
+        }
+
+        return [
+            ['name' => 'Pierwszy kontakt', 'body' => 'Dzień dobry {imie}, z tej strony {agencja}. Mam ciekawą ofertę pracy dla kierowcy — czy ma Pan/Pani chwilę, żeby porozmawiać?'],
+            ['name' => 'Szczegóły oferty', 'body' => '{imie}, zgodnie z rozmową przesyłam szczegóły oferty. Proszę o wiadomość, czy jest Pan/Pani zainteresowany/a.'],
+            ['name' => 'Przypomnienie', 'body' => 'Dzień dobry {imie}, czy udało się zapoznać z ofertą? Chętnie odpowiem na pytania. Pozdrawiam, {agencja}.'],
+        ];
+    }
 }

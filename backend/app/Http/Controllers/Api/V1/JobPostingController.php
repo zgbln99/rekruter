@@ -91,6 +91,7 @@ class JobPostingController extends Controller
         $data = $request->validate([
             'candidate_name' => ['nullable', 'string', 'max:120'],
             'arrival_at' => ['nullable', 'date'],
+            'lang' => ['nullable', 'string', 'in:pl,uk,ru,en,de'],
             'title' => ['nullable', 'string', 'max:160'],
             'country' => ['nullable', 'string', 'max:120'],
             'region_base' => ['nullable', 'string', 'max:160'],
@@ -121,6 +122,7 @@ class JobPostingController extends Controller
             null,
             $arrival,
             $data,
+            $data['lang'] ?? 'pl',
         );
 
         return response($pdf, 200, [

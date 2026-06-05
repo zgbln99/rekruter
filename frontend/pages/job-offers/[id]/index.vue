@@ -26,8 +26,15 @@ async function removeOffer() {
 // Skierowanie do pracy (PDF dla kierowcy) — najpierw modal do uzupełnienia danych.
 const referralLoading = ref(false)
 const showReferral = ref(false)
+const REFERRAL_LANGS = [
+  { value: 'pl', label: 'Polski' },
+  { value: 'uk', label: 'Українська' },
+  { value: 'ru', label: 'Русский' },
+  { value: 'en', label: 'English' },
+  { value: 'de', label: 'Deutsch' },
+]
 const referralForm = reactive<Record<string, string>>({
-  candidate_name: '', arrival_at: '',
+  candidate_name: '', arrival_at: '', lang: 'pl',
   title: '', region_base: '', country: '', work_system: '', vehicle_type: '',
   trailer_type: '', routes_info: '', cargo: '', points_per_day: '', loading_info: '',
   daily_km: '', accommodation: '', contract_type: '', salary_amount: '', currency: '',
@@ -38,7 +45,7 @@ function openReferral() {
   // Prefill z ogłoszenia — recepcjonistka tylko uzupełnia/poprawia.
   const o: any = offer.value || {}
   for (const k of Object.keys(referralForm)) {
-    if (k === 'candidate_name' || k === 'arrival_at') continue
+    if (['candidate_name', 'arrival_at', 'lang'].includes(k)) continue
     referralForm[k] = (o[k] ?? '') as string
   }
   referralForm.candidate_name = ''
@@ -304,6 +311,12 @@ async function saveQuick() {
             <div>
               <label class="field-label">Data i godzina przyjazdu</label>
               <input v-model="referralForm.arrival_at" type="datetime-local" class="input-field" />
+            </div>
+            <div class="sm:col-span-2">
+              <label class="field-label">Język dokumentu</label>
+              <select v-model="referralForm.lang" class="input-field">
+                <option v-for="l in REFERRAL_LANGS" :key="l.value" :value="l.value">{{ l.label }}</option>
+              </select>
             </div>
             <div class="sm:col-span-2">
               <label class="field-label">Stanowisko</label>

@@ -36,6 +36,15 @@ class SettingsController extends Controller
         $fee = $request->input('placement_fee');
         $settings['placement_fee'] = ($fee === null || $fee === '') ? null : (float) $fee;
 
+        // Szablony wiadomości (tylko z niepustą treścią).
+        if ($request->has('message_templates')) {
+            $settings['message_templates'] = collect($request->input('message_templates', []))
+                ->filter(fn ($t) => ! empty($t['body']))
+                ->map(fn ($t) => ['name' => $t['name'] ?? '', 'body' => $t['body']])
+                ->values()
+                ->all();
+        }
+
         // Klucz API zapisujemy tylko gdy podano nowy (puste pole = bez zmian).
         if ($request->filled('openai_api_key')) {
             $settings['openai_api_key'] = $request->string('openai_api_key')->toString();
@@ -62,6 +71,8 @@ class SettingsController extends Controller
             'openai_model' => $tenant->openaiModel(),
             // Klucza nie zwracamy — tylko informację, czy jest ustawiony.
             'openai_configured' => ! empty($s['openai_api_key']),
+            // Szablony wiadomości (dla wszystkich — używa ich rekruterka).
+            'message_templates' => $tenant->messageTemplates(),
         ];
 
         // Dane finansowe (stała kwota rozliczenia) — tylko dla administratora.

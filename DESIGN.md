@@ -39,6 +39,7 @@
 20. [Faza 6 — Pełna kartoteka kandydata + użytkownicy](#20-faza-6--pełna-kartoteka-kandydata--użytkownicy)
 21. [Faza 7 — Skierowania, kalendarz przyjazdów i rozliczenia](#21-faza-7--skierowania-kalendarz-przyjazdów-i-rozliczenia)
 22. [Faza 8 — Grafiki ogłoszeń (AI generuje tło, backend nakłada tekst)](#22-faza-8--grafiki-ogłoszeń-ai-generuje-tło-backend-nakłada-tekst)
+23. [Faza 9 — WhatsApp, przypomnienia, wyszukiwarka, scalanie, wielojęzyczne dokumenty](#23-faza-9--whatsapp-przypomnienia-wyszukiwarka-scalanie-wielojęzyczne-dokumenty)
 
 ---
 
@@ -1280,3 +1281,42 @@ Logikę danych liczy `GeneratePosterAction` (Blade pozostaje prezentacyjny):
 
 Fallback bez AI (jasny gradient + znak wodny ciężarówki SVG + czerwony akcent)
 wygląda samodzielnie — brak pustych `url('')`.
+
+---
+
+## 23. Faza 9 — WhatsApp, przypomnienia, wyszukiwarka, scalanie, wielojęzyczne dokumenty
+
+> Pakiet usprawnień pracy rekruterki i obsługi kierowców.
+
+### 23.1 WhatsApp + szablony wiadomości
+- Szablony w ustawieniach organizacji (`settings.message_templates` = lista
+  `{name, body}`), edytowalne przez administratora; domyślne, gdy brak.
+  Placeholdery: `{imie} {nazwisko} {telefon} {agencja}` (`Tenant::messageTemplates()`).
+- Na karcie kierowcy przycisk **WhatsApp** z listą szablonów → otwiera `wa.me/<numer>`
+  z wypełnioną treścią (`utils/whatsapp.ts`). Szablony dostępne dla wszystkich ról.
+
+### 23.2 Przypomnienia (bez crona — liczone „na żywo")
+- `DashboardStatsAction` zwraca `reminders`: **przyjazdy dziś** do weryfikacji oraz
+  **raty z terminem ≤ 2 dni** (tylko administrator). Pulpit pokazuje je w wyróżnionej
+  sekcji z linkami do karty kierowcy / kalendarza.
+
+### 23.3 Globalna wyszukiwarka
+- `GET /search?q=` → kandydaci (nazwisko/telefon, ILIKE + `phone_normalized`) i
+  ogłoszenia (tytuł/firma), `throttle:120,1`.
+- Front: `GlobalSearch` (Ctrl/Cmd+K + przyciski w nagłówku i nawigacji), wyniki
+  grupowane, klik nawiguje.
+
+### 23.4 Łączenie duplikatów
+- `POST /candidates/{candidate}/merge {source_id}` → `MergeCandidatesAction`:
+  transakcyjne przeniesienie powiązań (dokumenty/kontakty/zadania/skierowania/
+  aplikacje/wysyłki/audyt), uzupełnienie pustych pól docelowego, soft delete źródła.
+- Front: „Połącz duplikat" na karcie kierowcy (wyszukanie i scalenie).
+
+### 23.5 Wielojęzyczne dokumenty (skierowanie)
+- `GenerateReferralPdfAction` przyjmuje `$lang` (pl/uk/ru/en/de) i przekazuje mapę
+  etykiet `$t` do szablonu (tłumaczone nagłówki/etykiety; treść z oferty bez zmian).
+  Modal „Skierowanie PDF" ma wybór języka; endpoint z Placement przyjmuje `?lang=`.
+
+### 23.6 Testy (Faza 9)
+Wyszukiwarka · scalanie · przypomnienia (raty tylko admin) · render skierowania
+UK/DE/EN. Łącznie 71 testów zielonych.

@@ -25,6 +25,9 @@ class UpdateSettingsRequest extends FormRequest
             'openai_model' => ['nullable', 'string', 'max:60'],
             'placement_fee' => ['nullable', 'numeric', 'min:0'],
             'placement_currency' => ['nullable', 'string', 'size:3'],
+            'message_templates' => ['nullable', 'array'],
+            'message_templates.*.name' => ['nullable', 'string', 'max:80'],
+            'message_templates.*.body' => ['nullable', 'string', 'max:1000'],
         ];
     }
 }

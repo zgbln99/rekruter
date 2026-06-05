@@ -1,6 +1,7 @@
 <script setup lang="ts">
 const auth = useAuthStore()
 const online = useOnline()
+const searchOpen = useState('global-search-open', () => false)
 </script>
 
 <template>
@@ -19,9 +20,14 @@ const online = useOnline()
           </span>
           <span class="truncate text-[17px] font-bold tracking-tight text-ink">{{ auth.user?.agency_name || 'Rekruter' }}</span>
         </NuxtLink>
-        <button v-if="auth.user" class="rounded-full p-2 text-steel active:bg-surface" @click="auth.logout()">
-          <AppIcon name="logout" :size="20" />
-        </button>
+        <div class="flex items-center gap-1">
+          <button class="rounded-full p-2 text-steel active:bg-surface" aria-label="Szukaj" @click="searchOpen = true">
+            <AppIcon name="search" :size="20" />
+          </button>
+          <button v-if="auth.user" class="rounded-full p-2 text-steel active:bg-surface" @click="auth.logout()">
+            <AppIcon name="logout" :size="20" />
+          </button>
+        </div>
       </header>
 
       <div v-if="!online" class="bg-amber-500 px-4 py-1.5 text-center text-xs font-medium text-white">
@@ -35,6 +41,9 @@ const online = useOnline()
         </div>
       </main>
     </div>
+
+    <!-- Globalna wyszukiwarka (Ctrl/Cmd+K) -->
+    <GlobalSearch />
 
     <!-- Nawigacja mobile -->
     <NewCandidateFab />

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Actions\Candidates\CreateCandidateAction;
+use App\Actions\Candidates\MergeCandidatesAction;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Candidates\StoreCandidateRequest;
 use App\Http\Requests\Candidates\UpdateCandidateRequest;
@@ -78,6 +79,22 @@ class CandidateController extends Controller
         $candidate->fill($request->validated())->save();
 
         return new CandidateResource($candidate->refresh());
+    }
+
+    /**
+     * Łączy duplikat (source) z bieżącym kandydatem (target).
+     * Powiązania przechodzą na target, źródło jest usuwane.
+     */
+    public function merge(Request $request, Candidate $candidate, MergeCandidatesAction $action): CandidateResource
+    {
+        $data = $request->validate([
+            'source_id' => ['required', 'uuid', \Illuminate\Validation\Rule::notIn([$candidate->id]), 'exists:candidates,id'],
+        ]);
+
+        $source = Candidate::findOrFail($data['source_id']);
+        $merged = $action->execute($candidate, $source);
+
+        return new CandidateResource($merged->load('applications.jobPosting'));
     }
 
     public function destroy(Candidate $candidate): JsonResponse

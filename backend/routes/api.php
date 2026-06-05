@@ -19,6 +19,7 @@ use App\Http\Controllers\Api\V1\PlacementController;
 use App\Http\Controllers\Api\V1\PlacementInstallmentController;
 use App\Http\Controllers\Api\V1\ProfileController;
 use App\Http\Controllers\Api\V1\RodoController;
+use App\Http\Controllers\Api\V1\SearchController;
 use App\Http\Controllers\Api\V1\SettingsController;
 use App\Http\Controllers\Api\V1\TaskController;
 use App\Http\Controllers\Api\V1\UserController;
@@ -38,6 +39,11 @@ Route::prefix('v1')->group(function () {
         // Pulpit — metryki.
         Route::get('dashboard', DashboardController::class)->name('dashboard');
 
+        // Globalna wyszukiwarka (kandydaci + ogłoszenia).
+        Route::get('search', SearchController::class)
+            ->middleware('throttle:120,1')
+            ->name('search');
+
         // --- Faza 1: rdzeń KPI ---
 
         // Deduplikacja po numerze (lookup w locie) — z limitem zapytań.
@@ -46,6 +52,10 @@ Route::prefix('v1')->group(function () {
             ->name('candidates.lookup');
 
         Route::apiResource('candidates', CandidateController::class)->except(['create', 'edit']);
+
+        // Łączenie duplikatów (źródło → bieżący kandydat).
+        Route::post('candidates/{candidate}/merge', [CandidateController::class, 'merge'])
+            ->name('candidates.merge');
 
         // Historia kontaktów (Call Log) per kandydat.
         Route::get('candidates/{candidate}/contacts', [ContactLogController::class, 'index'])

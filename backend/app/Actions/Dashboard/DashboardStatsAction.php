@@ -56,7 +56,57 @@ class DashboardStatsAction
                     ->where('decision', 'pending')->count(),
             ],
             'pipeline' => $this->applicationsByStatus(),
+            'reminders' => $this->reminders($user),
             'recent_activity' => $this->recentActivity(),
+        ];
+    }
+
+    /**
+     * Przypomnienia: przyjazdy do zweryfikowania dziś oraz raty z terminem
+     * w ciągu 2 dni (raty widzi tylko administrator — dane finansowe).
+     *
+     * @return array<string, mixed>
+     */
+    private function reminders(User $user): array
+    {
+        $arrivals = \App\Models\Placement::query()
+            ->with(['candidate', 'jobPosting'])
+            ->where('arrival_status', \App\Enums\ArrivalStatus::Pending->value)
+            ->whereBetween('arrival_at', [now()->startOfDay(), now()->endOfDay()])
+            ->orderBy('arrival_at')
+            ->get()
+            ->map(fn (\App\Models\Placement $p) => [
+                'placement_id' => $p->id,
+                'candidate_id' => $p->candidate_id,
+                'candidate_name' => $p->candidate?->fullName() ?? 'Kierowca',
+                'time' => $p->arrival_at?->format('H:i'),
+                'offer_title' => $p->jobPosting?->title,
+            ])
+            ->all();
+
+        $installments = [];
+        if ($user->isAdmin()) {
+            $installments = \App\Models\PlacementInstallment::query()
+                ->with(['placement.candidate'])
+                ->where('status', \App\Enums\InstallmentStatus::Pending->value)
+                ->whereBetween('due_date', [now()->startOfDay()->toDateString(), now()->addDays(2)->toDateString()])
+                ->orderBy('due_date')
+                ->get()
+                ->map(fn (\App\Models\PlacementInstallment $i) => [
+                    'installment_id' => $i->id,
+                    'placement_id' => $i->placement_id,
+                    'candidate_name' => $i->placement?->candidate?->fullName() ?? 'kierowca',
+                    'sequence' => $i->sequence,
+                    'due_date' => $i->due_date?->toDateString(),
+                    'amount' => $i->amount,
+                    'currency' => $i->placement?->currency,
+                ])
+                ->all();
+        }
+
+        return [
+            'arrivals_today' => $arrivals,
+            'installments_due' => $installments,
         ];
     }
 

@@ -11,6 +11,7 @@ const form = reactive({
   placement_currency: 'EUR',
 })
 const openaiKey = ref('') // pusty = bez zmian
+const templates = ref<{ name: string; body: string }[]>([])
 const configured = ref(false)
 const saved = ref(false)
 const error = ref('')
@@ -25,10 +26,18 @@ watch(data, (s) => {
     form.openai_model = s.openai_model || 'gpt-4o-mini'
     form.placement_fee = s.placement_fee ?? ''
     form.placement_currency = s.placement_currency || 'EUR'
+    templates.value = (s.message_templates ?? []).map((t) => ({ name: t.name, body: t.body }))
     configured.value = !!s.openai_configured
     ready.value = true
   }
 }, { immediate: true })
+
+function addTemplate() {
+  templates.value.push({ name: '', body: '' })
+}
+function removeTemplate(i: number) {
+  templates.value.splice(i, 1)
+}
 
 async function save() {
   error.value = ''
@@ -39,6 +48,7 @@ async function save() {
   }
   try {
     const payload: any = { ...form }
+    payload.message_templates = templates.value.filter((t) => t.body.trim())
     if (openaiKey.value.trim()) payload.openai_api_key = openaiKey.value.trim()
     const res = await updateSettings.mutateAsync(payload)
     configured.value = !!res.openai_configured
@@ -122,6 +132,26 @@ async function save() {
           Kwota jest ustalona z góry i używana automatycznie przy każdym skierowaniu.
           Płatność dzielona na 2 raty (faktury +14 i +28 dni od przyjazdu). Widoczna tylko dla administratora.
         </p>
+      </div>
+
+      <!-- Szablony wiadomości (WhatsApp/SMS) -->
+      <div class="card space-y-4 p-5">
+        <div class="flex items-center justify-between">
+          <p class="text-[13px] font-semibold text-ink">Szablony wiadomości (WhatsApp/SMS)</p>
+          <button v-if="auth.isAdmin" type="button" class="text-sm font-medium text-brand-deep" @click="addTemplate">+ Dodaj</button>
+        </div>
+        <p class="text-xs text-stone">
+          Dostępne pola: <code>{imie}</code> <code>{nazwisko}</code> <code>{telefon}</code> <code>{agencja}</code>.
+          Używane przy przycisku WhatsApp na karcie kierowcy.
+        </p>
+        <div v-for="(t, i) in templates" :key="i" class="rounded-xl border border-hairline p-3">
+          <div class="flex items-center gap-2">
+            <input v-model="t.name" placeholder="Nazwa szablonu" class="input-field" :disabled="!auth.isAdmin" />
+            <button v-if="auth.isAdmin" type="button" class="px-2 text-stone" @click="removeTemplate(i)"><AppIcon name="x" :size="18" /></button>
+          </div>
+          <textarea v-model="t.body" rows="2" placeholder="Treść wiadomości…" class="input-field mt-2 !h-auto py-2.5" :disabled="!auth.isAdmin" />
+        </div>
+        <p v-if="!templates.length" class="text-sm text-muted">Brak szablonów. Dodaj pierwszy.</p>
       </div>
 
       <p v-if="error" class="text-sm text-red-600">{{ error }}</p>

@@ -47,12 +47,15 @@ class PlacementController extends Controller
         $placement->loadMissing(['jobPosting.company', 'candidate']);
 
         $arrival = $placement->arrival_at?->format('d.m.Y H:i');
+        $lang = $request->string('lang')->toString() ?: 'pl';
 
         $pdf = $action->render(
             $placement->jobPosting,
             $request->user(),
             $placement->candidate,
             $arrival,
+            [],
+            $lang,
         );
 
         return response($pdf, 200, [
