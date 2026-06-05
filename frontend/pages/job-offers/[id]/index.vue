@@ -28,10 +28,10 @@ const referralLoading = ref(false)
 const showReferral = ref(false)
 const REFERRAL_LANGS = [
   { value: 'pl', label: 'Polski' },
-  { value: 'uk', label: 'Українська' },
-  { value: 'ru', label: 'Русский' },
-  { value: 'en', label: 'English' },
-  { value: 'de', label: 'Deutsch' },
+  { value: 'uk', label: 'Ukraiński' },
+  { value: 'ru', label: 'Rosyjski' },
+  { value: 'en', label: 'Angielski' },
+  { value: 'de', label: 'Niemiecki' },
 ]
 const referralForm = reactive<Record<string, string>>({
   candidate_name: '', arrival_at: '', lang: 'pl',
