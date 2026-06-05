@@ -1,13 +1,11 @@
 <script setup lang="ts">
 import type { User } from '~/types'
 
-// Zarządzanie użytkownikami — tylko administrator.
+// Zarządzanie użytkownikami — dostęp egzekwuje backend (admin). Link w nawigacji
+// pokazywany jest tylko adminom; nie-admin dostanie tu komunikat o braku dostępu.
 const auth = useAuthStore()
-if (import.meta.client && !auth.isAdmin) {
-  await navigateTo('/')
-}
 
-const { data: users, isLoading } = useUsersQuery()
+const { data: users, isLoading, isError } = useUsersQuery()
 const createUser = useCreateUser()
 const updateUser = useUpdateUser()
 const deleteUser = useDeleteUser()
@@ -92,6 +90,10 @@ function remove(u: User) {
 
     <p v-if="isLoading" class="py-10 text-center text-muted">Ładowanie…</p>
 
+    <div v-else-if="isError" class="card p-6 text-center text-stone">
+      Brak uprawnień do zarządzania użytkownikami (tylko administrator).
+    </div>
+
     <ul v-else class="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
       <li v-for="u in users" :key="u.id" class="card flex items-center gap-3 p-4">
         <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-ink text-sm font-semibold text-white">
@@ -105,15 +107,14 @@ function remove(u: User) {
           {{ u.role_label }}
         </span>
         <button
-          class="flex h-9 w-9 items-center justify-center rounded-full text-steel transition hover:bg-surface"
-          title="Edytuj"
+          class="shrink-0 rounded-full border border-hairline px-3 py-1.5 text-sm font-medium text-ink transition hover:bg-surface"
           @click="openEdit(u)"
         >
-          <AppIcon name="document" :size="17" />
+          Edytuj
         </button>
         <button
           v-if="u.id !== auth.user?.id"
-          class="flex h-9 w-9 items-center justify-center rounded-full text-red-500 transition hover:bg-red-50"
+          class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-red-500 transition hover:bg-red-50"
           title="Usuń"
           @click="remove(u)"
         >
