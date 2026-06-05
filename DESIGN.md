@@ -1,400 +1,749 @@
-## Overview
+# Rekruter — Recruitment Operating System
 
-Mintlify positions itself at the intersection of polished marketing presentation and developer-grade documentation density. The home and startups pages open with cinematic atmospheric heroes — soft sky-gradient backdrops with cloud illustrations on the homepage, dark teal-to-mint gradients with a rocket launch on the startups page — that feel more like a SaaS landing aesthetic than a developer tool. Then the deeper surfaces (pricing comparison, live documentation pages) collapse into dense, high-information layouts where Inter body type carries 14–16px copy across long-form prose, syntax-highlighted code blocks, and 3-column documentation grids.
+> **Status dokumentu:** Wersja 0.2 (ZATWIERDZONY — start Fazy 0)
+> **Data:** 2026-06-05
+> **Właściciel:** Zespół produktowy / CTO
+> **Charakter:** Ten plik (`DESIGN.md`) jest **głównym i jedynym źródłem prawdy** dla projektu.
+> Każda decyzja architektoniczna i każda większa funkcjonalność musi być najpierw
+> opisana tutaj, zanim trafi do kodu. Każda zmiana architektury aktualizuje ten plik.
 
-The brand's signature mint green ({colors.brand-green}) appears sparingly but decisively — on the hero "Get started" pill button, the green checkmark icons inside feature lists, the "Featured" pricing tier border, and active state indicators inside docs UI. Black-pill primary buttons dominate the marketing flow; white-on-dark inversions appear on dark hero bands. The signature pairing of Inter (body, headings) with Geist Mono (code blocks, inline references, type signatures) reinforces the developer-tool DNA without requiring a third typeface.
+> **Historia pliku:** Wcześniejsza zawartość `DESIGN.md` była wyekstrahowaną specyfikacją
+> systemu wizualnego marki *Mintlify* (niezwiązaną z projektem). Decyzją właściciela plik
+> został przeznaczony na **główny dokument projektowy Rekrutera** i jego treść zastąpiono
+> niniejszą specyfikacją. Wybrane zasady dyscypliny tokenów (skala odstępów, skala promieni,
+> typografia Inter) mogą zostać zaadaptowane w systemie wizualnym (sekcja 11).
 
-**Key Characteristics:**
-- Atmospheric gradient hero bands (sky-blue to cream on homepage; teal-to-mint on startups) provide cinematic marketing presentation
-- Signature Mintlify mint green ({colors.brand-green}) reserved for accent CTAs, active states, and feature confirmations
-- Black-pill primary buttons ({colors.primary} + `{rounded.full}`) for marketing CTAs
-- Inter for all UI prose; Geist Mono for code blocks, inline code, and type/property signatures
-- 3-column documentation layout (sidebar / prose / TOC) with dense 14px body type for long-form developer reading
-- Tightly-controlled radius scale: marketing uses `{rounded.lg}` (12px), pill buttons use `{rounded.full}` — no in-between corner softening
-- Vibrant testimonial card (`{colors.testimonial-orange}`) breaks color rhythm intentionally for emotional impact
+---
 
-## Colors
+## Spis treści
 
-> Source pages: mintlify.com/ (homepage), /startups (program page), /pricing (comparison), /docs/components/tabs (live documentation). Token coverage was identical across all four pages.
+1. [Analiza biznesowa](#1-analiza-biznesowa)
+2. [Wizja produktu i KPI](#2-wizja-produktu-i-kpi)
+3. [Persony i scenariusze](#3-persony-i-scenariusze)
+4. [Architektura systemu](#4-architektura-systemu)
+5. [Model domenowy](#5-model-domenowy)
+6. [ERD — schemat bazy danych](#6-erd--schemat-bazy-danych)
+7. [Architektura backendu (Laravel 11)](#7-architektura-backendu-laravel-11)
+8. [Architektura frontendu (Nuxt 3)](#8-architektura-frontendu-nuxt-3)
+9. [API REST](#9-api-rest)
+10. [UX mobilny](#10-ux-mobilny)
+11. [System wizualny / Design System](#11-system-wizualny--design-system)
+12. [Bezpieczeństwo i RODO](#12-bezpieczeństwo-i-rodo)
+13. [Struktura katalogów](#13-struktura-katalogów)
+14. [Deployment](#14-deployment)
+15. [Rozszerzalność na przyszłość](#15-rozszerzalność-na-przyszłość)
+16. [Ryzyka i mitygacje](#16-ryzyka-i-mitygacje)
+17. [Roadmapa wdrożeniowa](#17-roadmapa-wdrożeniowa)
+18. [Otwarte pytania do decyzji](#18-otwarte-pytania-do-decyzji)
 
-### Brand & Accent
-- **Mintlify Mint** ({colors.brand-green}): Signature accent — used on hero "Get started" pill button, green checkmarks in feature lists, featured pricing tier border accent, sidebar active indicator dots.
-- **Deep Mint** ({colors.brand-green-deep}): Pressed/active variant of the mint accent.
-- **Soft Mint** ({colors.brand-green-soft}): Subtle background tint for success states and confirmation surfaces.
-- **Brand Tag** ({colors.brand-tag}): Documentation tag and reference color (used in `<Tabs>` JSX-style annotations and code-tag chips).
-- **Brand Annotate** ({colors.brand-annotate}): Inline code annotation green (used in twoslash code annotation system).
-- **Brand Warn** ({colors.brand-warn}): Code warning highlight (deprecated, caution).
-- **Brand Error** ({colors.brand-error}): Red used for required-field labels and error highlight.
-- **Testimonial Orange** ({colors.testimonial-orange}): Warm coral-orange used on the "Cursor" testimonial card and warm callout surfaces.
+---
 
-### Surface
-- **Canvas White** ({colors.canvas}): Primary page and card background.
-- **Canvas Dark** ({colors.canvas-dark}): Promo banner, dark inversion surfaces, code editor wrapper.
-- **Surface** ({colors.surface}): Subtle section backgrounds, search-pill rest, code-inline background, sidebar active state.
-- **Surface Soft** ({colors.surface-soft}): Quieter section backgrounds and FAQ accordion.
-- **Surface Code** ({colors.surface-code}): Dark code-block wrapper background.
-- **Hairline** ({colors.hairline}): 1px borders and primary dividers.
-- **Hairline Soft** ({colors.hairline-soft}): Quieter table-row dividers and secondary section breaks.
+## 1. Analiza biznesowa
 
-### Hero Atmospheric
-- **Hero Sky From / To** ({colors.hero-sky-from}, {colors.hero-sky-to}): Atmospheric sky-blue to soft cream gradient on the homepage hero.
-- **Hero Dark From / To** ({colors.hero-dark-from}, {colors.hero-dark-to}): Dark teal to mint gradient on the startups hero.
+### 1.1 Kontekst
 
-### Text
-- **Ink** ({colors.ink}): Primary headlines and CTA text.
-- **Charcoal** ({colors.charcoal}): Body text, code-inline foreground.
-- **Slate** ({colors.slate}): Secondary text and metadata.
-- **Steel** ({colors.steel}): Tertiary text, table headers, sidebar inactive items, footer links.
-- **Stone** ({colors.stone}): Captions, twoslash cursor color, muted labels.
-- **Muted** ({colors.muted}): De-emphasized labels and disabled text.
-- **On Dark** ({colors.on-dark}): White text on dark surfaces (hero bands, code blocks, promo banner).
-- **On Dark Muted** ({colors.on-dark-muted}): Reduced-opacity white for code-block headers and metadata on dark.
+Agencja rekrutacyjna specjalizująca się w **zatrudnianiu kierowców zawodowych** (kategorie
+C/C+E/D, ADR, Kod 95, karta kierowcy). Obecny proces opiera się na Excelu, papierowych
+notatkach, ręcznie składanych profilach PDF i rozproszonych dokumentach. To generuje:
 
-### Semantic
-- Error tones derive from `{colors.brand-error}` for input borders, required-field labels, and validation messaging.
+- utratę kandydatów (brak follow-upu, zapomniane terminy oddzwonienia),
+- powielanie danych i duplikaty kandydatów,
+- wolne tworzenie profili dla klientów (ręczne PDF),
+- brak audytu (kto, kiedy, co zrobił z danymi kandydata),
+- ryzyko RODO przy przechowywaniu skanów dowodów/paszportów w mailu i na dyskach.
 
-## Typography
+### 1.2 Czym to jest (a czym nie jest)
 
-### Font Family
-**Inter** (primary): Variable typeface optimized for UI legibility. Used across every UI surface — body, headings, navigation, button labels, captions. Fallbacks: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif.
+To **nie jest** kolejny klasyczny ATS dla działu HR korporacji. To **Recruitment
+Operating System** — system operacyjny do codziennej pracy małego zespołu rekruterskiego,
+zoptymalizowany pod **jeden krytyczny moment: rozmowę telefoniczną z kandydatem**.
 
-**Geist Mono** (code): Monospace typeface used inside code blocks, inline code references, type signatures (e.g. `string`, `number`, `boolean`), and property names in API documentation. Fallbacks: 'SF Mono', Menlo, Consolas, 'Geist Mono Fallback', monospace.
+System zastępuje: Excel, papierowe notatki, ręczne profile, rozproszone dokumenty,
+ręczną wysyłkę PDF, ręczne zarządzanie rekrutacjami.
 
-The brand uses no italic variants of either face — emphasis comes from weight (500/600), color shift, or background highlighting (in code references).
+### 1.3 Główni użytkownicy
 
-### Hierarchy
-
-| Token | Size | Weight | Line Height | Letter Spacing | Use |
-|---|---|---|---|---|---|
-| `{typography.hero-display}` | 72px | 600 | 1.05 | -2px | Marketing hero display ("The intelligent Knowledge Platform") |
-| `{typography.display-lg}` | 56px | 600 | 1.10 | -1.5px | Major section opener ("Built for the intelligence age") |
-| `{typography.heading-1}` | 48px | 600 | 1.10 | -1px | Page-level headlines ("Pricing on your terms") |
-| `{typography.heading-2}` | 36px | 600 | 1.20 | -0.5px | Section headlines ("Apply to the Mintlify startup program") |
-| `{typography.heading-3}` | 28px | 600 | 1.25 | 0 | Subsection headers, "Tabs" docs page title |
-| `{typography.heading-4}` | 22px | 600 | 1.30 | 0 | Card titles, larger feature headers |
-| `{typography.heading-5}` | 18px | 600 | 1.40 | 0 | Smaller feature headers, FAQ question titles |
-| `{typography.subtitle}` | 18px | 400 | 1.50 | 0 | Hero subtitle, lead body |
-| `{typography.body-md}` | 16px | 400 | 1.50 | 0 | Primary body text |
-| `{typography.body-md-medium}` | 16px | 500 | 1.50 | 0 | Body emphasis |
-| `{typography.body-sm}` | 14px | 400 | 1.50 | 0 | Secondary body, table cells, navigation |
-| `{typography.body-sm-medium}` | 14px | 500 | 1.50 | 0 | Active sidebar nav, button labels, tab labels |
-| `{typography.caption}` | 13px | 400 | 1.40 | 0 | Helper text, fine print, code-block headers |
-| `{typography.caption-bold}` | 13px | 600 | 1.40 | 0 | Badge labels |
-| `{typography.micro}` | 12px | 500 | 1.40 | 0 | Footer microcopy, label chips |
-| `{typography.micro-uppercase}` | 11px | 600 | 1.40 | 0.5px | Sidebar section headers, "REQUIRED" labels |
-| `{typography.button-md}` | 14px | 500 | 1.30 | 0 | Pill button labels |
-| `{typography.code-md}` | 14px | 400 | 1.50 | 0 | Code block content |
-| `{typography.code-sm}` | 13px | 400 | 1.40 | 0 | Smaller code, type signatures |
-| `{typography.code-inline}` | 13px | 500 | 1.30 | 0 | Inline `<Tabs>` references in body |
-
-### Principles
-- **Tight hero leading** (1.05) creates magazine-grade display headlines on the 72px hero
-- **Negative letter-spacing** progresses inversely with size — display sizes use -2px to -1.5px; smaller headings relax to 0
-- **Documentation-grade body** (1.50 line-height on 14–16px) ensures comfortable long-form reading in dense docs surfaces
-- **Inter / Geist Mono pairing** — Inter for everything else, Geist Mono surgically for code references; the contrast between the two is the brand's developer-respect signal
-- **Uppercase micro labels** with +0.5px letter-spacing carry sidebar section headers and "REQUIRED" annotation tags
-
-## Layout
-
-### Spacing System
-- **Base unit**: 4px (8px primary increment)
-- **Tokens**: `{spacing.xxs}` (4px) · `{spacing.xs}` (8px) · `{spacing.sm}` (12px) · `{spacing.md}` (16px) · `{spacing.lg}` (20px) · `{spacing.xl}` (24px) · `{spacing.xxl}` (32px) · `{spacing.xxxl}` (40px) · `{spacing.section-sm}` (48px) · `{spacing.section}` (64px) · `{spacing.section-lg}` (96px) · `{spacing.hero}` (120px)
-- **Section rhythm**: Marketing pages use `{spacing.section-lg}` (96px) between major bands; pricing comparison tightens to `{spacing.section}` (64px); documentation surfaces use `{spacing.xxl}` (32px) between subsections
-- **Card internal padding**: Standard `{spacing.xl}` (24px) for compact cards; `{spacing.xxl}` (32px) for pricing cards and feature panels; testimonial card pushes to `{spacing.section}` (64px) for hero-card presence
-
-### Grid & Container
-- Marketing pages use a 1280px max-width with 32px gutters
-- Hero and feature bands often use 2-column splits (text left, illustration/mockup right)
-- Pricing page renders 3 tier cards in a row at desktop (FREE / Lift Off / Custom), then a comprehensive feature comparison table below
-- Documentation pages use a strict 3-column grid: left sidebar nav (~240px), center prose (~720px max-width), right TOC (~200px)
-- Logo walls use 6-up rows of customer logos at 80–100px height each
-
-### Whitespace Philosophy
-Marketing surfaces give content generous breathing room — `{spacing.hero}` (120px) above-the-fold creates space for atmospheric gradient backdrops to read clearly. Documentation tightens dramatically: section gaps drop to `{spacing.xxl}` (32px), table rows pack to `{spacing.md}` (16px), sidebar nav compresses to `{spacing.xs}` (8px) vertical rhythm.
-
-## Elevation & Depth
-
-The system runs predominantly flat with strategic atmospheric depth.
-
-| Level | Treatment | Use |
+| Rola | Opis | Główne środowisko |
 |---|---|---|
-| 0 (flat) | No shadow; `{colors.hairline}` border | Default cards, table rows, form inputs |
-| 1 (subtle) | `rgba(0, 0, 0, 0.04) 0px 1px 2px 0px` | Hover-elevated tiles, subtle highlights |
-| 2 (card) | `rgba(0, 0, 0, 0.08) 0px 4px 12px 0px` | Standard feature cards |
-| 3 (mockup) | `rgba(0, 0, 0, 0.12) 0px 24px 48px -8px` | Hero product mockup framing — the deep diffuse drop on the homepage hero docs preview |
-| 4 (brand-tinted) | `rgba(0, 212, 164, 0.08) 0px 8px 24px` | Featured pricing tier glow |
+| **Rekruterka** | Odbiera telefony, szybko wpisuje dane, prowadzi follow-up, buduje profile | **Telefon (mobile)** |
+| **Administrator** | Zarządza firmami, ogłoszeniami, użytkownikami, konfiguracją, wgląd w audyt | Telefon + desktop |
 
-### Decorative Depth
-- The homepage hero uses an atmospheric photographic backdrop (cloud illustration on sky-gradient) for depth — no shadow needed; the imagery does the work
-- The startups hero uses a similar treatment with a rocket-launch illustration cutting across the dark teal gradient
-- Code blocks carry their own internal depth via syntax-highlighting color hierarchy on the dark surface; no shadow used
+System projektujemy **pod rekruterkę przy telefonie**. Wszystko inne jest dodatkiem.
 
-## Shapes
+---
 
-### Border Radius Scale
+## 2. Wizja produktu i KPI
 
-| Token | Value | Use |
+### 2.1 Główny KPI
+
+> **Dodanie nowego kandydata podczas rozmowy telefonicznej < 60 sekund.**
+
+Każda decyzja projektowa jest oceniana przez pryzmat tego celu. Jeżeli rozwiązanie
+wydłuża „quick add", jest odrzucane lub przeprojektowywane.
+
+### 2.2 KPI wspierające
+
+| KPI | Cel | Dlaczego |
 |---|---|---|
-| `{rounded.xs}` | 4px | Inline code chips, micro tags |
-| `{rounded.sm}` | 6px | Sidebar nav items, type badges |
-| `{rounded.md}` | 8px | Inputs, search pill, code blocks, secondary cards |
-| `{rounded.lg}` | 12px | Standard cards, pricing tiers, hero mockup, FAQ items |
-| `{rounded.xl}` | 16px | Larger feature panels |
-| `{rounded.xxl}` | 24px | Featured product showcase tiles |
-| `{rounded.full}` | 9999px | All buttons, pill tabs, badges |
-
-The radius scale is tightly disciplined — the brand never uses a corner softening between `{rounded.md}` (8px) and `{rounded.lg}` (12px) for the same component family. Pill buttons (`{rounded.full}`) are used universally; rectangular cards use `{rounded.lg}` (12px) consistently.
-
-### Photography Geometry
-- Hero illustrations (cloud, rocket) sit on full-bleed gradient backdrops with no internal framing
-- Customer logo walls use 1:1 ratio cells without rounding (logos are presented inline as wordmarks)
-- Testimonial photos use 1:1 aspect with `{rounded.md}` (8px) softening
-- Code editor mockup hero image uses `{rounded.lg}` (12px) corners on a hairline-bordered card with a deep diffuse drop shadow
-
-## Components
-
-> Per the no-hover policy, hover states are NOT documented. Default and pressed/active states only.
-
-### Buttons
-
-**`button-primary`** — Black pill primary CTA, the dominant action across all surfaces.
-- Background `{colors.primary}`, text `{colors.on-primary}`, typography `{typography.button-md}`, padding `10px 20px`, rounded `{rounded.full}`.
-- Pressed state `button-primary-pressed` lifts to `{colors.charcoal}`.
-- Disabled state `button-primary-disabled` uses `{colors.hairline}` background and `{colors.muted}` text.
-
-**`button-accent-green`** — Mint green pill for brand-emphasis CTAs (hero "Get started", featured pricing CTA).
-- Background `{colors.brand-green}`, text `{colors.primary}`, typography `{typography.button-md}`, padding `10px 20px`, rounded `{rounded.full}`.
-
-**`button-on-dark`** — White pill for use on dark hero bands (startups page "Get started").
-- Background `{colors.on-dark}`, text `{colors.primary}`, typography `{typography.button-md}`, padding `10px 20px`, rounded `{rounded.full}`.
-
-**`button-secondary`** — Outlined pill for secondary actions.
-- Background transparent, text `{colors.ink}`, border `1px solid {colors.hairline}`, typography `{typography.button-md}`, padding `10px 20px`, rounded `{rounded.full}`.
-
-**`button-ghost`** — Quieter rectangular ghost button (sidebar action, tertiary nav).
-- Background transparent, text `{colors.ink}`, typography `{typography.button-md}`, padding `8px 12px`, rounded `{rounded.md}`.
-
-**`button-link`** — Inline text link styled as a subtle button.
-- Background transparent, text `{colors.ink}`, typography `{typography.body-sm-medium}`, padding `0`. Underline appears on activation.
-
-**`button-icon-circular`** — 32×32px circular utility button (close, copy, arrow).
-- Background `{colors.canvas}`, text `{colors.ink}`, border `1px solid {colors.hairline}`, rounded `{rounded.full}`.
-
-### Cards & Containers
-
-**`card-base`** — Standard documentation/feature card.
-- Background `{colors.canvas}`, rounded `{rounded.lg}`, padding `{spacing.xl}`, border `1px solid {colors.hairline}`.
-
-**`card-feature`** — Feature panel on light gray surface.
-- Background `{colors.surface}`, rounded `{rounded.lg}`, padding `{spacing.xxl}`.
-
-**`card-help`** — "Need help?" CTA cards below the pricing comparison ("Quickstart guide", "Guide to technical writing", "Founder", "Sales").
-- Background `{colors.canvas}`, rounded `{rounded.lg}`, padding `{spacing.xl}`, border `1px solid {colors.hairline}`.
-
-**`card-startup-perk`** — Startup-program perk grid item ("Discounts and credits", "Priority support", "Startup pack", "Founder community").
-- Background `{colors.canvas}`, rounded `{rounded.lg}`, padding `{spacing.xl}`, border `1px solid {colors.hairline}`. Carries an icon at top, heading `{typography.heading-5}`, description `{typography.body-sm}` `{colors.steel}`.
-
-**`pricing-card`** — Standard pricing tier card.
-- Background `{colors.canvas}`, rounded `{rounded.lg}`, padding `{spacing.xxl}`, border `1px solid {colors.hairline}`.
-- Title `{typography.heading-3}`, price `{typography.display-lg}`, feature list `{typography.body-sm}` with green checkmark icons.
-
-**`pricing-card-featured`** — Highlighted pricing tier (Lift Off / featured plan).
-- Background `{colors.canvas}`, rounded `{rounded.lg}`, padding `{spacing.xxl}`, border `2px solid {colors.brand-green}`, soft brand-tinted shadow `rgba(0, 212, 164, 0.08) 0px 8px 24px`.
-
-**`testimonial-card-feature`** — Bright orange large testimonial card with photo + quote ("Cursor — Every YC batch we consistently see the top performing startups use Mintlify to build their docs.").
-- Background `{colors.testimonial-orange}`, text `{colors.on-dark}`, rounded `{rounded.lg}`, padding `{spacing.section}`. Photo on right, large quote in `{typography.heading-3}` left, attribution below in `{typography.body-sm-medium}`.
-
-**`testimonial-card-quote`** — Smaller white testimonial card on the startups page.
-- Background `{colors.canvas}`, rounded `{rounded.lg}`, padding `{spacing.xxl}`, border `1px solid {colors.hairline}`.
-
-**`founder-quote-card`** — Cursor founder testimonial card variant on the orange surface.
-- Background `{colors.testimonial-orange}`, text `{colors.on-dark}`, rounded `{rounded.lg}`, padding `{spacing.xxl}`. Carries the specific founder portrait + quote treatment.
-
-**`startup-program-card`** — Larger application/program card containing perks grid + apply CTA.
-- Background `{colors.canvas}`, rounded `{rounded.lg}`, padding `{spacing.xxl}`, border `1px solid {colors.hairline}`.
-
-### Inputs & Forms
-
-**`text-input`** — Standard text field.
-- Background `{colors.canvas}`, text `{colors.ink}`, border `1px solid {colors.hairline}`, rounded `{rounded.md}`, padding `{spacing.sm} {spacing.md}`, height 40px.
-
-**`text-input-focused`** — Activated state.
-- Border switches to `2px solid {colors.brand-green}` — focus uses the brand mint as the activation signal.
-
-**`search-pill`** — Documentation top-bar search.
-- Background `{colors.surface}`, text `{colors.steel}`, typography `{typography.body-sm}`, rounded `{rounded.md}`, height 36px, border `1px solid {colors.hairline}`.
-
-### Tabs
-
-**`segmented-tab`** + **`segmented-tab-active`** — Underline-style tab navigation (used inside docs Tabs component for "First tab / Second tab / Third tab").
-- Inactive: text `{colors.steel}`, transparent background, padding `{spacing.sm} {spacing.md}`. Active: text `{colors.ink}`, 2px bottom border in `{colors.ink}`.
-
-**`pill-tab`** + **`pill-tab-active`** — Pill-style tab nav (top of pricing page: "Pricing / Roadmap").
-- Inactive: background `{colors.canvas}`, text `{colors.steel}`, border `1px solid {colors.hairline}`, padding `8px 16px`, rounded `{rounded.full}`.
-- Active: background `{colors.primary}`, text `{colors.on-primary}`, no border.
-
-**`toggle-monthly-yearly`** — Two-state pill toggle (Monthly / Annual on pricing page).
-- Background `{colors.surface}`, rounded `{rounded.full}`, padding `4px`. Active state moves a white pill thumb to the selected position.
-
-### Badges & Status
-
-**`badge-discount`** — Small green "Save 20%" badge attached to annual toggle.
-- Background `{colors.brand-green}`, text `{colors.primary}`, typography `{typography.caption-bold}`, rounded `{rounded.full}`, padding `2px 8px`.
-
-**`badge-required`** — Red "REQUIRED" label on documentation property rows.
-- Background `{colors.brand-error}`, text `{colors.on-dark}`, typography `{typography.micro-uppercase}`, rounded `{rounded.sm}`, padding `2px 6px`.
-
-**`badge-type`** — Type signature chip in documentation (e.g. `string`, `number`, `boolean`).
-- Background `{colors.surface}`, text `{colors.steel}`, typography `{typography.code-sm}`, rounded `{rounded.sm}`, padding `2px 6px`.
-
-**`badge-tag`** — Documentation tag chip (e.g. `<Tabs>` reference highlighted in body text).
-- Background `rgba(55, 114, 207, 0.15)`, text `{colors.brand-tag}`, typography `{typography.caption-bold}`, rounded `{rounded.sm}`, padding `2px 8px`.
-
-**`promo-banner`** — Sticky black promo strip ABOVE the top nav (when present).
-- Background `{colors.canvas-dark}`, text `{colors.on-dark}`, typography `{typography.body-sm-medium}`, padding `{spacing.sm} {spacing.md}`.
-
-### Code
-
-**`code-block`** — Syntax-highlighted code container.
-- Background `{colors.surface-code}`, text `{colors.on-dark}`, typography `{typography.code-md}`, rounded `{rounded.md}`, padding `{spacing.md}`.
-
-**`code-block-header`** — Header bar above the code with language label + copy button.
-- Background `{colors.surface-code}`, text `{colors.on-dark-muted}`, typography `{typography.caption}`, padding `{spacing.xs} {spacing.md}`, bottom border `1px solid {colors.hairline-dark}`.
-
-**`code-inline`** — Inline `<Tabs>` reference in body prose.
-- Background `{colors.surface}`, text `{colors.charcoal}`, typography `{typography.code-inline}`, rounded `{rounded.xs}`, padding `2px 6px`, border `1px solid {colors.hairline}`.
-
-**`copy-code-button`** — "Copy code" button in code-block header.
-- Background transparent, text `{colors.on-dark-muted}`, typography `{typography.caption}`, rounded `{rounded.sm}`, padding `{spacing.xxs} {spacing.xs}`, border `1px solid {colors.hairline-dark}`.
-
-### Documentation Components
-
-**`property-row`** — API property documentation row (e.g. `defaultIndex` on the Tabs page).
-- Background transparent, text `{colors.ink}`, typography `{typography.body-sm}`, padding `{spacing.md} 0`, bottom border `1px solid {colors.hairline-soft}`.
-- Layout: property name in `{typography.code-inline}` + type badge + optional REQUIRED badge + description below in `{typography.body-sm}` `{colors.steel}`.
-
-**`feature-comparison-table`** — Detailed pricing-page feature comparison table.
-- Background `{colors.canvas}`, text `{colors.ink}`, typography `{typography.body-sm}`, rounded `{rounded.md}`, border `1px solid {colors.hairline}`.
-
-**`feature-comparison-row`** — Individual row inside the comparison table.
-- Background `{colors.canvas}`, text `{colors.ink}`, padding `{spacing.md} {spacing.lg}`, bottom border `1px solid {colors.hairline-soft}`. Section dividers in `{typography.micro-uppercase}` `{colors.steel}`.
-
-**`sidebar-nav-item`** + **`sidebar-nav-item-active`** — Documentation left rail link entries.
-- Inactive: background transparent, text `{colors.steel}`, typography `{typography.body-sm}`, rounded `{rounded.sm}`, padding `{spacing.xs} {spacing.md}`.
-- Active: background `{colors.surface}`, text `{colors.ink}`, typography `{typography.body-sm-medium}`.
-
-**`sidebar-section-header`** — Uppercase section header inside sidebar (e.g. "COMPONENTS", "PRIMITIVES").
-- Background transparent, text `{colors.steel}`, typography `{typography.micro-uppercase}`, padding `{spacing.md} {spacing.md} {spacing.xs}`.
-
-**`doc-toc-item`** + **`doc-toc-item-active`** — Right-rail table-of-contents links.
-- Inactive: background transparent, text `{colors.steel}`, typography `{typography.body-sm}`, padding `{spacing.xxs} 0`.
-- Active: text `{colors.ink}`, typography `{typography.body-sm-medium}`, optional left-border accent in `{colors.brand-green}`.
-
-### Navigation
-
-**Top Navigation (Marketing)** — Sticky white bar with logo, link list, and right-side CTAs.
-- Background `{colors.canvas}`, height ~64px, bottom border `1px solid {colors.hairline-soft}`.
-- Left: Mintlify wordmark + horizontal link list (Solutions, Pricing, Customers, Documentation, Changelog).
-- Right: secondary "Talk to sales" + black-pill "Get Started".
-
-**Top Navigation (Documentation)** — Compressed nav with center search-pill and right-side account/upgrade CTAs.
-- Background `{colors.canvas}`, height ~56px. Search-pill at center, "Documentation / Guides / API Reference / Changelog" links + "Talk to us" + green "Get started" right.
-
-### Signature Components
-
-**`hero-band-sky`** — Homepage hero with atmospheric sky-blue to cream gradient and cloud illustrations.
-- Background gradient `linear-gradient(180deg, {colors.hero-sky-from} 0%, {colors.hero-sky-to} 100%)`, text `{colors.on-dark}` (early portion of gradient) shifting to `{colors.ink}` further down, padding `{spacing.hero}`.
-- Layout: centered hero headline in `{typography.hero-display}`, centered subtitle in `{typography.subtitle}`, centered button row (`button-accent-green` "Get started" + `button-secondary` "Talk to us"), product mockup below the buttons.
-
-**`hero-band-dark`** — Startups hero with dark teal-to-mint gradient and rocket launch illustration.
-- Background gradient `linear-gradient(135deg, {colors.hero-dark-from} 0%, {colors.hero-dark-to} 100%)`, text `{colors.on-dark}`, padding `{spacing.hero}`.
-- Layout: hero headline left in `{typography.hero-display}` `{colors.on-dark}`, illustration right (rocket cutting across the gradient), button row uses `button-on-dark` (white pill) + ghost link.
-
-**`hero-product-mockup`** — Code-editor mockup framed inside the homepage hero.
-- Background `{colors.canvas}`, rounded `{rounded.lg}`, border `1px solid {colors.hairline-soft}`, deep shadow `rgba(0, 0, 0, 0.12) 0px 24px 48px -8px`.
-- Carries a documentation page preview inside (sidebar on left, prose body, mock UI controls).
-
-**`logo-wall-item`** — Customer logo cell in 6-up trust-row grids ("Anthropic / Cognition / Mintlify / Vercel / react / Lovable", "Stripe / Block / PayPal / Compound / Auth").
-- Background transparent, text `{colors.steel}`, typography `{typography.body-md-medium}`, padding `{spacing.lg}`.
-- Logos rendered as wordmarks with consistent vertical centering.
-
-**`faq-accordion-item`** — Frequently-asked-questions panel item (visible on pricing page).
-- Background `{colors.canvas}`, rounded `{rounded.md}`, padding `{spacing.xl}`, border `1px solid {colors.hairline-soft}`.
-- Question in `{typography.heading-5}`, expanded answer in `{typography.body-md}` `{colors.steel}`, chevron icon in `{colors.steel}` 16px.
-
-**`footer-region`** — Multi-column site footer.
-- Background `{colors.canvas}`, top border `1px solid {colors.hairline}`, padding `{spacing.section} {spacing.xxl}`.
-- 5 column groups (Explore / Resources / Company / Legal + brand mark column).
-- Section headers in `{typography.body-sm-medium}` `{colors.ink}`, link items in `{typography.body-sm}` `{colors.steel}`.
-
-**`footer-link`** — Individual link entry in the footer.
-- Background transparent, text `{colors.steel}`, typography `{typography.body-sm}`, padding `{spacing.xxs} 0`.
-
-## Do's and Don'ts
-
-### Do
-- Reserve `{colors.brand-green}` (Mintlify mint) for accent CTAs and active state indicators only — even one accent button per viewport carries weight
-- Use `{colors.primary}` (black) as the dominant CTA on light backgrounds; switch to `button-on-dark` (white pill) on dark hero bands
-- Apply `{rounded.full}` to every button and pill; never soften pill corners
-- Pair Inter (UI prose) with Geist Mono (code) — never introduce a third typeface
-- Use atmospheric gradient hero bands sparingly (only the homepage and startups page); keep deeper surfaces flat and dense
-- Apply `{rounded.lg}` (12px) consistently on cards; use `{rounded.md}` (8px) only on compact UI like search pills and code blocks
-- Keep documentation prose at `{typography.body-md}` (16px) with 1.50 line-height — never compress
-
-### Don't
-- Don't use `{colors.brand-green}` on body text or large surfaces — it loses signal
-- Don't introduce additional accent colors beyond mint, tag-blue, error-red, and the testimonial orange
-- Don't apply heavy shadows on flat documentation cards; reserve elevation for the hero product mockup
-- Don't reduce documentation line-height below 1.50 — long-form readability suffers
-- Don't combine atmospheric gradients with multiple competing color accents in the same hero — the sky/dark gradient is the brand mood; let it breathe
-- Don't use Inter for code or Geist Mono for prose — the typeface assignment IS the brand voice
-
-## Responsive Behavior
-
-### Breakpoints
-| Name | Width | Key Changes |
+| Czas od telefonu do wpisu w bazie | < 60 s | Główny cel |
+| % kontaktów z zapisanym follow-upem | > 90% | Brak utraty kandydatów |
+| Czas wygenerowania profilu PDF | < 10 s | Szybka obsługa klienta |
+| Liczba kliknięć do „Nowy kandydat" | 1 (FAB) | Minimalny tarcie |
+| Duplikaty kandydatów (po telefonie) | ~0% | Deduplikacja po numerze |
+
+### 2.3 Zasada projektowa „60 sekund"
+
+Formularz szybkiego dodania kandydata podczas rozmowy ma **tylko pola krytyczne**:
+- numer telefonu (klucz deduplikacji),
+- imię (lub samo imię, nazwisko opcjonalne),
+- kategoria prawa jazdy (chip-y, jeden tap),
+- notatka głosowa/tekstowa,
+- wynik kontaktu + opcjonalny termin następnego kontaktu (auto-task).
+
+Wszystko inne uzupełniane jest później (progresywne wzbogacanie profilu).
+
+---
+
+## 3. Persony i scenariusze
+
+### 3.1 Persona: „Ania" — Rekruterka
+
+- Pracuje głównie z telefonem w ręku, często w ruchu.
+- Odbiera 30–60 telefonów dziennie.
+- Potrzebuje: jednego kciuka, dużych przycisków, zero przewijania w formularzu quick-add.
+- Frustracje: wolne formularze, dużo pól, przełączanie ekranów, gubienie terminów.
+
+**Scenariusz krytyczny (happy path < 60 s):**
+1. Dzwoni nieznany numer → Ania odbiera.
+2. Otwiera apkę, tapie **FAB „Nowy Kandydat"**.
+3. Numer telefonu może być wstępnie wklejony / wpisuje go.
+4. System sprawdza duplikat „w locie" → jeśli istnieje, otwiera istniejący profil.
+5. Wpisuje imię, tapuje chip „C+E", „ADR".
+6. Dyktuje/wpisuje krótką notatkę.
+7. Wybiera wynik kontaktu „Zainteresowany", ustawia „oddzwonić jutro 10:00".
+8. **Zapis** → kandydat w bazie, automatyczny task follow-up, wpis w call log.
+
+### 3.2 Persona: „Marek" — Administrator
+
+- Zarządza firmami-klientami i ogłoszeniami.
+- Generuje i wysyła profile kandydatów do klientów.
+- Przegląda pipeline (kanban) i audyt aktywności.
+- Korzysta z telefonu i czasem desktopu (większe operacje).
+
+---
+
+## 4. Architektura systemu
+
+### 4.1 Styl architektury
+
+- **Headless / API-first**: Laravel 11 jako REST API (backend), Nuxt 3 jako klient PWA (frontend). Rozdzielenie pozwala na przyszłe klienty (np. natywna apka, integracje).
+- **Modular Monolith** w backendzie: jeden deployment, ale wyraźny podział na moduły domenowe (Companies, JobPostings, Candidates, Documents, Contacts, Tasks, Pipeline, Profiles/PDF, Activity). Granice modułów umożliwiają przyszłe wydzielenie do usług, jeśli zajdzie potrzeba — bez przedwczesnej mikroserwisowości.
+- **Asynchroniczność**: ciężkie operacje (generowanie PDF, wysyłka maili, przyszły OCR/AI) idą przez kolejki Redis (Laravel Queue + Horizon).
+- **Multi-tenant ready**: od początku kolumna `tenant_id` na kluczowych tabelach (jeden tenant domyślny teraz), aby przyszłe wdrożenie SaaS multi-tenant nie wymagało migracji rozrywającej dane.
+
+### 4.2 Diagram wysokiego poziomu
+
+```
+┌──────────────────────────────────────────────────────────────┐
+│                      KLIENT (PWA)                              │
+│   Nuxt 3 / Vue 3 / TS / Pinia / Vue Query / Tailwind          │
+│   - Mobile-first UI, offline-aware, installable               │
+└───────────────┬──────────────────────────────────────────────┘
+                │ HTTPS / REST (JSON) + Bearer (Sanctum)
+                ▼
+┌──────────────────────────────────────────────────────────────┐
+│                    LARAVEL 11 API                              │
+│  Controllers → Form Requests → Actions/Services → Models      │
+│  Policies (autoryzacja) · Resources (serializacja)            │
+│  Moduły: Companies · JobPostings · Candidates · Documents ·   │
+│          Contacts(CallLog) · Tasks · Pipeline · Profiles/PDF· │
+│          Activity(audit)                                       │
+└───┬───────────────┬───────────────┬──────────────┬────────────┘
+    │               │               │              │
+    ▼               ▼               ▼              ▼
+┌────────┐   ┌────────────┐   ┌──────────┐   ┌──────────────┐
+│Postgres│   │   Redis    │   │  S3 /    │   │   SMTP       │
+│  (DB)  │   │ queue+cache│   │  MEGA S3 │   │  (mail)      │
+└────────┘   └─────┬──────┘   └──────────┘   └──────────────┘
+                   │
+                   ▼
+           ┌────────────────┐
+           │ Queue Workers  │  PDF gen · Mail · (future) OCR/AI
+           │ (Horizon)      │
+           └────────────────┘
+```
+
+### 4.3 Kluczowe decyzje architektoniczne (ADR-skrót)
+
+| # | Decyzja | Uzasadnienie |
 |---|---|---|
-| Mobile (small) | < 480px | Single column. Hero scales to 36px. Pill nav collapses to hamburger. Pricing tiers stack 1-up. Footer 1-column accordion. |
-| Mobile (large) | 480 – 767px | Same as small but feature tiles render 2-up. Hero scales to 44px. |
-| Tablet | 768 – 1023px | 2-column feature grids. Pill-tab nav returns. Documentation sidebar collapses to drawer. Hero scales to 56px. |
-| Desktop | 1024 – 1279px | Full 3-column docs grid (sidebar / body / TOC). 3-tier pricing card row. Hero at 72px. |
-| Wide Desktop | ≥ 1280px | Wider hero gutters, larger product mockup, fixed 240px sidebar. |
+| ADR-1 | Modular monolith zamiast mikroserwisów | Mały zespół, szybkość dostarczania, prostota deploymentu |
+| ADR-2 | API-first (Nuxt SPA/PWA + Laravel API) | Mobile-first, przyszłe klienty, czysty rozdział |
+| ADR-3 | `tenant_id` od startu | Tanie przygotowanie pod SaaS multi-tenant |
+| ADR-4 | Kolejki Redis dla PDF/mail/OCR | Responsywność UI, KPI 60 s nie blokowany przez I/O |
+| ADR-5 | Audit log jako osobny moduł `activities` | Wymóg RODO + biznesowy „kto co zrobił" |
+| ADR-6 | Soft delete + retencja danych | RODO „prawo do bycia zapomnianym" i wymogi prawne |
+| ADR-7 | Sanctum (token) zamiast OAuth na start | Prostsze, wystarczające dla SPA/PWA jednej organizacji |
+| ADR-8 | Dokumenty: S3 z presigned URLs, nigdy publiczne | Bezpieczeństwo danych wrażliwych (dowody, paszporty) |
 
-### Touch Targets
-- Pill buttons render at 36–40px effective height — bumps to 44px on mobile via padding override
-- Circular icon buttons: 32×32px desktop → 44×44px mobile
-- Form inputs render at 40px height; bumps to 44px mobile
-- Sidebar nav items render at ~32px tall — bump to 44px mobile drawers
+---
 
-### Collapsing Strategy
-- **Promo banner** stays full-width; truncates at < 480px
-- **Top nav** below 1024px collapses to hamburger; horizontal links move into drawer
-- **Hero band**: 2-column hero (text + mockup) collapses to stacked at < 1024px; mockup rendered below text on mobile
-- **Documentation grid**: 3-column desktop → sidebar-drawer at < 1024px → single-column at < 768px
-- **Pricing comparison**: 3-column tiers → 1-column stacked at < 768px; comparison table becomes horizontal-scroll
-- **Hero typography**: `{typography.hero-display}` (72px) → 56px tablet → 44px mobile-large → 36px mobile-small
-- **Customer logo wall**: 6-up → 3-up at tablet → 2-up at mobile
-- **Footer**: 5-column desktop → 2-column tablet → accordion at mobile
+## 5. Model domenowy
 
-### Image Behavior
-- Hero illustrations (cloud, rocket) lazy-load with the hero band; remain crisp at all breakpoints (SVG-based)
-- Product mockup retains its aspect ratio across breakpoints; scales proportionally
-- Customer logos use SVG wordmarks; remain crisp on retina displays
+### 5.1 Encje główne
 
-## Iteration Guide
+- **Tenant** — organizacja (na przyszłość multi-tenant; teraz jeden rekord).
+- **User** — użytkownik systemu (rola: `admin`, `recruiter`).
+- **Company** — firma-klient agencji.
+- **JobPosting** — ogłoszenie/oferta pracy przypisana do firmy.
+- **Candidate** — kandydat (kierowca) z danymi sterownika (kategorie, ADR, Kod95, karta kierowcy).
+- **Document** — plik w S3 powiązany z kandydatem (CV, dowód, paszport, prawo jazdy, karta kierowcy, ADR, Kod95, zdjęcia).
+- **ContactLog** — wpis historii kontaktu (telefon/WhatsApp/SMS/email) — **moduł krytyczny**.
+- **Task** — zadanie follow-up (często auto-tworzone z ContactLog).
+- **Application** — udział kandydata w pipeline danego ogłoszenia (encja łącząca Candidate ↔ JobPosting + etap kanban).
+- **PipelineStage** — definicja etapów kanban (konfigurowalna).
+- **CandidateProfile / ProfileSend** — wygenerowany profil PDF i log wysyłki do klienta.
+- **Activity** — wpis audit logu (polimorficzny, pełna historia zmian).
 
-1. Focus on ONE component at a time. The system has high internal consistency.
-2. Reference component names and tokens directly (`{colors.primary}`, `{component-name}-pressed`, `{rounded.full}`) — do not paraphrase.
-3. Run `npx @google/design.md lint DESIGN.md` after edits to catch broken refs and contrast issues.
-4. Add new variants as separate `components:` entries (`-pressed`, `-disabled`, `-focused`, `-active`).
-5. Default to `{typography.body-md}` for body and `{typography.subtitle}` for emphasis. Headlines step down `hero-display → display-lg → heading-1 → heading-2 → heading-3 → heading-4 → heading-5`.
-6. Keep `{colors.brand-green}` confined to accent moments. If it appears on a generic surface, ask whether it earned that role.
-7. Pill-shaped buttons (`{rounded.full}`) always; squared buttons signal "third-party widget" in this language.
-8. Documentation prose belongs in `{typography.body-md}` 16px with 1.50 line-height — anything denser breaks the reading experience.
+### 5.2 Słowniki / enumy (przykładowe wartości)
 
-## Known Gaps
+- `User.role`: `admin`, `recruiter`
+- `Candidate.status`: `new`, `active`, `placed`, `unavailable`, `blacklisted`, `archived`
+- `Candidate.license_categories` (wiele): `B`, `C`, `C+E`, `D`, `D+E`, ...
+- `Document.type`: `cv`, `id_card`, `passport`, `driving_license`, `driver_card`, `adr`, `code_95`, `photo`, `other`
+- `ContactLog.channel`: `phone`, `whatsapp`, `sms`, `email`
+- `ContactLog.outcome`: `interested`, `not_interested`, `no_answer`, `callback`, `wrong_number`, `hired_elsewhere`, `documents_requested`, ...
+- `Task.status`: `open`, `done`, `cancelled`
+- `Task.type`: `follow_up`, `document_collect`, `interview`, `custom`
+- `ProfileSend.status`: `queued`, `sent`, `failed`, `viewed`
 
-- Specific dark-mode token values for canvas, surface, ink, and hairline are not surfaced on these pages; the brand has not yet shipped a published dark-mode palette
-- Animation/transition timings are not extracted; recommend 150–200ms ease for hover/focus state transitions
-- Form validation success state is not explicitly captured beyond defaults — implement following standard green-border + success badge patterns
-- Code syntax highlighting palette inside docs is not formalized; documentation samples carry their own twoslash-style annotation system tokens (e.g. `{colors.brand-tag}`, `{colors.brand-annotate}`, `{colors.brand-warn}`) but the full highlight scheme is not enumerated
+### 5.3 Reguła domenowa: ContactLog → Task
+
+> Jeżeli przy zapisie `ContactLog` ustawiono `next_contact_at`, system **automatycznie**
+> tworzy `Task` typu `follow_up` z `due_at = next_contact_at`, przypisany do tego samego
+> użytkownika i kandydata. To realizacja wymogu „nie gubimy kandydatów".
+
+### 5.4 Reguła domenowa: zdjęcie profilowe z dokumentu (Cropper)
+
+> Po dodaniu zdjęcia dokumentu użytkownik może wyciąć fragment (CropperJS) jako zdjęcie
+> profilowe kandydata. Oryginalny dokument pozostaje w S3; wycięte zdjęcie zapisywane jest
+> jako osobny `Document` typu `photo` i ustawiane jako `Candidate.profile_photo_id`.
+
+---
+
+## 6. ERD — schemat bazy danych
+
+> Notacja uproszczona. PK = primary key, FK = foreign key. Wszystkie tabele główne mają
+> `id (uuid)`, `tenant_id`, `created_at`, `updated_at`, większość `deleted_at` (soft delete).
+
+```
+tenants
+  id (PK, uuid)
+  name
+  settings (jsonb)
+
+users
+  id (PK, uuid)
+  tenant_id (FK → tenants)
+  name, email (unique per tenant), password
+  role (enum: admin, recruiter)
+  phone, avatar_path
+  last_login_at
+
+companies
+  id (PK, uuid)
+  tenant_id (FK)
+  name, nip, address, city, country
+  contact_person, contact_email, contact_phone
+  notes
+  status (active/inactive)
+
+job_postings
+  id (PK, uuid)
+  tenant_id (FK)
+  company_id (FK → companies)
+  title, description
+  required_categories (jsonb: ["C+E","ADR"])
+  location, salary_range
+  status (open/closed/paused)
+  external_ref (na przyszłość: id z portalu pracy)
+
+candidates
+  id (PK, uuid)
+  tenant_id (FK)
+  first_name, last_name (nullable)
+  phone (indexed, klucz deduplikacji)
+  phone_normalized (E.164, unique index per tenant)
+  email (nullable)
+  city, country
+  status (enum)
+  license_categories (jsonb)
+  has_adr (bool), adr_expiry (date)
+  has_code_95 (bool), code_95_expiry (date)
+  driver_card_expiry (date)
+  profile_photo_id (FK → documents, nullable)
+  source (np. "phone", "portal", "referral")
+  consent_rodo_at (timestamp, nullable)   ← zgoda RODO
+  internal_notes (text)                    ← NIE trafia do PDF dla klienta
+  created_by (FK → users)
+
+documents
+  id (PK, uuid)
+  tenant_id (FK)
+  candidate_id (FK → candidates)
+  type (enum)
+  disk, path (S3 key), original_name, mime, size
+  is_profile_photo (bool)
+  uploaded_by (FK → users)
+
+contact_logs
+  id (PK, uuid)
+  tenant_id (FK)
+  candidate_id (FK → candidates)
+  user_id (FK → users)
+  channel (enum: phone/whatsapp/sms/email)
+  outcome (enum)
+  note (text)
+  contacted_at (timestamp)
+  next_contact_at (timestamp, nullable)    ← jeśli ustawione → auto Task
+  task_id (FK → tasks, nullable)           ← powiązanie z utworzonym follow-up
+
+tasks
+  id (PK, uuid)
+  tenant_id (FK)
+  candidate_id (FK → candidates, nullable)
+  assigned_to (FK → users)
+  type (enum), status (enum)
+  title, description
+  due_at (timestamp)
+  completed_at (timestamp, nullable)
+  created_by (FK → users)
+
+pipeline_stages
+  id (PK, uuid)
+  tenant_id (FK)
+  name, color, position (int)
+  is_terminal (bool)   ← np. "Zatrudniony", "Odrzucony"
+
+applications                ← Candidate w pipeline danego ogłoszenia
+  id (PK, uuid)
+  tenant_id (FK)
+  candidate_id (FK → candidates)
+  job_posting_id (FK → job_postings)
+  stage_id (FK → pipeline_stages)
+  position (int)            ← kolejność w kolumnie kanban
+  notes
+  UNIQUE(candidate_id, job_posting_id)
+
+profile_sends              ← wysyłka profilu PDF do klienta
+  id (PK, uuid)
+  tenant_id (FK)
+  candidate_id (FK → candidates)
+  company_id (FK → companies, nullable)
+  job_posting_id (FK → job_postings, nullable)
+  pdf_path (S3 key)
+  recipient_email
+  status (enum: queued/sent/failed/viewed)
+  sent_by (FK → users)
+  sent_at, viewed_at
+
+activities                 ← audit log (polimorficzny)
+  id (PK, uuid)
+  tenant_id (FK)
+  user_id (FK → users, nullable)
+  subject_type, subject_id (morph: dowolna encja)
+  event (created/updated/deleted/sent/viewed/...)
+  changes (jsonb: before/after)
+  ip, user_agent
+  created_at
+```
+
+### 6.1 Relacje (skrót)
+
+```
+tenants 1───* users, companies, candidates, ...
+companies 1───* job_postings
+companies 1───* profile_sends
+job_postings 1───* applications
+candidates 1───* documents
+candidates 1───* contact_logs
+candidates 1───* tasks
+candidates 1───* applications
+candidates 1───* profile_sends
+candidates  1───1 documents (profile_photo)
+users 1───* contact_logs, tasks (assigned), activities
+pipeline_stages 1───* applications
+contact_logs 1───0..1 tasks (auto follow-up)
+activities *───1 (morph) any subject
+```
+
+### 6.2 Indeksy krytyczne
+
+- `candidates.phone_normalized` — unikalny (per tenant), deduplikacja w czasie rzeczywistym.
+- `candidates(tenant_id, status)` — listy/filtrowanie.
+- `tasks(assigned_to, status, due_at)` — widok „moje zadania na dziś".
+- `contact_logs(candidate_id, contacted_at desc)` — historia kontaktów.
+- `applications(job_posting_id, stage_id, position)` — render kanban.
+- Pełnotekstowy indeks (Postgres `tsvector` / `pg_trgm`) na `candidates(first_name, last_name, phone, city)` — szybkie wyszukiwanie.
+
+---
+
+## 7. Architektura backendu (Laravel 11)
+
+### 7.1 Warstwy
+
+```
+HTTP Request
+  → Route (routes/api.php, wersjonowane /api/v1)
+  → Middleware (auth:sanctum, tenant scope, throttle)
+  → FormRequest (walidacja + autoryzacja wstępna)
+  → Controller (cienki, deleguje)
+  → Action / Service (logika domenowa, jedna odpowiedzialność)
+  → Model (Eloquent) + Policy (autoryzacja)
+  → Resource (serializacja JSON)
+HTTP Response
+```
+
+### 7.2 Wzorce
+
+- **Single-purpose Actions** (np. `CreateCandidateAction`, `LogContactAction`, `GenerateProfilePdfAction`) — testowalne, reużywalne z kontrolera i z kolejki.
+- **Form Requests** — cała walidacja w jednym miejscu (krytyczne dla szybkiego quick-add: minimalne wymagane pola).
+- **Policies** — autoryzacja per-rola i per-tenant.
+- **Observers / Events** — `ContactLogCreated` → listener tworzy Task; każda zmiana encji → `Activity`.
+- **Jobs (Queue)** — `GenerateProfilePdfJob`, `SendProfileEmailJob`, (future) `RunOcrJob`, `MatchCandidatesJob`.
+- **Global Scope** — `TenantScope` automatycznie filtruje po `tenant_id`.
+- **Filesystem** — dysk `s3` (konfiguracja zgodna z MEGA S3 / dowolnym S3-compatible), presigned URLs do pobierania, brak publicznego dostępu.
+
+### 7.3 Generowanie PDF (HTML → PDF)
+
+- Szablon Blade `profile.blade.php` renderowany do HTML, konwertowany do PDF.
+- **Decyzja (zatwierdzona): Gotenberg** (kontener, Chromium headless) jako usługa w docker-compose — najwyższa jakość „premium" i pełne wsparcie CSS. Backend renderuje Blade → HTML, wysyła do Gotenberg, odbiera PDF, zapisuje w S3.
+- PDF **nie zawiera** `internal_notes` ani innych pól oznaczonych jako wewnętrzne.
+
+---
+
+## 8. Architektura frontendu (Nuxt 3)
+
+### 8.1 Zasady
+
+- **PWA, installable, offline-aware** (Workbox / `@vite-pwa/nuxt`). Cache shell + ostatnie dane; kolejka zapisów offline dla quick-add (na przyszłość — patrz ryzyka).
+- **Decyzja (zatwierdzona): SPA (`ssr: false`)** dla aplikacji za loginem — prostsze PWA, brak SSR dla danych wrażliwych, cały interfejs renderowany po stronie klienta po autoryzacji.
+- **Pinia** — stan globalny (auth, bieżący użytkownik, draft quick-add).
+- **Vue Query (TanStack Query)** — cache i synchronizacja danych serwerowych, optymistyczne aktualizacje (kanban drag&drop, quick-add).
+- **TailwindCSS** — system wizualny mobile-first.
+- **TypeScript** — typy generowane/utrzymywane zgodnie z kontraktem API.
+
+### 8.2 Struktura nawigacji (mobile)
+
+- **Dolny pasek nawigacji (bottom tab bar)** — 4–5 ikon: `Dziś` (zadania), `Kandydaci`, `Pipeline`, `Firmy`, `Więcej`.
+- **FAB „Nowy Kandydat"** — pływający przycisk obecny na głównych ekranach.
+- **Stos ekranów** kandydata: szczegóły → zakładki (Info / Dokumenty / Kontakty / Zadania).
+
+---
+
+## 9. API REST
+
+> Bazowy prefix: `/api/v1`. Format: JSON. Autoryzacja: `Authorization: Bearer <token>` (Sanctum).
+> Paginacja: cursor/limit. Filtrowanie: query params. Wszystkie odpowiedzi przez API Resources.
+
+### 9.1 Najważniejsze endpointy (MVP)
+
+```
+POST   /auth/login                      logowanie (token)
+POST   /auth/logout
+GET    /auth/me
+
+GET    /candidates                      lista + wyszukiwanie/filtry
+POST   /candidates                      quick-add (minimalne pola)  ← KPI 60s
+GET    /candidates/{id}
+PATCH  /candidates/{id}                 progresywne wzbogacanie
+DELETE /candidates/{id}                 soft delete
+GET    /candidates/lookup?phone=...     deduplikacja w locie  ← KPI
+
+POST   /candidates/{id}/contacts        zapis kontaktu (auto-task jeśli next_contact_at)
+GET    /candidates/{id}/contacts
+
+POST   /candidates/{id}/documents       upload do S3 (multipart / presigned)
+GET    /candidates/{id}/documents
+POST   /candidates/{id}/profile-photo   zapis wyciętego zdjęcia (Cropper)
+
+GET    /tasks?assigned_to=me&due=today  „Dziś"
+POST   /tasks
+PATCH  /tasks/{id}                      done/cancel/reschedule
+
+GET    /companies, POST, GET/{id}, PATCH, DELETE
+GET    /job-postings, POST, ...
+
+GET    /pipeline?job_posting_id=...     kolumny + karty (kanban)
+POST   /applications                    dodaj kandydata do ogłoszenia
+PATCH  /applications/{id}               zmiana etapu/pozycji (drag&drop)
+
+POST   /candidates/{id}/profile-pdf     generuj PDF (kolejka) → zwraca job/status
+POST   /candidates/{id}/profile-send    wyślij profil do klienta (email)
+
+GET    /activities?subject=candidate&id=...   audit log
+```
+
+### 9.2 Kontrakt quick-add (przykład)
+
+```jsonc
+// POST /api/v1/candidates  (minimalny payload pod KPI 60s)
+{
+  "phone": "+48 600 000 000",        // wymagane
+  "first_name": "Jan",               // wymagane
+  "last_name": null,                 // opcjonalne
+  "license_categories": ["C+E"],     // chipy
+  "contact": {                       // opcjonalne — od razu loguje kontakt
+    "channel": "phone",
+    "outcome": "interested",
+    "note": "Szuka tras międzynarodowych",
+    "next_contact_at": "2026-06-06T10:00:00+02:00"  // → auto-task
+  }
+}
+```
+
+---
+
+## 10. UX mobilny
+
+### 10.1 Pryncypia
+
+- **Jeden kciuk, jeden cel.** Najważniejsze akcje w zasięgu kciuka (dolna część ekranu).
+- **Duże cele dotykowe** — min. 44×44 px.
+- **Mało kliknięć** — quick-add bez przewijania; chipy zamiast dropdownów.
+- **Dolna nawigacja** zamiast górnego menu.
+- **FAB „Nowy Kandydat"** — zawsze dostępny na głównych ekranach.
+- **Optymistyczne UI** — zapis wydaje się natychmiastowy, synchronizacja w tle.
+
+### 10.2 Ekran krytyczny: Quick-Add (szkic)
+
+```
+┌───────────────────────────┐
+│  ✕            Nowy kandydat│
+├───────────────────────────┤
+│  📞 Telefon                │
+│  [ +48 ___ ___ ___      ]  │  ← autofocus, klawiatura numeryczna
+│  ⚠ Sprawdzanie duplikatu… │  ← lookup w locie
+│                            │
+│  👤 Imię                   │
+│  [ Jan                  ]  │
+│                            │
+│  🚛 Kategorie              │
+│  [B] [C] (C+E) [D] [ADR]   │  ← chipy toggle, jeden tap
+│  [Kod95] [Karta kierowcy]  │
+│                            │
+│  📝 Notatka                │
+│  [ ____________________ ]  │  🎤 (dyktowanie)
+│                            │
+│  Wynik kontaktu            │
+│  (Zainteresowany) [Nie] …  │  ← chipy
+│  ⏰ Oddzwonić: [ jutro 10 ]│  ← szybkie presety
+│                            │
+│  ┌──────────────────────┐  │
+│  │      ZAPISZ           │  │  ← duży, pełna szerokość
+│  └──────────────────────┘  │
+└───────────────────────────┘
+```
+
+### 10.3 Ekran „Dziś" (start aplikacji)
+
+Lista zadań follow-up na dziś (z call log), posortowana po godzinie. Każdy element: imię,
+telefon (tap → dzwoń), kategoria, notatka, akcje „Zadzwoniłem / Przełóż / Gotowe".
+
+### 10.4 Pipeline (kanban)
+
+Kolumny etapów, karty kandydatów, drag&drop (optymistyczny PATCH). Na telefonie: przewijanie
+poziome kolumn + długie przytrzymanie do przeniesienia, lub bottom-sheet „zmień etap".
+
+---
+
+## 11. System wizualny / Design System
+
+> Mobile-first, czytelny w jasnym otoczeniu (praca w terenie), wysoki kontrast, duże cele.
+> Z istniejącego `DESIGN.md` (Mintlify) adaptujemy jedynie **dyscyplinę tokenów**, nie estetykę.
+
+- **Typografia:** Inter (UI). Rozmiary bazowe ≥ 16 px dla pól (uniknięcie zoomu na iOS).
+- **Kolor:** jeden zdecydowany akcent (do ustalenia z marką agencji), wysoki kontrast tekstu.
+- **Skala odstępów:** 4 px baza (4/8/12/16/24/32).
+- **Promienie:** spójna skala (np. 8 px karty, full dla chipów/FAB).
+- **Komponenty bazowe:** Button (lg/full-width), Chip (toggle), Input (44px+), BottomNav, FAB, BottomSheet, Card, Avatar, Badge (status/dokumenty), EmptyState.
+- **Stany:** loading (skeleton), empty, error — zawsze zaprojektowane.
+
+Pełna specyfikacja tokenów powstanie w osobnej sekcji po zatwierdzeniu kierunku wizualnego.
+
+---
+
+## 12. Bezpieczeństwo i RODO
+
+> **To jest obszar krytyczny.** System przechowuje dane szczególnie wrażliwe: skany
+> dowodów osobistych, paszportów, praw jazdy, kart kierowcy. Błąd tutaj to ryzyko prawne
+> i wizerunkowe poważniejsze niż jakakolwiek funkcja.
+
+### 12.1 Zasady
+
+- **Dokumenty nigdy publiczne** — S3 prywatne, dostęp wyłącznie przez presigned URL z krótkim TTL, autoryzowany per użytkownik/tenant.
+- **Szyfrowanie**: TLS w tranzycie; szyfrowanie at-rest po stronie storage (S3 SSE); wrażliwe pola rozważyć do szyfrowania na poziomie aplikacji.
+- **Autoryzacja**: Policies per rola i per tenant; zasada najmniejszych uprawnień.
+- **Audit log** (`activities`) — kto, kiedy, co (w tym dostęp do dokumentów i wysyłki profili).
+- **Zgoda RODO** — `candidates.consent_rodo_at`; bez zgody ograniczenia przetwarzania.
+- **Retencja i „prawo do bycia zapomnianym"** — soft delete + proces twardego usunięcia danych i plików S3 po okresie retencji / na żądanie.
+- **Minimalizacja w PDF** — profil dla klienta nie zawiera notatek wewnętrznych ani nadmiarowych danych osobowych.
+- **Rate limiting / throttling** na endpointach auth i lookup.
+- **Backupy** bazy i metadanych; plan odtwarzania.
+
+### 12.2 Rejestr czynności przetwarzania
+
+Audit log + dokumentacja kategorii danych i podstaw prawnych przetwarzania (do uzupełnienia z działem prawnym agencji).
+
+---
+
+## 13. Struktura katalogów
+
+> Monorepo: backend (Laravel) + frontend (Nuxt) + infrastruktura.
+
+```
+rekruter/
+├── design.md                      ← źródło prawdy (ten plik)
+├── README.md
+├── docker-compose.yml
+├── docker-compose.prod.yml
+├── .env.example
+├── docs/                          ← ADR, diagramy, instrukcje
+│   ├── adr/
+│   └── erd.png
+│
+├── backend/                       ← Laravel 11 API
+│   ├── app/
+│   │   ├── Models/
+│   │   ├── Http/
+│   │   │   ├── Controllers/Api/V1/
+│   │   │   ├── Requests/
+│   │   │   ├── Resources/
+│   │   │   └── Middleware/
+│   │   ├── Actions/               ← logika domenowa (single-purpose)
+│   │   │   ├── Candidates/
+│   │   │   ├── Contacts/
+│   │   │   ├── Pipeline/
+│   │   │   └── Profiles/
+│   │   ├── Policies/
+│   │   ├── Jobs/                  ← PDF, mail, (future) OCR/AI
+│   │   ├── Observers/
+│   │   ├── Events/ Listeners/
+│   │   └── Support/Tenancy/       ← TenantScope, helpers
+│   ├── database/
+│   │   ├── migrations/
+│   │   ├── factories/
+│   │   └── seeders/
+│   ├── routes/api.php
+│   ├── resources/views/pdf/       ← szablony profilu (Blade → PDF)
+│   └── tests/ (Feature, Unit)
+│
+├── frontend/                      ← Nuxt 3 PWA
+│   ├── app.vue
+│   ├── nuxt.config.ts
+│   ├── pages/
+│   │   ├── index.vue              ← „Dziś"
+│   │   ├── candidates/
+│   │   ├── pipeline/
+│   │   ├── companies/
+│   │   └── job-postings/
+│   ├── components/
+│   │   ├── ui/                    ← Button, Chip, BottomNav, FAB, BottomSheet…
+│   │   ├── candidate/
+│   │   ├── contact/
+│   │   └── pipeline/
+│   ├── composables/               ← useCandidates, useTasks, useAuth (Vue Query)
+│   ├── stores/                    ← Pinia
+│   ├── layouts/
+│   ├── middleware/                ← auth
+│   ├── types/                     ← kontrakty API (TS)
+│   └── assets/
+│
+└── infra/                         ← konfiguracje (nginx, gotenberg, horizon)
+```
+
+---
+
+## 14. Deployment
+
+- **Docker Compose**, usługi: `app` (Laravel + php-fpm), `nginx`, `frontend` (Nuxt — build statyczny/serwer Node), `postgres`, `redis`, `horizon` (worker), `gotenberg` (PDF — jeśli wybrane), `mailpit` (dev SMTP).
+- **Storage**: S3-compatible (docelowo MEGA S3) — konfiguracja przez `.env`.
+- **Środowiska**: `dev` (compose + Mailpit + MinIO jako lokalny S3), `prod` (compose prod + realny S3/MEGA + realny SMTP).
+- **Migracje** uruchamiane przy starcie kontenera app (kontrolowane).
+- **Healthchecki** i restart policy dla usług.
+- **Sekrety** wyłącznie przez zmienne środowiskowe / menedżer sekretów; nigdy w repo.
+
+---
+
+## 15. Rozszerzalność na przyszłość
+
+Architektura przygotowana (bez przedwczesnej implementacji) pod:
+
+| Funkcja | Zaczep w architekturze |
+|---|---|
+| OCR dokumentów | `Document` + `RunOcrJob` (kolejka); pola wynikowe w jsonb |
+| AI analiza CV | Action/Job na `Document(cv)`; wynik jako encja powiązana |
+| AI dopasowanie kandydatów | `applications` + serwis scoringowy; `required_categories` vs profil |
+| WhatsApp Business API | `ContactLog.channel=whatsapp` już istnieje; adapter integracji |
+| SMS Gateway | jw. `channel=sms`; abstrakcja `NotificationChannel` |
+| Integracje z portalami pracy | `job_postings.external_ref`; moduł importu/eksportu |
+| Auto-publikacja ogłoszeń | Job + adaptery per portal |
+| Workflow Automation | Events/Listeners + reguły (silnik reguł w przyszłości) |
+| Multi-language | i18n od startu w Nuxt; teksty wydzielone |
+| Multi-tenant SaaS | `tenant_id` + `TenantScope` już w modelu |
+
+---
+
+## 16. Ryzyka i mitygacje
+
+| # | Ryzyko | Wpływ | Mitygacja |
+|---|---|---|---|
+| R1 | **RODO / dane wrażliwe** (dowody, paszporty) | Krytyczny (prawny) | Sekcja 12: S3 prywatne, presigned, audit, zgody, retencja, minimalizacja w PDF |
+| R2 | Duplikaty kandydatów przy telefonie | Wysoki (jakość danych) | `phone_normalized` unique + lookup w locie przed zapisem |
+| R3 | KPI 60s nieosiągnięty przez ciężki formularz | Wysoki (cel produktu) | Quick-add minimalny, chipy, optymistyczne UI, kolejki dla ciężkich operacji |
+| R4 | Jakość PDF („premium") słaba przy dompdf | Średni | Gotenberg/Browsershot zamiast dompdf (decyzja sekcja 18) |
+| R5 | Kompatybilność MEGA S3 z API S3 | Średni | Warstwa Filesystem S3; test na MinIO; weryfikacja MEGA S3 przed prod |
+| R6 | Offline na telefonie (słaby zasięg w terenie) | Średni | PWA + kolejka zapisów offline (faza 2); na MVP wyraźny stan online/offline |
+| R7 | Bezpieczeństwo plików (malware w uploadzie) | Średni | Walidacja typu/rozmiaru, skan AV w kolejce (faza 2), brak wykonywania |
+| R8 | Przeskalowanie modelu (multi-tenant później) | Niski | `tenant_id` od startu eliminuje migrację rozrywającą |
+| R9 | Rozjazd kontraktu API ↔ frontend | Średni | Typy TS z kontraktu, testy Feature na API, wersjonowanie `/v1` |
+| R10 | Złożoność kanban na małym ekranie | Średni | Bottom-sheet „zmień etap" jako alternatywa dla drag&drop |
+
+---
+
+## 17. Roadmapa wdrożeniowa
+
+> Po zatwierdzeniu tego dokumentu. Kolejność: szkielet → moduł krytyczny → reszta.
+
+- **Faza 0 — Fundament** ✅ **ZREALIZOWANA** (2026-06-05): docker-compose (postgres, redis, minio, mailpit, gotenberg, app, nginx, queue, frontend), Laravel 11 + Sanctum, model Tenant + User (UUID), `TenantScope` + `BelongsToTenant`, middleware `IdentifyTenant`, endpointy `auth/login|me|logout`, testy funkcjonalne autoryzacji (6 zielonych), Nuxt 3 PWA (SPA, Tailwind, Pinia, Vue Query, dolna nawigacja, FAB, strona logowania), README.
+- **Faza 1 — Rdzeń KPI (krytyczny)**: Candidates + Quick-Add < 60s, lookup/deduplikacja, ContactLog + auto-Task, ekran „Dziś", dolna nawigacja + FAB.
+- **Faza 2 — Dokumenty + Profil**: upload S3, Cropper (zdjęcie profilowe), generator PDF (premium), wysyłka profilu (SMTP), audit log.
+- **Faza 3 — Pipeline + Klienci**: Companies, JobPostings, Applications, kanban (drag&drop / bottom-sheet).
+- **Faza 4 — Utwardzenie**: RODO (retencja, zgody, eksport/usunięcie danych), offline queue, testy E2E, hardening bezpieczeństwa, deployment prod.
+
+Każda faza kończy się działającym, przetestowanym przyrostem. Po każdej fazie aktualizacja `design.md`.
+
+---
+
+## 18. Decyzje i otwarte pytania
+
+### 18.1 Decyzje zatwierdzone (2026-06-05)
+
+| # | Temat | Decyzja |
+|---|---|---|
+| D1 | `DESIGN.md` (Mintlify) | Przeznaczony na główny dokument projektowy — treść zastąpiona |
+| D2 | Renderer PDF | **Gotenberg** (Chromium headless, kontener) |
+| D3 | Nuxt SSR vs SPA | **SPA** (`ssr: false`) |
+| D4 | Fazowanie wdrożenia | Zaakceptowane — start **Fazy 0** |
+
+### 18.2 Otwarte pytania (do uzupełnienia w kolejnych fazach)
+
+4. **Branding / kolor akcentu** — czy jest księga znaku agencji (logo, kolory)?
+5. **Multi-user teraz?** — ilu rekruterów na start (wpływa na uprawnienia/UX zadań)?
+6. **MEGA S3** — dostęp testowy teraz, czy MVP na MinIO, MEGA później? (na dev: MinIO)
+7. **Język UI** — tylko PL teraz, czy od razu i18n (PL + np. UA/RU dla kandydatów-kierowców)?
+
+---
+
+> **Status:** Faza 0 (fundament) w realizacji — docker-compose + szkielet Laravel 11 (API,
+> Sanctum, tenant scope) + Nuxt 3 PWA (SPA). Aktualizacje postępu w sekcji 17.

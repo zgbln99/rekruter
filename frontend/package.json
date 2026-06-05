@@ -1,0 +1,27 @@
+{
+  "name": "rekruter-frontend",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare",
+    "typecheck": "nuxt typecheck"
+  },
+  "dependencies": {
+    "@tanstack/vue-query": "^5.59.16",
+    "nuxt": "^3.14.159",
+    "pinia": "^2.2.6",
+    "vue": "^3.5.13",
+    "vue-router": "^4.4.5"
+  },
+  "devDependencies": {
+    "@nuxtjs/tailwindcss": "^6.12.2",
+    "@pinia/nuxt": "^0.5.5",
+    "@vite-pwa/nuxt": "^0.10.6",
+    "typescript": "^5.6.3",
+    "vue-tsc": "^2.1.10"
+  }
+}

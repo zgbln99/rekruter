@@ -1,0 +1,35 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+}
+
+html,
+body,
+#__nuxt {
+  height: 100%;
+}
+
+body {
+  @apply bg-gray-50 text-gray-900 antialiased;
+  font-family:
+    'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  /* Zapobiega zoomowi pól na iOS (min. 16px) i przewijaniu gumowemu. */
+  -webkit-text-size-adjust: 100%;
+}
+
+@layer components {
+  /* Duży, pełnowymiarowy przycisk akcji — UX mobilny (DESIGN.md sekcja 10). */
+  .btn-primary {
+    @apply flex h-12 w-full items-center justify-center rounded-xl bg-brand
+      px-5 text-base font-semibold text-white active:bg-brand-dark
+      disabled:opacity-50;
+  }
+
+  .input-field {
+    @apply h-12 w-full rounded-xl border border-gray-300 bg-white px-4 text-base
+      outline-none focus:border-brand focus:ring-2 focus:ring-brand/30;
+  }
+}

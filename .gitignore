@@ -1,0 +1,9 @@
+# Root-level
+.env
+.DS_Store
+
+# Zależności / artefakty budowania (mają własne .gitignore w podkatalogach)
+**/node_modules
+**/vendor
+**/.output
+**/.nuxt

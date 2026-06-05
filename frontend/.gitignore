@@ -1,0 +1,14 @@
+# Nuxt
+.nuxt
+.output
+.data
+dist
+node_modules
+.env
+*.log
+
+# Misc
+.DS_Store
+.fleet
+.idea
+.vscode
