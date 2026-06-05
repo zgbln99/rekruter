@@ -35,13 +35,25 @@ async function generateReferral() {
   }
 }
 
-// Grafika ogłoszenia (PNG na social media).
+// Grafika ogłoszenia (PNG na social media) — generowana przez OpenAI (gpt-image-1).
 const posterLoading = ref('')
+const posterError = ref('')
 async function generatePoster(format: 'feed' | 'reels') {
+  posterError.value = ''
   posterLoading.value = format
   try {
     const blob = await fetchBlob(`/job-offers/${id.value}/poster?format=${format}`)
     openBlob(blob, `oferta-${format}-${(offer.value?.title || '').replace(/\s+/g, '-').toLowerCase()}.png`)
+  } catch (e: any) {
+    // Odpowiedź błędu przychodzi jako Blob (responseType: blob) — spróbuj odczytać treść.
+    let msg = 'Nie udało się wygenerować grafiki.'
+    try {
+      const body = e?.response?._data
+      const text = body instanceof Blob ? await body.text() : ''
+      const json = text ? JSON.parse(text) : null
+      msg = json?.errors?.openai?.[0] || json?.message || msg
+    } catch {}
+    posterError.value = msg + ' (Wymaga klucza API OpenAI w Ustawieniach. Generowanie może potrwać kilkanaście sekund.)'
   } finally {
     posterLoading.value = ''
   }
@@ -105,10 +117,10 @@ async function saveQuick() {
           <AppIcon name="pdf" :size="16" /> {{ referralLoading ? 'Generowanie…' : 'Skierowanie PDF' }}
         </button>
         <button class="inline-flex h-9 items-center gap-1.5 rounded-full border border-hairline px-3.5 text-sm font-medium text-ink transition hover:bg-surface disabled:opacity-50" :disabled="!!posterLoading" @click="generatePoster('feed')">
-          <AppIcon name="camera" :size="16" /> {{ posterLoading === 'feed' ? '…' : 'Grafika (post)' }}
+          <AppIcon name="camera" :size="16" /> {{ posterLoading === 'feed' ? 'Generuję grafikę…' : 'Grafika AI (post)' }}
         </button>
         <button class="inline-flex h-9 items-center gap-1.5 rounded-full border border-hairline px-3.5 text-sm font-medium text-ink transition hover:bg-surface disabled:opacity-50" :disabled="!!posterLoading" @click="generatePoster('reels')">
-          {{ posterLoading === 'reels' ? '…' : 'Grafika (reels)' }}
+          {{ posterLoading === 'reels' ? 'Generuję grafikę…' : 'Grafika AI (reels)' }}
         </button>
         <NuxtLink :to="`/job-offers/${id}/edit`" class="inline-flex h-9 items-center gap-1.5 rounded-full border border-hairline px-3.5 text-sm font-medium text-ink transition hover:bg-surface">
           Edytuj
@@ -121,6 +133,8 @@ async function saveQuick() {
         </button>
       </div>
     </div>
+
+    <p v-if="posterError" class="-mt-2 mb-2 text-sm text-red-600">{{ posterError }}</p>
 
     <!-- Główna akcja: nowy kandydat z ogłoszenia -->
     <button class="btn-primary" @click="showQuick = !showQuick">

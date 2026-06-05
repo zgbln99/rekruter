@@ -45,4 +45,38 @@ class OpenAiClient
 
         return trim((string) $response->json('choices.0.message.content', ''));
     }
+
+    /**
+     * Generuje obraz (PNG) przez OpenAI Images API (model gpt-image-1).
+     * Zwraca surowe bajty PNG.
+     *
+     * @param  string  $size  np. '1024x1536' (pionowy), '1024x1024', '1536x1024'
+     * @param  string  $quality  'low' | 'medium' | 'high' | 'auto'
+     */
+    public function image(string $prompt, string $size = '1024x1536', string $quality = 'medium'): string
+    {
+        $response = Http::withToken($this->apiKey)
+            ->timeout(180)
+            ->post('https://api.openai.com/v1/images/generations', [
+                'model' => 'gpt-image-1',
+                'prompt' => $prompt,
+                'size' => $size,
+                'quality' => $quality,
+                'n' => 1,
+            ]);
+
+        if (! $response->successful()) {
+            throw new RuntimeException(
+                'Błąd OpenAI (HTTP '.$response->status().'): '.$response->json('error.message', 'nieznany')
+            );
+        }
+
+        $b64 = $response->json('data.0.b64_json');
+
+        if (! $b64) {
+            throw new RuntimeException('OpenAI nie zwrócił obrazu.');
+        }
+
+        return base64_decode($b64);
+    }
 }

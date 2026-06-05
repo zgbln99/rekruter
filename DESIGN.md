@@ -38,6 +38,7 @@
 19. [Faza 5 — Ogłoszenia jako centrum systemu](#19-faza-5--ogłoszenia-jako-centrum-systemu)
 20. [Faza 6 — Pełna kartoteka kandydata + użytkownicy](#20-faza-6--pełna-kartoteka-kandydata--użytkownicy)
 21. [Faza 7 — Skierowania, kalendarz przyjazdów i rozliczenia](#21-faza-7--skierowania-kalendarz-przyjazdów-i-rozliczenia)
+22. [Faza 8 — Grafiki ogłoszeń generowane przez AI](#22-faza-8--grafiki-ogłoszeń-generowane-przez-ai)
 
 ---
 
@@ -1207,3 +1208,35 @@ PDF skierowania używa wpisanej daty przyjazdu i nazwiska kierowcy · oznaczenie
 „Dotarł" ustawia status i znacznik czasu · kalendarz zwraca przyjazdy dla
 rekrutera, a raty tylko dla administratora · rekruter nie może edytować raty (403).
 Cel: 100% zielonych.
+
+---
+
+## 22. Faza 8 — Grafiki ogłoszeń generowane przez AI
+
+> Cel: grafiki ogłoszeń na social media (post / reels) mają wyglądać profesjonalnie.
+> Zamiast renderu HTML→PNG (Gotenberg) generujemy je modelem obrazowym **OpenAI
+> `gpt-image-1`**.
+
+### 22.1 Zmiana podejścia
+
+Dotychczas plakat powstawał z szablonu Blade renderowanego do PNG (Gotenberg
+screenshot). Efekt był „amatorski". Teraz `GeneratePosterAction` buduje
+szczegółowy prompt po polsku z danych ogłoszenia (stanowisko, lokalizacja,
+kategorie, system pracy, wynagrodzenie, nazwa agencji, CTA „APLIKUJ TERAZ")
+i wywołuje **OpenAI Images API** (`POST /v1/images/generations`, model
+`gpt-image-1`, rozmiar `1024x1536`, jakość `medium`). Zwracane są surowe bajty
+PNG (z `data[0].b64_json`).
+
+- Klient: `OpenAiClient::image($prompt, $size, $quality)` — używa tego samego
+  klucza API z ustawień organizacji co generowanie opisów.
+- Brak klucza → `ValidationException` (`errors.openai`) z komunikatem, by
+  uzupełnić klucz w Ustawieniach (spójnie z generowaniem opisu).
+- Endpoint bez zmian: `GET /job-offers/{jobPosting}/poster?format=feed|reels`.
+- `nginx`: `fastcgi_read_timeout` podniesiony do `180s` (generowanie obrazu
+  trwa kilkanaście–kilkadziesiąt sekund).
+
+### 22.2 Wymagania środowiskowe
+
+Serwer musi mieć dostęp wychodzący do `api.openai.com` (polityka sieci
+środowiska). Stary szablon `pdf/poster.blade.php` i `GotenbergClient::htmlToImage`
+pozostają w kodzie, ale nie są już używane przez moduł grafik.
