@@ -7,7 +7,7 @@ RUN apk add --no-cache \
         libzip-dev icu-dev postgresql-dev oniguruma-dev linux-headers \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install -j"$(nproc)" \
-        pdo_pgsql pgsql gd zip bcmath intl pcntl \
+        pdo_pgsql pgsql gd zip bcmath intl pcntl mbstring \
     && apk add --no-cache --virtual .build-deps autoconf g++ make \
     && pecl install redis \
     && docker-php-ext-enable redis \
