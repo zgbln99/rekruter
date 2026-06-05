@@ -99,5 +99,7 @@ php artisan test          # wymaga PostgreSQL (kolumny jsonb)
   scope), Nuxt 3 PWA (SPA, dolna nawigacja, FAB, logowanie), testy autoryzacji.
 - **Faza 1 — Rdzeń KPI** ✅ — Kandydaci, **Quick-Add < 60s** z deduplikacją po numerze,
   Call Log (kontakt → automatyczny task follow-up), ekran „Dziś". 15 testów zielonych.
-- **Faza 2 — Dokumenty + Profil** ⏳ — upload S3, Cropper, generator PDF (Gotenberg), wysyłka.
+- **Faza 2 — Dokumenty + Profil** ✅ — upload do prywatnego S3, zdjęcie profilowe (CropperJS),
+  generator PDF (Gotenberg), wysyłka profilu mailem (kolejka), audit log. 25 testów zielonych.
+- **Faza 3 — Pipeline + Klienci** ⏳ — Firmy, Ogłoszenia, kanban rekrutacyjny.
 - Kolejne fazy: patrz [`DESIGN.md`](./DESIGN.md) sekcja 17.

@@ -35,4 +35,9 @@ return [
         ],
     ],
 
+    // HTML -> PDF (DESIGN.md sekcja 7.3, decyzja D2).
+    'gotenberg' => [
+        'url' => env('GOTENBERG_URL', 'http://gotenberg:3000'),
+    ],
+
 ];

@@ -1,0 +1,56 @@
+<?php
+
+namespace App\Support\Pdf;
+
+use Illuminate\Http\Client\PendingRequest;
+use Illuminate\Support\Facades\Http;
+use RuntimeException;
+
+/**
+ * Minimalny klient Gotenberg (Chromium) do konwersji HTML -> PDF.
+ *
+ * Wysyła samodzielny dokument HTML (z inline CSS oraz obrazami w data-URI),
+ * dzięki czemu nie wymaga dostępu Gotenberg do zewnętrznych zasobów.
+ */
+class GotenbergClient
+{
+    public function __construct(
+        private readonly string $baseUrl,
+    ) {}
+
+    public static function make(): self
+    {
+        return new self(rtrim((string) config('services.gotenberg.url'), '/'));
+    }
+
+    /**
+     * Konwertuje HTML do PDF i zwraca zawartość binarną pliku.
+     */
+    public function htmlToPdf(string $html): string
+    {
+        $response = $this->request()
+            ->attach('files', $html, 'index.html')
+            ->post($this->baseUrl.'/forms/chromium/convert/html', [
+                'paperWidth' => '8.27',   // A4
+                'paperHeight' => '11.69',
+                'marginTop' => '0.4',
+                'marginBottom' => '0.4',
+                'marginLeft' => '0.4',
+                'marginRight' => '0.4',
+                'printBackground' => 'true',
+            ]);
+
+        if (! $response->successful()) {
+            throw new RuntimeException(
+                'Gotenberg nie wygenerował PDF (HTTP '.$response->status().').'
+            );
+        }
+
+        return $response->body();
+    }
+
+    private function request(): PendingRequest
+    {
+        return Http::timeout(30);
+    }
+}

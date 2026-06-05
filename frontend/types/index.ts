@@ -121,3 +121,49 @@ export interface Paginated<T> {
   data: T[]
   meta?: { current_page: number; last_page: number; total: number }
 }
+
+export type DocumentType =
+  | 'cv'
+  | 'id_card'
+  | 'passport'
+  | 'driving_license'
+  | 'driver_card'
+  | 'adr'
+  | 'code_95'
+  | 'photo'
+  | 'other'
+
+export interface CandidateDocument {
+  id: string
+  candidate_id: string
+  type: DocumentType
+  type_label: string
+  original_name: string | null
+  mime: string | null
+  size: number
+  is_profile_photo: boolean
+  created_at: string | null
+  download_url: string
+}
+
+export interface ProfileSend {
+  id: string
+  candidate_id: string
+  recipient_email: string
+  status: 'queued' | 'sent' | 'failed' | 'viewed'
+  status_label: string
+  sent_at: string | null
+  created_at: string | null
+}
+
+export const DOCUMENT_TYPE_OPTIONS: { value: DocumentType; label: string }[] = [
+  { value: 'cv', label: 'CV' },
+  { value: 'id_card', label: 'Dowód' },
+  { value: 'passport', label: 'Paszport' },
+  { value: 'driving_license', label: 'Prawo jazdy' },
+  { value: 'driver_card', label: 'Karta kierowcy' },
+  { value: 'adr', label: 'ADR' },
+  { value: 'code_95', label: 'Kod 95' },
+  { value: 'photo', label: 'Zdjęcie' },
+  { value: 'other', label: 'Inne' },
+]

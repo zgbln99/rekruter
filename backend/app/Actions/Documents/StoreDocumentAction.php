@@ -1,0 +1,46 @@
+<?php
+
+namespace App\Actions\Documents;
+
+use App\Models\Candidate;
+use App\Models\Document;
+use App\Models\User;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
+
+/**
+ * Zapisuje dokument kandydata w prywatnym S3 i tworzy rekord Document.
+ * Dokumenty nigdy nie są publiczne (RODO — DESIGN.md sekcja 12).
+ */
+class StoreDocumentAction
+{
+    public function execute(Candidate $candidate, UploadedFile $file, string $type, User $user): Document
+    {
+        $path = sprintf(
+            'tenants/%s/candidates/%s/documents/%s.%s',
+            $candidate->tenant_id,
+            $candidate->id,
+            Str::uuid(),
+            $file->getClientOriginalExtension() ?: 'bin'
+        );
+
+        Storage::disk('s3')->putFileAs(
+            dirname($path),
+            $file,
+            basename($path),
+            ['visibility' => 'private']
+        );
+
+        return Document::create([
+            'candidate_id' => $candidate->id,
+            'type' => $type,
+            'disk' => 's3',
+            'path' => $path,
+            'original_name' => $file->getClientOriginalName(),
+            'mime' => $file->getMimeType(),
+            'size' => $file->getSize(),
+            'uploaded_by' => $user->id,
+        ]);
+    }
+}

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\CandidateStatus;
+use App\Support\Audit\RecordsActivity;
 use App\Support\PhoneNumber;
 use App\Support\Tenancy\BelongsToTenant;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
@@ -14,7 +15,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Candidate extends Model
 {
-    use BelongsToTenant, HasFactory, HasUuids, SoftDeletes;
+    use BelongsToTenant, HasFactory, HasUuids, RecordsActivity, SoftDeletes;
 
     protected $fillable = [
         'first_name',
@@ -80,5 +81,15 @@ class Candidate extends Model
     public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function documents(): HasMany
+    {
+        return $this->hasMany(Document::class);
+    }
+
+    public function profilePhoto(): BelongsTo
+    {
+        return $this->belongsTo(Document::class, 'profile_photo_id');
     }
 }
