@@ -66,6 +66,9 @@ export interface Candidate {
   nationality?: string | null
   availability_from?: string | null
   experience_notes?: string | null
+  address?: string | null
+  date_of_birth?: string | null
+  work_history?: WorkHistoryItem[]
   source: string | null
   profile_photo_id?: string | null
   internal_notes: string | null
@@ -73,6 +76,13 @@ export interface Candidate {
   contact_logs?: ContactLog[]
   tasks?: Task[]
   applications?: Application[]
+}
+
+export interface WorkHistoryItem {
+  employer?: string
+  position?: string
+  period?: string
+  description?: string
 }
 
 export interface ContactLog {

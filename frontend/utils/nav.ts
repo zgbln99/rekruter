@@ -4,6 +4,7 @@ export interface NavItem {
   label: string
   icon: string
   exact?: boolean
+  adminOnly?: boolean
 }
 
 export const NAV_ITEMS: NavItem[] = [
@@ -12,4 +13,5 @@ export const NAV_ITEMS: NavItem[] = [
   { to: '/candidates', label: 'Kandydaci', icon: 'users' },
   { to: '/pipeline', label: 'Pipeline', icon: 'board' },
   { to: '/companies', label: 'Firmy', icon: 'building' },
+  { to: '/users', label: 'Użytkownicy', icon: 'shield', adminOnly: true },
 ]

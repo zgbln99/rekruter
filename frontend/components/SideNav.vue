@@ -1,6 +1,10 @@
 <script setup lang="ts">
 import { NAV_ITEMS } from '~/utils/nav'
 // Boczna nawigacja — desktop (≥ lg). Mobile używa BottomNav.
+const auth = useAuthStore()
+const items = computed(() =>
+  NAV_ITEMS.filter((i) => !i.adminOnly || auth.isAdmin),
+)
 </script>
 
 <template>
@@ -15,7 +19,7 @@ import { NAV_ITEMS } from '~/utils/nav'
 
       <nav class="flex flex-col gap-1">
         <NuxtLink
-          v-for="item in NAV_ITEMS"
+          v-for="item in items"
           :key="item.to"
           :to="item.to"
           class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-steel transition hover:bg-surface hover:text-ink"
