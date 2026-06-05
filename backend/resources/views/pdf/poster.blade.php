@@ -59,27 +59,31 @@
         .headline .accent { color: var(--red); }
 
         /* Nagłówek + dane razem u góry, wynagrodzenie + CTA przyklejone do dołu */
-        .details { display: flex; flex-direction: column; gap: 28px; max-width: 720px; margin-top: 54px; }
-        .label { font-size: 27px; font-weight: 800; letter-spacing: 3px; text-transform: uppercase; color: var(--label); margin-bottom: 6px; }
+        .details { display: flex; flex-direction: column; max-width: 720px; margin-top: 50px; }
+        .details > div { padding-top: 24px; margin-top: 24px; border-top: 1px solid rgba(7,26,51,.12); }
+        .details > div:first-child { padding-top: 0; margin-top: 0; border-top: none; }
+        .label { font-size: 26px; font-weight: 800; letter-spacing: 3px; text-transform: uppercase; color: var(--label); margin-bottom: 7px; }
         .value { font-size: 40px; font-weight: 800; color: var(--navy); line-height: 1.06; }
         .value-main { font-weight: 900; line-height: 1.02; overflow-wrap: break-word; }
         .subvalue { font-size: 30px; font-weight: 700; color: var(--label); margin-top: 6px; line-height: 1.12; }
 
-        .field-row { display: flex; gap: 56px; }
+        .field-row { display: flex; gap: 64px; }
         .field.compact .value { font-size: 36px; }
 
         .bottom { margin-top: auto; }
-        .salary-label { font-size: 27px; font-weight: 800; letter-spacing: 3px; text-transform: uppercase; color: var(--label); margin-bottom: 4px; }
-        .salary-value { font-size: 64px; font-weight: 900; color: var(--red); line-height: 1; letter-spacing: -1px; }
-        .salary-value .suffix { font-size: 30px; font-weight: 800; color: var(--label); letter-spacing: 0; margin-left: 12px; }
+        .salary { border-left: 7px solid var(--red); padding-left: 22px; }
+        .salary-label { font-size: 26px; font-weight: 800; letter-spacing: 3px; text-transform: uppercase; color: var(--label); margin-bottom: 4px; }
+        .salary-value { font-size: 66px; font-weight: 900; color: var(--red); line-height: 1; letter-spacing: -1px; }
+        .salary-value .suffix { font-size: 29px; font-weight: 700; color: var(--label); letter-spacing: 0; margin-left: 12px; }
 
         .apply-button {
-            margin-top: 28px; height: 78px; width: 100%;
-            display: flex; align-items: center; justify-content: center;
+            margin-top: 30px; height: 82px; width: 100%;
+            display: flex; align-items: center; justify-content: center; gap: 16px;
             background: var(--red); color: #fff;
-            font-size: 40px; font-weight: 900; letter-spacing: 2px; text-transform: uppercase;
+            font-size: 41px; font-weight: 900; letter-spacing: 2px; text-transform: uppercase;
             border-radius: 16px; box-shadow: 0 22px 50px -24px rgba(201,20,20,.6);
         }
+        .apply-button .arrow { font-size: 38px; line-height: 1; }
 
         .agency { margin-top: 24px; font-size: 28px; font-weight: 700; color: var(--label); display: flex; align-items: center; gap: 12px; }
         .agency .dot { width: 14px; height: 14px; border-radius: 50%; background: var(--red); }
@@ -87,7 +91,8 @@
         /* ---- Wariant reels (1080x1920) ---- */
         body.reels .poster { padding: 104px 80px; }
         body.reels .headline div { font-size: 108px; }
-        body.reels .details { gap: 36px; margin-top: 70px; }
+        body.reels .details { margin-top: 66px; }
+        body.reels .details > div { padding-top: 30px; margin-top: 30px; }
         body.reels .label, body.reels .salary-label { font-size: 32px; }
         body.reels .value { font-size: 50px; }
         body.reels .field.compact .value { font-size: 44px; }
@@ -154,11 +159,13 @@
 
         <section class="bottom">
             @if ($salary)
-                <div class="salary-label">Wynagrodzenie</div>
-                <div class="salary-value">{{ $salary }}<span class="suffix">{{ $salarySuffix }}</span></div>
+                <div class="salary">
+                    <div class="salary-label">Wynagrodzenie</div>
+                    <div class="salary-value">{{ $salary }}<span class="suffix">{{ $salarySuffix }}</span></div>
+                </div>
             @endif
 
-            <div class="apply-button">Aplikuj teraz</div>
+            <div class="apply-button">Aplikuj teraz <span class="arrow">→</span></div>
 
             <div class="agency"><span class="dot"></span> {{ $agencyName }}</div>
         </section>
