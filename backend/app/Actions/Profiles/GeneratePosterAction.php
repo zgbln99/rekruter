@@ -45,7 +45,7 @@ class GeneratePosterAction
             'workSystem' => $offer->work_system ?: 'Bez systemu',
             'salary' => $this->formatSalary($offer),
             'salarySuffix' => 'na rękę',
-            'headlineFontSize' => $this->valueMainFontSize($headline, $format),
+            'heroFontSize' => $this->heroFontSize($headline, $format),
             'agencyName' => $tenant?->agencyName() ?? config('app.name'),
         ])->render();
 
@@ -177,14 +177,14 @@ class GeneratePosterAction
         return $currency ? trim($s).' '.$currency : trim($s);
     }
 
-    /** Dobiera rozmiar fontu „Stanowiska" zależnie od długości. */
-    private function valueMainFontSize(string $headline, string $format): int
+    /** Dobiera rozmiar nagłówka (stanowisko jako hero) zależnie od długości. */
+    private function heroFontSize(string $headline, string $format): int
     {
         $len = mb_strlen($headline);
 
         $steps = $format === 'reels'
-            ? [[16, 58], [24, 50], [34, 44], [PHP_INT_MAX, 38]]
-            : [[16, 46], [24, 40], [34, 34], [PHP_INT_MAX, 30]];
+            ? [[10, 112], [16, 94], [24, 76], [PHP_INT_MAX, 60]]
+            : [[10, 86], [16, 72], [24, 58], [PHP_INT_MAX, 48]];
 
         foreach ($steps as [$max, $size]) {
             if ($len <= $max) {
@@ -192,7 +192,7 @@ class GeneratePosterAction
             }
         }
 
-        return $format === 'reels' ? 38 : 30;
+        return $format === 'reels' ? 60 : 48;
     }
 
     /** Prompt dla modelu obrazu — wyłącznie tło, bez jakiegokolwiek tekstu. */

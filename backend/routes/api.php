@@ -130,6 +130,8 @@ Route::prefix('v1')->group(function () {
             ->name('job-offers.pipeline');
         Route::get('job-offers/{jobPosting}/referral-pdf', [JobPostingController::class, 'referralPdf'])
             ->name('job-offers.referral-pdf');
+        Route::post('job-offers/{jobPosting}/referral-pdf', [JobPostingController::class, 'referralPdf'])
+            ->name('job-offers.referral-pdf.post');
         Route::get('job-offers/{jobPosting}/poster', [JobPostingController::class, 'poster'])
             ->name('job-offers.poster');
         Route::post('ai/offer-description', [JobPostingController::class, 'aiDescription'])

@@ -78,9 +78,12 @@ export function useSendProfile(candidateId: MaybeRefOrGetter<string>) {
 }
 
 /** Pobiera plik przez uwierzytelniony endpoint (Bearer) jako Blob. */
-export async function fetchBlob(path: string): Promise<Blob> {
+export async function fetchBlob(
+  path: string,
+  options: Record<string, unknown> = {},
+): Promise<Blob> {
   const api = useApi()
-  return api<Blob>(path, { responseType: 'blob' })
+  return api<Blob>(path, { responseType: 'blob', ...options })
 }
 
 /**

@@ -1192,8 +1192,12 @@ PATCH  /placement-installments/{installment}        { status, invoiced_at?, paid
 GET    /calendar?from=YYYY-MM-DD&to=YYYY-MM-DD       wydarzenia (przyjazdy + raty[admin])
 ```
 
-Stary endpoint `GET /job-offers/{jobPosting}/referral-pdf` zostaje (skierowanie
-„czyste", bez konkretnego kierowcy) dla zachowania kompatybilności.
+Endpoint `GET/POST /job-offers/{jobPosting}/referral-pdf` zostaje (skierowanie
+z poziomu ogłoszenia). Na stronie ogłoszenia przycisk „Skierowanie PDF" otwiera
+**modal do uzupełnienia/poprawy danych** (prefill z oferty: stanowisko, lokalizacja,
+warunki, kontakt na miejscu + pola per-skierowanie: nazwisko kierowcy i termin
+przyjazdu). „Generuj PDF" wysyła te dane `POST`-em; nadpisania działają **tylko
+na ten dokument** (bez zapisu w bazie — whitelista pól w `GenerateReferralPdfAction`).
 
 ### 21.7 Autoryzacja
 
@@ -1254,12 +1258,15 @@ kontrolowany, a wynik ma dokładny rozmiar **1080×1350** (feed) lub **1080×192
 
 ### 22.3 Układ i przygotowanie danych
 
-Szablon `pdf/poster.blade.php` to czytelny plakat ogłoszenia pracy: duży nagłówek
-„PRACA DLA / KIEROWCY", sekcje z labelami (Stanowisko + podtytuł, Lokalizacja,
-Kategoria, System pracy), wyróżnione **wynagrodzenie na czerwono**, pełnej
-szerokości czerwony przycisk „APLIKUJ TERAZ" i stopka z nazwą agencji. Paleta:
-granat `#071A33`, labele `#3A4656`, czerwony `#C91414`. Warianty `feed`
-(1080×1350) i `reels` (1080×1920) różnią się rozmiarami fontów (klasa na `body`).
+Szablon `pdf/poster.blade.php` to realny flyer ogłoszeniowy: treść w **zamkniętym
+panelu-karcie** (biała karta z cieniem nad zdjęciem — nie pływające napisy), w
+której: pasek z nazwą agencji + pill „OFERTA PRACY", kicker „PRACA DLA KIEROWCY",
+**stanowisko jako właściwy nagłówek** (hero), podtytuł, dane jako „spec-sheet"
+(wiersze z liniami: Lokalizacja, Kategoria, System pracy), wyróżnione
+**wynagrodzenie na czerwono** z lewym czerwonym akcentem i mocne CTA
+„APLIKUJ TERAZ →". Tło (zdjęcie AI lub fallback) widać po prawej, poza panelem.
+Paleta: granat `#071A33`, labele `#51607A`, czerwony `#C91414`. Warianty `feed`
+(1080×1350) i `reels` (1080×1920) różnią się rozmiarami (klasa na `body`).
 
 Logikę danych liczy `GeneratePosterAction` (Blade pozostaje prezentacyjny):
 - **rozbicie tytułu** po „–/—/-" → `headline`, `subtitle`, fallback lokalizacji

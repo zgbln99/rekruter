@@ -23,13 +23,42 @@ async function removeOffer() {
   await navigateTo('/job-offers')
 }
 
-// Skierowanie do pracy (PDF dla kierowcy).
+// Skierowanie do pracy (PDF dla kierowcy) — najpierw modal do uzupełnienia danych.
 const referralLoading = ref(false)
+const showReferral = ref(false)
+const referralForm = reactive<Record<string, string>>({
+  candidate_name: '', arrival_at: '',
+  title: '', region_base: '', country: '', work_system: '', vehicle_type: '',
+  trailer_type: '', routes_info: '', cargo: '', points_per_day: '', loading_info: '',
+  daily_km: '', accommodation: '', contract_type: '', salary_amount: '', currency: '',
+  required_language: '', onsite_contact: '', public_description: '',
+})
+
+function openReferral() {
+  // Prefill z ogłoszenia — recepcjonistka tylko uzupełnia/poprawia.
+  const o: any = offer.value || {}
+  for (const k of Object.keys(referralForm)) {
+    if (k === 'candidate_name' || k === 'arrival_at') continue
+    referralForm[k] = (o[k] ?? '') as string
+  }
+  referralForm.candidate_name = ''
+  referralForm.arrival_at = ''
+  showReferral.value = true
+}
+
 async function generateReferral() {
   referralLoading.value = true
   try {
-    const blob = await fetchBlob(`/job-offers/${id.value}/referral-pdf`)
+    const body: Record<string, string> = {}
+    for (const [k, v] of Object.entries(referralForm)) {
+      if (v != null && String(v).trim() !== '') body[k] = v
+    }
+    const blob = await fetchBlob(`/job-offers/${id.value}/referral-pdf`, {
+      method: 'POST',
+      body,
+    })
     openBlob(blob, `skierowanie-${(offer.value?.title || 'oferta').replace(/\s+/g, '-').toLowerCase()}.pdf`)
+    showReferral.value = false
   } finally {
     referralLoading.value = false
   }
@@ -115,8 +144,8 @@ async function saveQuick() {
         </p>
       </div>
       <div class="flex flex-wrap gap-2">
-        <button class="inline-flex h-9 items-center gap-1.5 rounded-full bg-ink px-3.5 text-sm font-semibold text-white transition hover:bg-charcoal disabled:opacity-50" :disabled="referralLoading" @click="generateReferral">
-          <AppIcon name="pdf" :size="16" /> {{ referralLoading ? 'Generowanie…' : 'Skierowanie PDF' }}
+        <button class="inline-flex h-9 items-center gap-1.5 rounded-full bg-ink px-3.5 text-sm font-semibold text-white transition hover:bg-charcoal disabled:opacity-50" :disabled="referralLoading" @click="openReferral">
+          <AppIcon name="pdf" :size="16" /> Skierowanie PDF
         </button>
         <button class="inline-flex h-9 items-center gap-1.5 rounded-full border border-hairline px-3.5 text-sm font-medium text-ink transition hover:bg-surface disabled:opacity-50" :disabled="!!posterLoading" @click="generatePoster('feed')">
           <AppIcon name="camera" :size="16" /> {{ posterLoading === 'feed' ? 'Generuję…' : 'Grafika (post)' }}
@@ -254,6 +283,60 @@ async function saveQuick() {
     <div v-if="offer.recruiter_notes" class="rounded-lg border border-amber-200 bg-amber-50 p-4">
       <p class="mb-1 text-[13px] font-medium text-amber-800">Notatka dla rekruterki (wewnętrzna)</p>
       <p class="whitespace-pre-line text-sm text-amber-900">{{ offer.recruiter_notes }}</p>
+    </div>
+
+    <!-- Modal: uzupełnienie danych przed wygenerowaniem skierowania -->
+    <div v-if="showReferral" class="fixed inset-0 z-50 flex items-end justify-center bg-black/40 p-0 sm:items-center sm:p-4" @click.self="showReferral = false">
+      <div class="flex max-h-[92vh] w-full max-w-2xl flex-col overflow-hidden rounded-t-2xl bg-canvas shadow-xl sm:rounded-2xl">
+        <div class="flex items-center justify-between border-b border-hairline px-5 py-3.5">
+          <h2 class="text-base font-semibold text-ink">Skierowanie do pracy — uzupełnij dane</h2>
+          <button class="flex h-8 w-8 items-center justify-center rounded-full text-stone hover:bg-surface" @click="showReferral = false">
+            <AppIcon name="x" :size="18" />
+          </button>
+        </div>
+
+        <div class="flex-1 space-y-4 overflow-y-auto px-5 py-4">
+          <div class="grid gap-3 sm:grid-cols-2">
+            <div>
+              <label class="field-label">Imię i nazwisko kierowcy</label>
+              <input v-model="referralForm.candidate_name" placeholder="np. Jan Kowalski" class="input-field" />
+            </div>
+            <div>
+              <label class="field-label">Data i godzina przyjazdu</label>
+              <input v-model="referralForm.arrival_at" type="datetime-local" class="input-field" />
+            </div>
+            <div class="sm:col-span-2">
+              <label class="field-label">Stanowisko</label>
+              <input v-model="referralForm.title" class="input-field" />
+            </div>
+            <div><label class="field-label">Kraj</label><input v-model="referralForm.country" class="input-field" /></div>
+            <div><label class="field-label">Region / baza</label><input v-model="referralForm.region_base" class="input-field" /></div>
+            <div><label class="field-label">System pracy</label><input v-model="referralForm.work_system" class="input-field" /></div>
+            <div><label class="field-label">Typ auta</label><input v-model="referralForm.vehicle_type" class="input-field" /></div>
+            <div><label class="field-label">Rodzaj umowy</label><input v-model="referralForm.contract_type" class="input-field" /></div>
+            <div class="grid grid-cols-2 gap-2">
+              <div><label class="field-label">Wynagrodzenie</label><input v-model="referralForm.salary_amount" class="input-field" /></div>
+              <div><label class="field-label">Waluta</label><input v-model="referralForm.currency" class="input-field" /></div>
+            </div>
+            <div><label class="field-label">Przewożony towar</label><input v-model="referralForm.cargo" class="input-field" /></div>
+            <div><label class="field-label">Punktów dziennie</label><input v-model="referralForm.points_per_day" class="input-field" /></div>
+            <div><label class="field-label">Średni przebieg</label><input v-model="referralForm.daily_km" class="input-field" /></div>
+            <div><label class="field-label">Załadunek / rozładunek</label><input v-model="referralForm.loading_info" class="input-field" /></div>
+            <div><label class="field-label">Wymagany język</label><input v-model="referralForm.required_language" class="input-field" /></div>
+          </div>
+          <div><label class="field-label">Trasy</label><textarea v-model="referralForm.routes_info" rows="2" class="input-field !h-auto py-2.5" /></div>
+          <div><label class="field-label">Zakwaterowanie</label><textarea v-model="referralForm.accommodation" rows="2" class="input-field !h-auto py-2.5" /></div>
+          <div><label class="field-label">Osoba kontaktowa na miejscu</label><textarea v-model="referralForm.onsite_contact" rows="2" class="input-field !h-auto py-2.5" /></div>
+          <div><label class="field-label">Dodatkowe informacje</label><textarea v-model="referralForm.public_description" rows="3" class="input-field !h-auto py-2.5" /></div>
+        </div>
+
+        <div class="flex items-center justify-end gap-2 border-t border-hairline px-5 py-3.5">
+          <button class="rounded-full border border-hairline px-4 py-2 text-sm font-medium text-ink hover:bg-surface" @click="showReferral = false">Anuluj</button>
+          <button class="btn-primary !w-auto" :disabled="referralLoading" @click="generateReferral">
+            <AppIcon name="pdf" :size="18" /> {{ referralLoading ? 'Generowanie…' : 'Generuj PDF' }}
+          </button>
+        </div>
+      </div>
     </div>
   </section>
 </template>

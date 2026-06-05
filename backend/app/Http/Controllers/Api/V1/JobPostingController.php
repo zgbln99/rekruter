@@ -80,13 +80,48 @@ class JobPostingController extends Controller
 
     /**
      * Dokument „Skierowanie do pracy" (PDF) dla kierowcy.
+     * Przyjmuje opcjonalne dane z modala (uzupełnienie/poprawa pól + termin
+     * przyjazdu + nazwisko kierowcy) — nadpisania działają tylko na ten PDF.
      */
     public function referralPdf(
         JobPosting $jobPosting,
         GenerateReferralPdfAction $action,
         Request $request
     ): \Illuminate\Http\Response {
-        $pdf = $action->render($jobPosting, $request->user());
+        $data = $request->validate([
+            'candidate_name' => ['nullable', 'string', 'max:120'],
+            'arrival_at' => ['nullable', 'date'],
+            'title' => ['nullable', 'string', 'max:160'],
+            'country' => ['nullable', 'string', 'max:120'],
+            'region_base' => ['nullable', 'string', 'max:160'],
+            'work_system' => ['nullable', 'string', 'max:120'],
+            'vehicle_type' => ['nullable', 'string', 'max:160'],
+            'trailer_type' => ['nullable', 'string', 'max:120'],
+            'routes_info' => ['nullable', 'string', 'max:2000'],
+            'cargo' => ['nullable', 'string', 'max:500'],
+            'points_per_day' => ['nullable', 'string', 'max:120'],
+            'loading_info' => ['nullable', 'string', 'max:500'],
+            'daily_km' => ['nullable', 'string', 'max:120'],
+            'accommodation' => ['nullable', 'string', 'max:2000'],
+            'contract_type' => ['nullable', 'string', 'max:160'],
+            'salary_amount' => ['nullable', 'string', 'max:120'],
+            'currency' => ['nullable', 'string', 'max:8'],
+            'required_language' => ['nullable', 'string', 'max:160'],
+            'onsite_contact' => ['nullable', 'string', 'max:2000'],
+            'public_description' => ['nullable', 'string', 'max:4000'],
+        ]);
+
+        $arrival = ! empty($data['arrival_at'])
+            ? \Illuminate\Support\Carbon::parse($data['arrival_at'])->format('d.m.Y H:i')
+            : null;
+
+        $pdf = $action->render(
+            $jobPosting,
+            $request->user(),
+            null,
+            $arrival,
+            $data,
+        );
 
         return response($pdf, 200, [
             'Content-Type' => 'application/pdf',
