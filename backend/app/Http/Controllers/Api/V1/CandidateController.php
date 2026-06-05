@@ -8,10 +8,12 @@ use App\Http\Requests\Candidates\StoreCandidateRequest;
 use App\Http\Requests\Candidates\UpdateCandidateRequest;
 use App\Http\Resources\CandidateResource;
 use App\Models\Candidate;
+use App\Models\ProfileSend;
 use App\Support\PhoneNumber;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Facades\Storage;
 
 class CandidateController extends Controller
 {
@@ -80,8 +82,19 @@ class CandidateController extends Controller
 
     public function destroy(Candidate $candidate): JsonResponse
     {
+        // Usuń pliki z storage (dokumenty + wygenerowane PDF), potem rekord.
+        foreach ($candidate->documents()->withTrashed()->get() as $document) {
+            Storage::disk($document->disk)->delete($document->path);
+        }
+        foreach (ProfileSend::where('candidate_id', $candidate->id)->whereNotNull('pdf_path')->pluck('pdf_path') as $pdf) {
+            Storage::disk(config('rekruter.documents_disk'))->delete($pdf);
+        }
+
+        $candidate->documents()->forceDelete();
+        $candidate->forceFill(['profile_photo_id' => null])->save();
         $candidate->delete();
 
-        return response()->json(['message' => 'Kandydat zarchiwizowany.']);
+        return response()->json(['message' => 'Kandydat usunięty wraz z dokumentami.']);
     }
 }
+

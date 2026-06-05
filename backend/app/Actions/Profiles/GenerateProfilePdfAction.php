@@ -46,10 +46,9 @@ class GenerateProfilePdfAction
         $pdf = $this->render($candidate, $offer);
 
         $path = sprintf(
-            'tenants/%s/candidates/%s/profiles/%s.pdf',
-            $candidate->tenant_id,
-            $candidate->id,
-            Str::uuid()
+            '%s/profil-pdf/%s.pdf',
+            $candidate->storageFolder(),
+            now()->format('Ymd-His')
         );
 
         Storage::disk(config('rekruter.documents_disk'))->put($path, $pdf, ['visibility' => 'private']);

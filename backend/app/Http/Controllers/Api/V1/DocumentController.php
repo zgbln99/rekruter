@@ -80,7 +80,15 @@ class DocumentController extends Controller
     {
         abort_unless($document->candidate_id === $candidate->id, 404);
 
-        $document->delete();
+        // Usuń plik z storage (MEGA S4 / dysk dokumentów).
+        Storage::disk($document->disk)->delete($document->path);
+
+        // Jeśli to było zdjęcie profilowe — odłącz je od kandydata.
+        if ($candidate->profile_photo_id === $document->id) {
+            $candidate->forceFill(['profile_photo_id' => null])->save();
+        }
+
+        $document->forceDelete();
 
         return response()->json(['message' => 'Dokument usunięty.']);
     }

@@ -51,6 +51,21 @@ export function useUploadProfilePhoto(candidateId: MaybeRefOrGetter<string>) {
   })
 }
 
+export function useDeleteDocument(candidateId: MaybeRefOrGetter<string>) {
+  const api = useApi()
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (documentId: string) =>
+      api(`/candidates/${toValue(candidateId)}/documents/${documentId}`, {
+        method: 'DELETE',
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['documents'] })
+      queryClient.invalidateQueries({ queryKey: ['candidate', toValue(candidateId)] })
+    },
+  })
+}
+
 export function useSendProfile(candidateId: MaybeRefOrGetter<string>) {
   const api = useApi()
   return useMutation({
@@ -68,16 +83,22 @@ export async function fetchBlob(path: string): Promise<Blob> {
   return api<Blob>(path, { responseType: 'blob' })
 }
 
-/** Otwiera lub pobiera Blob w przeglądarce. */
+/**
+ * Pobiera lub otwiera Blob. Domyślnie pobiera (download) — działa też na mobile,
+ * gdzie window.open po asynchronicznym fetchu bywa blokowane przez przeglądarkę.
+ */
 export function openBlob(blob: Blob, filename?: string) {
   const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.rel = 'noopener'
   if (filename) {
-    const a = document.createElement('a')
-    a.href = url
     a.download = filename
-    a.click()
   } else {
-    window.open(url, '_blank')
+    a.target = '_blank'
   }
-  setTimeout(() => URL.revokeObjectURL(url), 10_000)
+  document.body.appendChild(a)
+  a.click()
+  a.remove()
+  setTimeout(() => URL.revokeObjectURL(url), 30_000)
 }

@@ -24,10 +24,9 @@ class SaveProfilePhotoAction
 
         return DB::transaction(function () use ($candidate, $image, $user, $disk) {
             $path = sprintf(
-                'tenants/%s/candidates/%s/photo/%s.%s',
-                $candidate->tenant_id,
-                $candidate->id,
-                Str::uuid(),
+                '%s/zdjecie-profilowe/%s.%s',
+                $candidate->storageFolder(),
+                now()->format('Ymd-His'),
                 $image->getClientOriginalExtension() ?: 'jpg'
             );
 

@@ -53,6 +53,15 @@ export function useUpdateCandidate(id: MaybeRefOrGetter<string>) {
   })
 }
 
+export function useDeleteCandidate() {
+  const api = useApi()
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (id: string) => api(`/candidates/${id}`, { method: 'DELETE' }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['candidates'] }),
+  })
+}
+
 export function useCreateCandidate() {
   const api = useApi()
   const queryClient = useQueryClient()

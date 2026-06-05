@@ -89,6 +89,19 @@ class Candidate extends Model
         return trim($this->first_name.' '.($this->last_name ?? ''));
     }
 
+    /**
+     * Czytelny folder kandydata w storage (np. „kandydaci/kowalski-jan-a1f3c2d1").
+     * Dzięki temu w buckecie MEGA widać, czyje są dokumenty.
+     */
+    public function storageFolder(): string
+    {
+        $slug = \Illuminate\Support\Str::slug(
+            trim(($this->last_name ?? '').' '.$this->first_name)
+        ) ?: 'kandydat';
+
+        return 'kandydaci/'.$slug.'-'.substr((string) $this->id, 0, 8);
+    }
+
     public function contactLogs(): HasMany
     {
         return $this->hasMany(ContactLog::class);

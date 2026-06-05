@@ -30,16 +30,25 @@ const pipelineMax = computed(() =>
   Math.max(1, ...pipelineActive.value.map((s) => s.count)),
 )
 
+const toneClass: Record<string, string> = {
+  brand: 'bg-brand-soft text-brand-deep',
+  blue: 'bg-blue-50 text-blue-600',
+  violet: 'bg-violet-50 text-violet-600',
+  amber: 'bg-amber-50 text-amber-600',
+  indigo: 'bg-indigo-50 text-indigo-600',
+  emerald: 'bg-emerald-50 text-emerald-600',
+}
+
 const metrics = computed(() => {
   const s = stats.value
   if (!s) return []
   return [
-    { label: 'Kandydaci', value: s.candidates.total, sub: `+${s.candidates.new_this_week} w tym tyg.`, icon: 'users', to: '/candidates' },
-    { label: 'Aktywne ogłoszenia', value: s.offers.active, sub: `${s.offers.total} łącznie`, icon: 'document', to: '/job-offers' },
-    { label: 'Firmy', value: s.companies, sub: 'klienci', icon: 'building', to: '/companies' },
-    { label: 'Zadania dziś', value: s.tasks.today, sub: s.tasks.overdue ? `${s.tasks.overdue} zaległych` : 'na bieżąco', icon: 'clock', to: '' },
-    { label: 'Wysłane profile', value: s.profiles.sent_total, sub: `${s.profiles.sent_this_week} w tym tyg.`, icon: 'mail', to: '' },
-    { label: 'Oczekujące decyzje', value: s.profiles.pending_decisions, sub: 'od firm', icon: 'check', to: '' },
+    { label: 'Kandydaci', value: s.candidates.total, sub: `+${s.candidates.new_this_week} w tym tyg.`, icon: 'users', to: '/candidates', tone: 'brand' },
+    { label: 'Aktywne ogłoszenia', value: s.offers.active, sub: `${s.offers.total} łącznie`, icon: 'document', to: '/job-offers', tone: 'blue' },
+    { label: 'Firmy', value: s.companies, sub: 'klienci', icon: 'building', to: '/companies', tone: 'violet' },
+    { label: 'Zadania dziś', value: s.tasks.today, sub: s.tasks.overdue ? `${s.tasks.overdue} zaległych` : 'na bieżąco', icon: 'clock', to: '', tone: 'amber' },
+    { label: 'Wysłane profile', value: s.profiles.sent_total, sub: `${s.profiles.sent_this_week} w tym tyg.`, icon: 'mail', to: '', tone: 'indigo' },
+    { label: 'Oczekujące decyzje', value: s.profiles.pending_decisions, sub: 'od firm', icon: 'check', to: '', tone: 'emerald' },
   ]
 })
 </script>
@@ -74,7 +83,7 @@ const metrics = computed(() => {
         class="card flex items-center gap-4 p-4"
         :class="m.to ? 'card-tile' : ''"
       >
-        <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-surface text-steel">
+        <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl" :class="toneClass[m.tone]">
           <AppIcon :name="m.icon" :size="22" />
         </span>
         <div class="min-w-0">

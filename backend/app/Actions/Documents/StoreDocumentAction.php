@@ -19,11 +19,13 @@ class StoreDocumentAction
     {
         $disk = config('rekruter.documents_disk');
 
+        // Czytelna ścieżka: kandydaci/{nazwisko-imie-id}/{typ}/{data}-{rand}.{ext}
         $path = sprintf(
-            'tenants/%s/candidates/%s/documents/%s.%s',
-            $candidate->tenant_id,
-            $candidate->id,
-            Str::uuid(),
+            '%s/%s/%s-%s.%s',
+            $candidate->storageFolder(),
+            $type,
+            now()->format('Ymd-His'),
+            Str::lower(Str::random(4)),
             $file->getClientOriginalExtension() ?: 'bin'
         );
 

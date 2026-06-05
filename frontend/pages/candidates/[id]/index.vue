@@ -10,7 +10,20 @@ const { data: documents } = useDocumentsQuery(id)
 
 const uploadDocument = useUploadDocument(id)
 const uploadProfilePhoto = useUploadProfilePhoto(id)
+const deleteDocument = useDeleteDocument(id)
+const deleteCandidate = useDeleteCandidate()
 const sendProfile = useSendProfile(id)
+
+function removeDocument(docId: string) {
+  if (confirm('Usunąć ten dokument? Plik zostanie skasowany ze storage.')) {
+    deleteDocument.mutate(docId)
+  }
+}
+async function removeCandidate() {
+  if (!confirm('Usunąć kandydata wraz z dokumentami? Operacja nieodwracalna.')) return
+  await deleteCandidate.mutateAsync(id.value)
+  await navigateTo('/candidates')
+}
 
 // Faza 5: kompletność profilu + timeline.
 const { data: completeness } = useCompletenessQuery(id)
@@ -103,9 +116,20 @@ async function loadProfilePhoto() {
 watch(documents, () => loadProfilePhoto())
 
 // --- Profil PDF + wysyłka ---
+const pdfLoading = ref(false)
+const pdfError = ref('')
 async function generatePdf() {
-  const blob = await fetchBlob(`/candidates/${id.value}/profile-pdf`)
-  openBlob(blob)
+  pdfError.value = ''
+  pdfLoading.value = true
+  try {
+    const blob = await fetchBlob(`/candidates/${id.value}/profile-pdf`)
+    const name = (candidate.value?.full_name || 'profil').replace(/\s+/g, '-').toLowerCase()
+    openBlob(blob, `profil-${name}.pdf`)
+  } catch {
+    pdfError.value = 'Nie udało się wygenerować PDF.'
+  } finally {
+    pdfLoading.value = false
+  }
 }
 
 const showSend = ref(false)
@@ -230,13 +254,14 @@ async function doSend() {
 
         <!-- Profil PDF / wysyłka -->
         <div class="flex gap-2.5">
-          <button class="inline-flex h-11 flex-1 items-center justify-center gap-1.5 rounded-full bg-ink text-sm font-semibold text-white transition active:scale-[0.98]" @click="generatePdf">
-            <AppIcon name="pdf" :size="18" /> Generuj PDF
+          <button class="inline-flex h-11 flex-1 items-center justify-center gap-1.5 rounded-full bg-ink text-sm font-semibold text-white transition active:scale-[0.98] disabled:opacity-50" :disabled="pdfLoading" @click="generatePdf">
+            <AppIcon name="pdf" :size="18" /> {{ pdfLoading ? 'Generowanie…' : 'Generuj PDF' }}
           </button>
           <button class="inline-flex h-11 flex-1 items-center justify-center gap-1.5 rounded-full border border-hairline bg-canvas text-sm font-semibold text-ink transition active:bg-surface" @click="showSend = !showSend">
             <AppIcon name="mail" :size="18" /> Wyślij profil
           </button>
         </div>
+        <p v-if="pdfError" class="text-sm text-red-600">{{ pdfError }}</p>
         <div v-if="showSend" class="card p-4">
           <input v-model="recipient" type="email" placeholder="email@klienta.pl" class="input-field mb-2.5" />
           <button class="btn-primary" :disabled="sendProfile.isPending.value" @click="doSend">
@@ -301,9 +326,14 @@ async function doSend() {
                   <p class="truncate text-xs text-stone">{{ doc.original_name }}</p>
                 </div>
               </div>
-              <button class="flex h-9 w-9 items-center justify-center rounded-full text-steel transition active:bg-surface" @click="download(doc)">
-                <AppIcon name="download" :size="18" />
-              </button>
+              <div class="flex shrink-0 items-center gap-1">
+                <button class="flex h-9 w-9 items-center justify-center rounded-full text-steel transition hover:bg-surface" title="Pobierz" @click="download(doc)">
+                  <AppIcon name="download" :size="18" />
+                </button>
+                <button class="flex h-9 w-9 items-center justify-center rounded-full text-red-500 transition hover:bg-red-50" title="Usuń" @click="removeDocument(doc.id)">
+                  <AppIcon name="x" :size="18" />
+                </button>
+              </div>
             </li>
           </ul>
           <p v-else class="text-sm text-muted">Brak dokumentów.</p>
@@ -388,11 +418,17 @@ async function doSend() {
               <AppIcon name="download" :size="16" /> Eksport
             </button>
             <button
-              v-if="auth.isAdmin"
               class="inline-flex items-center gap-1.5 rounded-full border border-red-200 px-3.5 py-2 text-sm font-medium text-red-600 transition hover:bg-red-50"
+              @click="removeCandidate"
+            >
+              <AppIcon name="x" :size="16" /> Usuń kandydata
+            </button>
+            <button
+              v-if="auth.isAdmin"
+              class="inline-flex items-center gap-1.5 rounded-full border border-red-300 px-3.5 py-2 text-sm font-medium text-red-700 transition hover:bg-red-50"
               @click="forget"
             >
-              <AppIcon name="x" :size="16" /> Usuń trwale
+              Usuń trwale (RODO)
             </button>
           </div>
         </div>
