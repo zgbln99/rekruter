@@ -1,11 +1,16 @@
 <?php
 
 use App\Http\Controllers\Api\V1\ActivityController;
+use App\Http\Controllers\Api\V1\ApplicationController;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\CandidateController;
 use App\Http\Controllers\Api\V1\CandidateLookupController;
+use App\Http\Controllers\Api\V1\CompanyController;
 use App\Http\Controllers\Api\V1\ContactLogController;
 use App\Http\Controllers\Api\V1\DocumentController;
+use App\Http\Controllers\Api\V1\JobPostingController;
+use App\Http\Controllers\Api\V1\PipelineController;
+use App\Http\Controllers\Api\V1\PipelineStageController;
 use App\Http\Controllers\Api\V1\ProfileController;
 use App\Http\Controllers\Api\V1\TaskController;
 use Illuminate\Support\Facades\Route;
@@ -63,5 +68,23 @@ Route::prefix('v1')->group(function () {
         // Audit log kandydata.
         Route::get('candidates/{candidate}/activities', [ActivityController::class, 'forCandidate'])
             ->name('candidates.activities');
+
+        // --- Faza 3: Pipeline + Klienci ---
+
+        Route::apiResource('companies', CompanyController::class)->except(['create', 'edit']);
+        Route::apiResource('job-postings', JobPostingController::class)->except(['create', 'edit']);
+
+        // Etapy pipeline (konfiguracja kanban).
+        Route::get('pipeline-stages', [PipelineStageController::class, 'index'])
+            ->name('pipeline-stages.index');
+
+        // Tablica kanban dla ogłoszenia.
+        Route::get('job-postings/{jobPosting}/pipeline', [PipelineController::class, 'board'])
+            ->name('job-postings.pipeline');
+
+        // Aplikacje (kandydat w pipeline ogłoszenia).
+        Route::post('applications', [ApplicationController::class, 'store'])->name('applications.store');
+        Route::patch('applications/{application}', [ApplicationController::class, 'update'])->name('applications.update');
+        Route::delete('applications/{application}', [ApplicationController::class, 'destroy'])->name('applications.destroy');
     });
 });

@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Actions\Pipeline\EnsurePipelineStagesAction;
 use App\Enums\UserRole;
 use App\Models\Tenant;
 use App\Models\User;
@@ -34,5 +35,8 @@ class DatabaseSeeder extends Seeder
                 'role' => UserRole::Admin,
             ]
         );
+
+        // Domyślne etapy pipeline rekrutacyjnego.
+        app(EnsurePipelineStagesAction::class)->execute($tenant);
     }
 }

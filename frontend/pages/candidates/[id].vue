@@ -11,6 +11,28 @@ const uploadDocument = useUploadDocument(id)
 const uploadProfilePhoto = useUploadProfilePhoto(id)
 const sendProfile = useSendProfile(id)
 
+// Przypisanie do ogłoszenia (pipeline).
+const { data: postingsData } = useJobPostingsQuery()
+const postings = computed(() => postingsData.value?.data ?? [])
+const addApplication = useAddApplication()
+const selectedPosting = ref('')
+const applyMsg = ref('')
+async function addToPipeline() {
+  if (!selectedPosting.value) return
+  applyMsg.value = ''
+  try {
+    await addApplication.mutateAsync({
+      candidate_id: id.value,
+      job_posting_id: selectedPosting.value,
+    })
+    applyMsg.value = 'Dodano do rekrutacji.'
+    selectedPosting.value = ''
+  } catch (e: any) {
+    applyMsg.value =
+      e?.response?._data?.errors?.candidate_id?.[0] || 'Nie udało się dodać.'
+  }
+}
+
 // --- Upload dokumentu ---
 const docType = ref<DocumentType>('cv')
 const fileInput = ref<HTMLInputElement | null>(null)
@@ -139,6 +161,27 @@ async function doSend() {
       </button>
     </div>
     <p v-if="sendMsg" class="text-sm text-brand">{{ sendMsg }}</p>
+
+    <!-- Rekrutacje (pipeline) -->
+    <div v-if="postings.length" class="rounded-xl border border-gray-200 bg-white p-4">
+      <p class="mb-2 text-sm font-medium text-gray-700">Dodaj do rekrutacji</p>
+      <div class="flex gap-2">
+        <select v-model="selectedPosting" class="input-field flex-1">
+          <option value="">Wybierz ogłoszenie…</option>
+          <option v-for="p in postings" :key="p.id" :value="p.id">
+            {{ p.title }} — {{ p.company?.name }}
+          </option>
+        </select>
+        <button
+          class="rounded-xl bg-brand px-4 text-sm font-semibold text-white disabled:opacity-50"
+          :disabled="!selectedPosting || addApplication.isPending.value"
+          @click="addToPipeline"
+        >
+          Dodaj
+        </button>
+      </div>
+      <p v-if="applyMsg" class="mt-2 text-sm text-brand">{{ applyMsg }}</p>
+    </div>
 
     <!-- Dokumenty -->
     <div>

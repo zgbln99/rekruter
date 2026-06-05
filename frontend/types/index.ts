@@ -156,6 +156,65 @@ export interface ProfileSend {
   created_at: string | null
 }
 
+export interface Company {
+  id: string
+  name: string
+  nip: string | null
+  city: string | null
+  country: string | null
+  contact_person: string | null
+  contact_email: string | null
+  contact_phone: string | null
+  notes: string | null
+  status: 'active' | 'inactive'
+  status_label: string
+  job_postings_count?: number
+  job_postings?: JobPosting[]
+  created_at: string | null
+}
+
+export interface JobPosting {
+  id: string
+  company_id: string
+  company?: Company
+  title: string
+  description: string | null
+  required_categories: LicenseCategory[]
+  location: string | null
+  salary_range: string | null
+  status: 'open' | 'paused' | 'closed'
+  status_label: string
+  applications_count?: number
+  created_at: string | null
+}
+
+export interface PipelineStage {
+  id: string
+  name: string
+  color: string
+  position: number
+  is_terminal: boolean
+}
+
+export interface Application {
+  id: string
+  candidate_id: string
+  job_posting_id: string
+  stage_id: string
+  position: number
+  notes: string | null
+  candidate?: Candidate
+}
+
+export interface PipelineColumn extends PipelineStage {
+  applications: Application[]
+}
+
+export interface PipelineBoard {
+  job_posting: JobPosting
+  stages: PipelineColumn[]
+}
+
 export const DOCUMENT_TYPE_OPTIONS: { value: DocumentType; label: string }[] = [
   { value: 'cv', label: 'CV' },
   { value: 'id_card', label: 'Dowód' },

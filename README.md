@@ -101,5 +101,7 @@ php artisan test          # wymaga PostgreSQL (kolumny jsonb)
   Call Log (kontakt → automatyczny task follow-up), ekran „Dziś". 15 testów zielonych.
 - **Faza 2 — Dokumenty + Profil** ✅ — upload do prywatnego S3, zdjęcie profilowe (CropperJS),
   generator PDF (Gotenberg), wysyłka profilu mailem (kolejka), audit log. 25 testów zielonych.
-- **Faza 3 — Pipeline + Klienci** ⏳ — Firmy, Ogłoszenia, kanban rekrutacyjny.
+- **Faza 3 — Pipeline + Klienci** ✅ — Firmy, Ogłoszenia, Aplikacje, kanban rekrutacyjny
+  (bottom-sheet zmiany etapu). 32 testy zielone.
+- **Faza 4 — Utwardzenie** ⏳ — RODO (retencja, zgody, eksport/usunięcie), offline, hardening.
 - Kolejne fazy: patrz [`DESIGN.md`](./DESIGN.md) sekcja 17.
