@@ -75,6 +75,13 @@ services:
       APP_DEBUG: "false"
       MAIL_MAILER: log         # brak SMTP → e-maile do logu (skonfiguruj realny SMTP w .env)
       RUN_SEED: "true"         # idempotentne: admin + etapy pipeline przy 1. starcie
+      # Storage dokumentów (konfiguracja w głównym ./.env):
+      DOCUMENTS_DISK: ${DOCUMENTS_DISK:-s3}
+      MEGA_S4_ACCESS_KEY_ID: ${MEGA_S4_ACCESS_KEY_ID:-}
+      MEGA_S4_SECRET_ACCESS_KEY: ${MEGA_S4_SECRET_ACCESS_KEY:-}
+      MEGA_S4_BUCKET: ${MEGA_S4_BUCKET:-driver-ddd-files}
+      MEGA_S4_ENDPOINT: ${MEGA_S4_ENDPOINT:-https://s3.eu-luxembourg.megas4.com}
+      MEGA_S4_REGION: ${MEGA_S4_REGION:-eu-amsterdam}
     depends_on:
       postgres:
         condition: service_healthy
@@ -92,6 +99,12 @@ services:
       APP_ENV: production
       APP_DEBUG: "false"
       MAIL_MAILER: log
+      DOCUMENTS_DISK: ${DOCUMENTS_DISK:-s3}
+      MEGA_S4_ACCESS_KEY_ID: ${MEGA_S4_ACCESS_KEY_ID:-}
+      MEGA_S4_SECRET_ACCESS_KEY: ${MEGA_S4_SECRET_ACCESS_KEY:-}
+      MEGA_S4_BUCKET: ${MEGA_S4_BUCKET:-driver-ddd-files}
+      MEGA_S4_ENDPOINT: ${MEGA_S4_ENDPOINT:-https://s3.eu-luxembourg.megas4.com}
+      MEGA_S4_REGION: ${MEGA_S4_REGION:-eu-amsterdam}
     depends_on:
       postgres:
         condition: service_healthy

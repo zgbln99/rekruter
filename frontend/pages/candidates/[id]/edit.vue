@@ -24,6 +24,7 @@ const form = reactive<Record<string, any>>({
 const categories = ref<Set<LicenseCategory>>(new Set())
 const workHistory = ref<WorkHistoryItem[]>([])
 const ready = ref(false)
+const error = ref('')
 
 watch(
   candidate,
@@ -46,12 +47,20 @@ function toggleCat(cat: LicenseCategory) {
 }
 
 async function save() {
-  await updateCandidate.mutateAsync({
-    ...form,
-    license_categories: [...categories.value],
-    work_history: workHistory.value.filter((w) => w.employer || w.position),
-  } as Partial<Candidate>)
-  await router.push(`/candidates/${id.value}`)
+  error.value = ''
+  try {
+    await updateCandidate.mutateAsync({
+      ...form,
+      license_categories: [...categories.value],
+      work_history: workHistory.value.filter((w) => w.employer || w.position),
+    } as Partial<Candidate>)
+    await router.push(`/candidates/${id.value}`)
+  } catch (e: any) {
+    const errs = e?.response?._data?.errors
+    error.value = errs
+      ? Object.values(errs).flat().join(' ')
+      : 'Nie udało się zapisać zmian.'
+  }
 }
 </script>
 
@@ -132,6 +141,7 @@ async function save() {
         <textarea v-model="form.internal_notes" rows="2" class="input-field !h-auto py-2.5" />
       </div>
 
+      <p v-if="error" class="text-sm text-red-600">{{ error }}</p>
       <button type="submit" class="btn-primary" :disabled="updateCandidate.isPending.value">
         {{ updateCandidate.isPending.value ? 'Zapisywanie…' : 'Zapisz zmiany' }}
       </button>

@@ -12,6 +12,7 @@ const createUser = useCreateUser()
 const updateUser = useUpdateUser()
 const deleteUser = useDeleteUser()
 
+// --- Dodawanie ---
 const showAdd = ref(false)
 const form = reactive({ name: '', email: '', password: '', role: 'recruiter', phone: '' })
 const error = ref('')
@@ -31,8 +32,32 @@ async function add() {
   }
 }
 
-function toggleRole(u: User) {
-  updateUser.mutate({ id: u.id, role: u.role === 'admin' ? 'recruiter' : 'admin' })
+// --- Edycja ---
+const editing = ref<User | null>(null)
+const editForm = reactive({ name: '', email: '', role: 'recruiter', password: '' })
+const editError = ref('')
+
+function openEdit(u: User) {
+  editing.value = u
+  editError.value = ''
+  Object.assign(editForm, { name: u.name, email: u.email, role: u.role, password: '' })
+}
+
+async function saveEdit() {
+  if (!editing.value) return
+  editError.value = ''
+  const payload: Record<string, any> = {
+    name: editForm.name,
+    email: editForm.email,
+    role: editForm.role,
+  }
+  if (editForm.password) payload.password = editForm.password
+  try {
+    await updateUser.mutateAsync({ id: editing.value.id, ...payload })
+    editing.value = null
+  } catch (e: any) {
+    editError.value = e?.response?._data?.errors?.email?.[0] || 'Nie udało się zapisać zmian.'
+  }
 }
 
 function remove(u: User) {
@@ -76,17 +101,19 @@ function remove(u: User) {
           <p class="truncate font-semibold text-ink">{{ u.name }}</p>
           <p class="truncate text-sm text-stone">{{ u.email }}</p>
         </div>
-        <button
-          class="badge"
-          :class="u.role === 'admin' ? 'badge-accent' : 'badge-neutral'"
-          title="Zmień rolę"
-          @click="toggleRole(u)"
-        >
+        <span class="badge shrink-0" :class="u.role === 'admin' ? 'badge-accent' : 'badge-neutral'">
           {{ u.role_label }}
+        </span>
+        <button
+          class="flex h-9 w-9 items-center justify-center rounded-full text-steel transition hover:bg-surface"
+          title="Edytuj"
+          @click="openEdit(u)"
+        >
+          <AppIcon name="document" :size="17" />
         </button>
         <button
           v-if="u.id !== auth.user?.id"
-          class="flex h-9 w-9 items-center justify-center rounded-full text-stone transition hover:bg-surface"
+          class="flex h-9 w-9 items-center justify-center rounded-full text-red-500 transition hover:bg-red-50"
           title="Usuń"
           @click="remove(u)"
         >
@@ -94,5 +121,42 @@ function remove(u: User) {
         </button>
       </li>
     </ul>
+
+    <!-- Modal edycji -->
+    <div
+      v-if="editing"
+      class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+      @click.self="editing = null"
+    >
+      <div class="card w-full max-w-md space-y-3 p-5">
+        <h2 class="text-lg font-semibold text-ink">Edycja użytkownika</h2>
+        <div>
+          <label class="field-label">Imię i nazwisko</label>
+          <input v-model="editForm.name" class="input-field" />
+        </div>
+        <div>
+          <label class="field-label">E-mail</label>
+          <input v-model="editForm.email" type="email" class="input-field" />
+        </div>
+        <div>
+          <label class="field-label">Rola</label>
+          <select v-model="editForm.role" class="input-field">
+            <option value="recruiter">Rekruter</option>
+            <option value="admin">Administrator</option>
+          </select>
+        </div>
+        <div>
+          <label class="field-label">Nowe hasło (opcjonalnie)</label>
+          <input v-model="editForm.password" type="password" placeholder="min. 8 znaków" class="input-field" />
+        </div>
+        <p v-if="editError" class="text-sm text-red-600">{{ editError }}</p>
+        <div class="flex gap-2">
+          <button class="btn-primary" :disabled="updateUser.isPending.value" @click="saveEdit">
+            {{ updateUser.isPending.value ? 'Zapisywanie…' : 'Zapisz' }}
+          </button>
+          <button class="btn-outline" @click="editing = null">Anuluj</button>
+        </div>
+      </div>
+    </div>
   </section>
 </template>
