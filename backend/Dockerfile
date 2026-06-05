@@ -16,6 +16,9 @@ RUN apk add --no-cache \
 # Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
+# Limity PHP (upload dokumentów / PDF).
+COPY docker/php.ini /usr/local/etc/php/conf.d/zz-rekruter.ini
+
 WORKDIR /var/www/html
 
 # Najpierw zależności (cache warstw)

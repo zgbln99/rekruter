@@ -108,13 +108,76 @@ php artisan test          # wymaga PostgreSQL (kolumny jsonb)
 
 **MVP kompletne (Fazy 0–4).** Dalszy rozwój: patrz [`DESIGN.md`](./DESIGN.md) sekcje 15 i 17.
 
-## Uruchomienie produkcyjne
+## Wdrożenie na VPS (Termius) — port 4050
+
+Produkcyjny stack wystawia **jeden port publiczny: 4050**. Kontener `web` (nginx)
+serwuje PWA i proxuje `/api` do backendu (PHP-FPM) — ten sam origin, brak CORS.
+Storage zapewnia wbudowane MinIO (wewnętrzne; docelowo można przełączyć na MEGA S3).
+
+### 1. Wymagania na VPS
 
 ```bash
-cp .env.example .env                  # zmienne dla compose (DB/S3)
-cp backend/.env.example backend/.env  # ustaw realny S3, SMTP, APP_KEY, DB_PASSWORD
+# Docker + Compose (jeśli brak)
+curl -fsSL https://get.docker.com | sh
+
+# Otwórz port 4050 (jeśli używasz ufw)
+sudo ufw allow 4050/tcp
+```
+
+### 2. Pobranie kodu
+
+```bash
+git clone <URL_REPO> rekruter && cd rekruter
+git checkout claude/nifty-pascal-EEsAQ
+```
+
+### 3. Konfiguracja
+
+```bash
+cp .env.example .env
+cp backend/.env.example backend/.env
+
+# Wygeneruj klucz aplikacji i wstaw do backend/.env
+sed -i "s|^APP_KEY=.*|APP_KEY=base64:$(openssl rand -base64 32)|" backend/.env
+
+# (zalecane) zmień hasła w .env i backend/.env: DB_PASSWORD, AWS_SECRET_ACCESS_KEY
+# (opcjonalnie) ustaw publiczny adres w backend/.env, np.:
+#   APP_URL=http://TWOJE_IP:4050
+```
+
+### 4. Start
+
+```bash
 docker compose -f docker-compose.prod.yml up -d --build
 ```
 
-Produkcyjny compose nie zawiera MinIO/Mailpit — używa realnego S3 (docelowo MEGA S3)
-i SMTP z konfiguracji `backend/.env`. Seed nie jest uruchamiany automatycznie.
+Migracje i seed (administrator + etapy pipeline) uruchamiają się automatycznie.
+
+### 5. Logowanie
+
+Otwórz `http://TWOJE_IP:4050`
+
+- e-mail: `admin@rekruter.local`
+- hasło: `password`  ← **zmień po pierwszym logowaniu**
+
+> Domyślne dane logowania nadpiszesz przed startem zmiennymi `SEED_ADMIN_EMAIL`
+> i `SEED_ADMIN_PASSWORD` w `backend/.env`.
+
+### Przydatne komendy
+
+```bash
+docker compose -f docker-compose.prod.yml ps          # status
+docker compose -f docker-compose.prod.yml logs -f app # logi backendu
+docker compose -f docker-compose.prod.yml down        # zatrzymanie
+docker compose -f docker-compose.prod.yml up -d --build   # aktualizacja po git pull
+```
+
+### Uwagi produkcyjne
+
+- **Poczta**: domyślnie `MAIL_MAILER=log` (e-maile trafiają do logu, nic nie jest wysyłane).
+  Aby wysyłać profile do klientów, ustaw realny SMTP w `backend/.env` i usuń override
+  `MAIL_MAILER: log` z `docker-compose.prod.yml` (usługi `app` i `queue`).
+- **HTTPS**: dla produkcji zalecany reverse proxy (Caddy/Traefik/nginx) z certyfikatem
+  przed portem 4050, lub publikacja za domeną.
+- **Storage docelowy**: aby użyć MEGA S3 zamiast wbudowanego MinIO, ustaw `AWS_ENDPOINT`,
+  `AWS_*` w `backend/.env` i usuń usługi `minio`/`minio-init` z compose.
