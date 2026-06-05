@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 # Worker kolejek (Redis) — generowanie PDF, wysyłka maili, (przyszłość) OCR/AI.
-FROM php:8.3-fpm-alpine
+FROM php:8.4-fpm-alpine
 
 RUN apk add --no-cache \
         bash git curl libpng-dev libjpeg-turbo-dev freetype-dev \

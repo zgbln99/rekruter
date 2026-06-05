@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1
-FROM php:8.3-fpm-alpine
+FROM php:8.4-fpm-alpine
 
 # Zależności systemowe + rozszerzenia PHP wymagane przez Laravel/Rekruter.
 RUN apk add --no-cache \
