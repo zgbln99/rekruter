@@ -141,7 +141,7 @@ async function saveQuick() {
 <template>
   <section v-if="isLoading" class="py-10 text-center text-muted">Ładowanie…</section>
 
-  <section v-else-if="offer" class="mx-auto max-w-4xl space-y-5 pb-8">
+  <section v-else-if="offer" class="mx-auto max-w-6xl space-y-5 pb-8">
     <div class="flex flex-wrap items-start justify-between gap-3">
       <div>
         <h1 class="text-2xl font-bold tracking-tight text-ink">{{ offer.title }}</h1>
@@ -197,6 +197,8 @@ async function saveQuick() {
       <AppIcon name="board" :size="18" /> Otwórz pipeline kandydatów
     </NuxtLink>
 
+    <!-- Karty z danymi — 2 kolumny na desktopie, pełna szerokość -->
+    <div class="lg:columns-2 lg:gap-5 [&>*]:mb-5 [&>*]:break-inside-avoid">
     <!-- Szczegóły oferty -->
     <div class="card p-4">
       <p class="mb-2.5 text-[13px] font-medium text-steel">Szczegóły</p>
@@ -290,6 +292,7 @@ async function saveQuick() {
     <div v-if="offer.recruiter_notes" class="rounded-lg border border-amber-200 bg-amber-50 p-4">
       <p class="mb-1 text-[13px] font-medium text-amber-800">Notatka dla rekruterki (wewnętrzna)</p>
       <p class="whitespace-pre-line text-sm text-amber-900">{{ offer.recruiter_notes }}</p>
+    </div>
     </div>
 
     <!-- Modal: uzupełnienie danych przed wygenerowaniem skierowania -->
