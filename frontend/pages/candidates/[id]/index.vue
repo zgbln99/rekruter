@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useQueryClient } from '@tanstack/vue-query'
 import { DOCUMENT_TYPE_OPTIONS, type CandidateDocument, type DocumentType } from '~/types'
 
 // Szczegóły kandydata: dane, zdjęcie, dokumenty, kontakty, profil PDF.
@@ -16,7 +17,8 @@ const { data: completeness } = useCompletenessQuery(id)
 const { data: timeline } = useTimelineQuery(id)
 
 // Przypisanie do ogłoszenia (pipeline).
-const { data: postingsData } = useJobPostingsQuery()
+const queryClient = useQueryClient()
+const { data: postingsData } = useJobOffersQuery()
 const postings = computed(() => postingsData.value?.data ?? [])
 const addApplication = useAddApplication()
 const selectedPosting = ref('')
@@ -31,6 +33,8 @@ async function addToPipeline() {
     })
     applyMsg.value = 'Dodano do rekrutacji.'
     selectedPosting.value = ''
+    // Odśwież profil, aby pojawiła się sekcja „W rekrutacjach".
+    await queryClient.invalidateQueries({ queryKey: ['candidate', id.value] })
   } catch (e: any) {
     applyMsg.value =
       e?.response?._data?.errors?.candidate_id?.[0] || 'Nie udało się dodać.'
@@ -79,7 +83,8 @@ function onPhotoSelected(e: Event) {
 async function onCropped(blob: Blob) {
   await uploadProfilePhoto.mutateAsync(blob)
   cropSrc.value = null
-  await loadProfilePhoto()
+  // Natychmiastowy podgląd z właśnie wyciętego obrazu (bez czekania na refetch).
+  photoUrl.value = URL.createObjectURL(blob)
 }
 
 // Podgląd aktualnego zdjęcia profilowego.

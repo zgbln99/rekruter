@@ -94,6 +94,10 @@ function remove(u: User) {
       Brak uprawnień do zarządzania użytkownikami (tylko administrator).
     </div>
 
+    <div v-else-if="!users?.length" class="card p-6 text-center text-stone">
+      Brak użytkowników. Dodaj pierwszego przyciskiem „Dodaj".
+    </div>
+
     <ul v-else class="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
       <li v-for="u in users" :key="u.id" class="card flex items-center gap-3 p-4">
         <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-ink text-sm font-semibold text-white">

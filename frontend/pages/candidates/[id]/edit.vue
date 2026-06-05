@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import {
   CANDIDATE_SOURCE_OPTIONS,
+  CANDIDATE_STATUS_OPTIONS,
   DRIVER_ATTRIBUTE_OPTIONS,
   LICENSE_CATEGORIES,
 } from '~/utils/options'
@@ -16,7 +17,7 @@ const updateCandidate = useUpdateCandidate(id)
 const form = reactive<Record<string, any>>({
   first_name: '', last_name: '', phone: '', email: '',
   city: '', country: '', address: '', date_of_birth: '', nationality: '',
-  availability_from: '', source: '', experience_notes: '', internal_notes: '',
+  availability_from: '', source: '', status: 'new', experience_notes: '', internal_notes: '',
   has_adr: false, has_code_95: false, has_hds: false,
   exp_reefer: false, exp_tilt: false, exp_international: false,
   lang_de: false, lang_en: false,
@@ -88,6 +89,12 @@ async function save() {
           <select v-model="form.source" class="input-field">
             <option value="">—</option>
             <option v-for="s in CANDIDATE_SOURCE_OPTIONS" :key="s.value" :value="s.value">{{ s.label }}</option>
+          </select>
+        </div>
+        <div>
+          <label class="field-label">Status kandydata</label>
+          <select v-model="form.status" class="input-field">
+            <option v-for="s in CANDIDATE_STATUS_OPTIONS" :key="s.value" :value="s.value">{{ s.label }}</option>
           </select>
         </div>
       </div>
