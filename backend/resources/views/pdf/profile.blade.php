@@ -4,190 +4,259 @@
     <meta charset="utf-8">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
         body {
             font-family: 'Helvetica Neue', Arial, sans-serif;
             color: #1f2937;
-            font-size: 13px;
+            font-size: 12px;
             line-height: 1.5;
         }
-        .page { padding: 32px 36px; }
-        .header {
+
+        /* Górny pasek brandowy */
+        .topbar {
             display: flex;
+            justify-content: space-between;
             align-items: center;
-            border-bottom: 3px solid #0f766e;
-            padding-bottom: 20px;
-            margin-bottom: 24px;
-        }
-        .photo {
-            width: 96px; height: 96px;
-            border-radius: 12px;
-            object-fit: cover;
-            background: #e5e7eb;
-            margin-right: 20px;
-            border: 1px solid #d1d5db;
-        }
-        .photo-placeholder {
-            width: 96px; height: 96px;
-            border-radius: 12px;
-            background: #0f766e;
+            background: #18181b;
             color: #fff;
-            margin-right: 20px;
-            text-align: center;
-            line-height: 96px;
-            font-size: 36px;
-            font-weight: 700;
+            padding: 14px 28px;
         }
-        .name { font-size: 26px; font-weight: 700; color: #111827; }
-        .subtitle { color: #6b7280; margin-top: 2px; }
-        .badges { margin-top: 10px; }
-        .badge {
-            display: inline-block;
-            background: #0f766e;
+        .topbar .agency { font-size: 15px; font-weight: 700; letter-spacing: .2px; }
+        .topbar .agency .dot { color: #10b981; }
+        .topbar .doc {
+            font-size: 10px; letter-spacing: 2px; text-transform: uppercase;
+            color: rgba(255,255,255,.6);
+        }
+
+        .layout { display: flex; min-height: 1040px; }
+
+        /* Lewy panel (ciemny) */
+        .sidebar {
+            width: 230px;
+            background: #18181b;
             color: #fff;
-            border-radius: 999px;
-            padding: 3px 12px;
-            font-size: 12px;
-            font-weight: 600;
-            margin-right: 6px;
+            padding: 24px 22px;
         }
-        .badge.alt { background: #b45309; }
-        .badge.green { background: #047857; }
-        .section { margin-bottom: 22px; }
-        .section-title {
-            font-size: 11px;
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-            color: #0f766e;
-            font-weight: 700;
-            border-bottom: 1px solid #e5e7eb;
-            padding-bottom: 6px;
-            margin-bottom: 12px;
+        .photo, .photo-ph {
+            width: 150px; height: 150px; border-radius: 14px;
+            object-fit: cover; display: block; margin: 0 auto 16px;
+            border: 3px solid #10b981;
         }
-        .grid { width: 100%; }
-        .row { display: flex; padding: 5px 0; }
-        .label { width: 180px; color: #6b7280; }
-        .value { font-weight: 600; color: #111827; }
-        .footer {
-            margin-top: 36px;
-            padding-top: 14px;
-            border-top: 1px solid #e5e7eb;
-            color: #9ca3af;
-            font-size: 11px;
-            text-align: center;
+        .photo-ph {
+            background: #10b981; color: #fff; font-size: 56px; font-weight: 700;
+            text-align: center; line-height: 150px;
         }
+        .s-name { font-size: 20px; font-weight: 700; text-align: center; line-height: 1.2; }
+        .s-role { text-align: center; color: #10b981; font-size: 11px; font-weight: 600;
+            text-transform: uppercase; letter-spacing: 1px; margin-top: 4px; }
+        .s-cats { text-align: center; margin: 14px 0 4px; }
+        .s-cat {
+            display: inline-block; background: rgba(255,255,255,.12); color: #fff;
+            border-radius: 6px; padding: 3px 9px; font-size: 11px; font-weight: 600;
+            margin: 2px;
+        }
+        .s-cat.mint { background: #10b981; }
+        .s-section { margin-top: 22px; }
+        .s-title {
+            font-size: 10px; text-transform: uppercase; letter-spacing: 1.5px;
+            color: #10b981; font-weight: 700; padding-bottom: 6px;
+            border-bottom: 1px solid rgba(255,255,255,.15); margin-bottom: 10px;
+        }
+        .s-row { margin-bottom: 8px; }
+        .s-label { color: rgba(255,255,255,.5); font-size: 9px; text-transform: uppercase; letter-spacing: .5px; }
+        .s-value { color: #fff; font-size: 12px; }
+
+        /* Prawa kolumna */
+        .main { flex: 1; padding: 28px 30px; }
+        .m-section { margin-bottom: 24px; }
+        .m-title {
+            font-size: 13px; font-weight: 700; color: #18181b; text-transform: uppercase;
+            letter-spacing: .8px; margin-bottom: 12px; padding-bottom: 6px;
+            border-bottom: 2px solid #10b981; display: inline-block;
+        }
+        .quals { width: 100%; border-collapse: collapse; }
+        .quals td { padding: 5px 0; font-size: 12px; vertical-align: top; }
+        .quals .q-label { color: #6b7280; width: 180px; }
+        .quals .q-val { color: #111827; font-weight: 600; }
+        .check { color: #10b981; font-weight: 700; }
+        .cross { color: #d1d5db; }
+
+        .tags span {
+            display: inline-block; background: #ecfdf5; color: #059669;
+            border-radius: 999px; padding: 3px 11px; font-size: 11px; font-weight: 600;
+            margin: 0 5px 5px 0;
+        }
+
+        /* Historia pracy — timeline */
+        .job { padding-left: 16px; border-left: 2px solid #e5e7eb; margin-bottom: 14px; position: relative; }
+        .job::before {
+            content: ''; position: absolute; left: -5px; top: 4px;
+            width: 8px; height: 8px; border-radius: 50%; background: #10b981;
+        }
+        .job-title { font-weight: 700; color: #111827; font-size: 12.5px; }
+        .job-meta { color: #6b7280; font-size: 11px; }
+        .job-desc { color: #4b5563; font-size: 11px; margin-top: 2px; }
+
+        .offer-box { background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 10px; padding: 14px 16px; }
+        .offer-title { font-weight: 700; color: #18181b; font-size: 13px; }
+        .offer-sub { color: #6b7280; font-size: 11px; margin-top: 2px; }
+        .offer-desc { color: #374151; font-size: 11px; margin-top: 8px; white-space: pre-line; }
+
+        .footer { text-align: center; color: #9ca3af; font-size: 10px; padding: 14px; border-top: 1px solid #e5e7eb; }
     </style>
 </head>
 <body>
-<div class="page">
-    <div class="header">
+@php
+    $cats = $candidate->license_categories ?? [];
+    $exp = collect([
+        $candidate->exp_reefer ? 'Chłodnia' : null,
+        $candidate->exp_tilt ? 'Plandeka' : null,
+        $candidate->exp_international ? 'Transport międzynarodowy' : null,
+        $candidate->has_hds ? 'HDS' : null,
+    ])->filter()->values();
+    $langs = collect([
+        $candidate->lang_de ? 'Niemiecki' : null,
+        $candidate->lang_en ? 'Angielski' : null,
+    ])->filter()->values();
+@endphp
+
+<div class="topbar">
+    <span class="agency"><span class="dot">●</span> {{ $agencyName }}</span>
+    <span class="doc">Profil kandydata</span>
+</div>
+
+<div class="layout">
+    <aside class="sidebar">
         @if ($photoDataUri)
             <img class="photo" src="{{ $photoDataUri }}" alt="">
         @else
-            <div class="photo-placeholder">{{ mb_substr($candidate->first_name, 0, 1) }}</div>
+            <div class="photo-ph">{{ mb_substr($candidate->first_name, 0, 1) }}</div>
         @endif
-        <div>
-            <div class="name">{{ $candidate->fullName() }}</div>
-            <div class="subtitle">Kierowca zawodowy @if ($candidate->city)&middot; {{ $candidate->city }}@endif</div>
-            <div class="badges">
-                @foreach ($candidate->license_categories ?? [] as $cat)
-                    <span class="badge">{{ $cat }}</span>
-                @endforeach
-                @if ($candidate->has_adr)<span class="badge alt">ADR</span>@endif
-                @if ($candidate->has_code_95)<span class="badge green">Kod 95</span>@endif
-            </div>
-        </div>
-    </div>
 
-    <div class="section">
-        <div class="section-title">Dane kontaktowe</div>
-        <div class="grid">
-            <div class="row"><div class="label">Telefon</div><div class="value">{{ $candidate->phone }}</div></div>
+        <div class="s-name">{{ $candidate->fullName() }}</div>
+        <div class="s-role">Kierowca zawodowy</div>
+
+        <div class="s-cats">
+            @foreach ($cats as $cat)
+                <span class="s-cat mint">{{ $cat }}</span>
+            @endforeach
+            @if ($candidate->has_adr)<span class="s-cat">ADR</span>@endif
+            @if ($candidate->has_code_95)<span class="s-cat">Kod 95</span>@endif
+        </div>
+
+        <div class="s-section">
+            <div class="s-title">Kontakt</div>
+            <div class="s-row"><div class="s-label">Telefon</div><div class="s-value">{{ $candidate->phone }}</div></div>
             @if ($candidate->email)
-                <div class="row"><div class="label">E-mail</div><div class="value">{{ $candidate->email }}</div></div>
+                <div class="s-row"><div class="s-label">E-mail</div><div class="s-value">{{ $candidate->email }}</div></div>
             @endif
             @if ($candidate->city)
-                <div class="row"><div class="label">Miejscowość</div><div class="value">{{ $candidate->city }}{{ $candidate->country ? ', '.$candidate->country : '' }}</div></div>
+                <div class="s-row"><div class="s-label">Miejscowość</div><div class="s-value">{{ $candidate->city }}{{ $candidate->country ? ', '.$candidate->country : '' }}</div></div>
             @endif
             @if ($candidate->address)
-                <div class="row"><div class="label">Adres</div><div class="value">{{ $candidate->address }}</div></div>
+                <div class="s-row"><div class="s-label">Adres</div><div class="s-value">{{ $candidate->address }}</div></div>
             @endif
+        </div>
+
+        <div class="s-section">
+            <div class="s-title">Dane osobowe</div>
             @if ($candidate->date_of_birth)
-                <div class="row"><div class="label">Data urodzenia</div><div class="value">{{ $candidate->date_of_birth->format('d.m.Y') }} ({{ $candidate->date_of_birth->age }} lat)</div></div>
+                <div class="s-row"><div class="s-label">Data urodzenia</div><div class="s-value">{{ $candidate->date_of_birth->format('d.m.Y') }} ({{ $candidate->date_of_birth->age }} l.)</div></div>
             @endif
             @if ($candidate->nationality)
-                <div class="row"><div class="label">Narodowość</div><div class="value">{{ $candidate->nationality }}</div></div>
+                <div class="s-row"><div class="s-label">Narodowość</div><div class="s-value">{{ $candidate->nationality }}</div></div>
             @endif
             @if ($candidate->availability_from)
-                <div class="row"><div class="label">Dostępność od</div><div class="value">{{ $candidate->availability_from->format('d.m.Y') }}</div></div>
-            @endif
-            @php($langs = collect([$candidate->lang_de ? 'niemiecki' : null, $candidate->lang_en ? 'angielski' : null])->filter()->all())
-            @if (count($langs))
-                <div class="row"><div class="label">Języki</div><div class="value">{{ implode(', ', $langs) }}</div></div>
+                <div class="s-row"><div class="s-label">Dostępność od</div><div class="s-value">{{ $candidate->availability_from->format('d.m.Y') }}</div></div>
             @endif
         </div>
-    </div>
 
-    <div class="section">
-        <div class="section-title">Uprawnienia i kwalifikacje</div>
-        <div class="grid">
-            <div class="row">
-                <div class="label">Kategorie prawa jazdy</div>
-                <div class="value">{{ implode(', ', $candidate->license_categories ?? []) ?: '—' }}</div>
+        @if ($langs->count())
+            <div class="s-section">
+                <div class="s-title">Języki</div>
+                @foreach ($langs as $lang)
+                    <div class="s-value" style="margin-bottom:3px;">{{ $lang }}</div>
+                @endforeach
             </div>
-            <div class="row"><div class="label">ADR</div><div class="value">{{ $candidate->has_adr ? 'Tak' : 'Nie' }}@if ($candidate->adr_expiry) (ważne do {{ $candidate->adr_expiry->format('d.m.Y') }})@endif</div></div>
-            <div class="row"><div class="label">Kod 95</div><div class="value">{{ $candidate->has_code_95 ? 'Tak' : 'Nie' }}@if ($candidate->code_95_expiry) (ważne do {{ $candidate->code_95_expiry->format('d.m.Y') }})@endif</div></div>
-            @if ($candidate->driver_card_expiry)
-                <div class="row"><div class="label">Karta kierowcy</div><div class="value">ważna do {{ $candidate->driver_card_expiry->format('d.m.Y') }}</div></div>
-            @endif
-            @php($exp = collect([$candidate->exp_reefer ? 'chłodnia' : null, $candidate->exp_tilt ? 'plandeka' : null, $candidate->exp_international ? 'międzynarodowe' : null, $candidate->has_hds ? 'HDS' : null])->filter()->all())
-            @if (count($exp))
-                <div class="row"><div class="label">Doświadczenie</div><div class="value">{{ implode(', ', $exp) }}</div></div>
-            @endif
-        </div>
-    </div>
+        @endif
+    </aside>
 
-    @if (! empty($candidate->experience_notes))
-        <div class="section">
-            <div class="section-title">Opis doświadczenia</div>
-            <div>{{ $candidate->experience_notes }}</div>
+    <main class="main">
+        <div class="m-section">
+            <div class="m-title">Kwalifikacje</div>
+            <table class="quals">
+                <tr>
+                    <td class="q-label">Kategorie prawa jazdy</td>
+                    <td class="q-val">{{ implode(', ', $cats) ?: '—' }}</td>
+                </tr>
+                <tr>
+                    <td class="q-label">ADR</td>
+                    <td class="q-val">
+                        @if ($candidate->has_adr)<span class="check">✓ Tak</span>@if ($candidate->adr_expiry) <span style="color:#6b7280;font-weight:400;">(do {{ $candidate->adr_expiry->format('m.Y') }})</span>@endif @else <span class="cross">— Brak</span>@endif
+                    </td>
+                </tr>
+                <tr>
+                    <td class="q-label">Kod 95</td>
+                    <td class="q-val">
+                        @if ($candidate->has_code_95)<span class="check">✓ Tak</span>@if ($candidate->code_95_expiry) <span style="color:#6b7280;font-weight:400;">(do {{ $candidate->code_95_expiry->format('m.Y') }})</span>@endif @else <span class="cross">— Brak</span>@endif
+                    </td>
+                </tr>
+                <tr>
+                    <td class="q-label">Karta kierowcy</td>
+                    <td class="q-val">
+                        @if ($candidate->driver_card_expiry)<span class="check">✓ Tak</span> <span style="color:#6b7280;font-weight:400;">(do {{ $candidate->driver_card_expiry->format('m.Y') }})</span>@else <span class="cross">— Brak</span>@endif
+                    </td>
+                </tr>
+            </table>
         </div>
-    @endif
 
-    @if (! empty($candidate->work_history))
-        <div class="section">
-            <div class="section-title">Historia pracy</div>
-            <div class="grid">
+        @if ($exp->count() || ! empty($candidate->experience_notes))
+            <div class="m-section">
+                <div class="m-title">Doświadczenie</div>
+                @if ($exp->count())
+                    <div class="tags">
+                        @foreach ($exp as $e)<span>{{ $e }}</span>@endforeach
+                    </div>
+                @endif
+                @if (! empty($candidate->experience_notes))
+                    <p style="color:#374151; margin-top:8px;">{{ $candidate->experience_notes }}</p>
+                @endif
+            </div>
+        @endif
+
+        @if (! empty($candidate->work_history))
+            <div class="m-section">
+                <div class="m-title">Historia pracy</div>
                 @foreach ($candidate->work_history as $job)
-                    <div class="row" style="display:block; padding:6px 0;">
-                        <div class="value">{{ $job['employer'] ?? '' }}@if (! empty($job['position'])) — {{ $job['position'] }}@endif</div>
-                        <div class="label" style="width:auto;">{{ $job['period'] ?? '' }}@if (! empty($job['description'])) · {{ $job['description'] }}@endif</div>
+                    <div class="job">
+                        <div class="job-title">{{ $job['employer'] ?? '' }}@if (! empty($job['position'])) — {{ $job['position'] }}@endif</div>
+                        @if (! empty($job['period']))<div class="job-meta">{{ $job['period'] }}</div>@endif
+                        @if (! empty($job['description']))<div class="job-desc">{{ $job['description'] }}</div>@endif
                     </div>
                 @endforeach
             </div>
-        </div>
-    @endif
+        @endif
 
-    @if ($offer)
-        <div class="section">
-            <div class="section-title">Aplikuje na</div>
-            <div class="grid">
-                <div class="row"><div class="label">Ogłoszenie</div><div class="value">{{ $offer->title }}</div></div>
-                @if ($company)
-                    <div class="row"><div class="label">Firma docelowa</div><div class="value">{{ $company->name }}</div></div>
-                @endif
-                @if ($offer->country)
-                    <div class="row"><div class="label">Kraj pracy</div><div class="value">{{ $offer->country }}</div></div>
-                @endif
+        @if ($offer)
+            <div class="m-section">
+                <div class="m-title">Aplikuje na</div>
+                <div class="offer-box">
+                    <div class="offer-title">{{ $offer->title }}</div>
+                    <div class="offer-sub">
+                        @if ($company){{ $company->name }}@endif
+                        @if ($offer->country) &middot; {{ $offer->country }}@endif
+                    </div>
+                    @if (! empty($offer->public_description))
+                        <div class="offer-desc">{{ $offer->public_description }}</div>
+                    @endif
+                </div>
             </div>
-            @if (! empty($offer->public_description))
-                <div style="margin-top:10px; color:#374151;">{{ $offer->public_description }}</div>
-            @endif
-        </div>
-    @endif
+        @endif
+    </main>
+</div>
 
-    <div class="footer">
-        Profil wygenerowany przez {{ $agencyName }} &middot; {{ $generatedAt }}
-    </div>
+<div class="footer">
+    Profil przygotowany przez {{ $agencyName }} &middot; {{ $generatedAt }}
 </div>
 </body>
 </html>
