@@ -10,11 +10,11 @@
 
         .head { display: flex; justify-content: space-between; align-items: flex-start; padding-bottom: 18px; border-bottom: 3px solid #0f172a; }
         .head .title { font-size: 22px; font-weight: 800; letter-spacing: -0.4px; color: #0f172a; text-transform: uppercase; }
-        .head .title .accent { color: #10b981; }
+        .head .title .accent { color: #dc2626; }
         .head .sub { font-size: 11px; color: #64748b; margin-top: 3px; letter-spacing: 1px; }
         .head .brand { text-align: right; }
         .head .brand .logo { font-size: 19px; font-weight: 800; color: #0f172a; }
-        .head .brand .logo .dot { color: #10b981; }
+        .head .brand .logo .dot { color: #dc2626; }
         .head .brand .hr { font-size: 10px; color: #64748b; letter-spacing: 1.5px; text-transform: uppercase; }
 
         .section { margin-top: 26px; }
@@ -27,7 +27,7 @@
         .row .v b { font-weight: 700; }
         .muted { color: #64748b; }
         .pos-title { font-size: 16px; font-weight: 800; color: #0f172a; }
-        .pos-sub { color: #10b981; font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; }
+        .pos-sub { color: #dc2626; font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; }
         .desc { white-space: pre-line; color: #334155; padding: 4px 2px; }
         .footer { margin-top: 30px; padding-top: 12px; border-top: 1px solid #e2e8f0; color: #94a3b8; font-size: 10px; display: flex; justify-content: space-between; }
         .footer b { color: #0f172a; }

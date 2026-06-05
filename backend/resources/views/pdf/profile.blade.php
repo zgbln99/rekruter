@@ -31,7 +31,7 @@
         }
 
         .rule { height: 2px; background: #0f172a; margin: 18px 0 0; }
-        .rule-accent { height: 2px; width: 64px; background: #10b981; }
+        .rule-accent { height: 2px; width: 64px; background: #dc2626; }
 
         /* Pasek kontaktu */
         .contact { display: flex; flex-wrap: wrap; gap: 6px 22px; margin: 16px 0 6px; }
@@ -47,7 +47,7 @@
         .grid td { padding: 5px 0; font-size: 11.5px; vertical-align: top; }
         .grid .k { color: #64748b; width: 200px; }
         .grid .v { color: #0f172a; font-weight: 600; }
-        .ok { color: #059669; font-weight: 700; }
+        .ok { color: #b91c1c; font-weight: 700; }
         .no { color: #94a3b8; }
         .muted { color: #64748b; font-weight: 400; }
 
@@ -58,7 +58,7 @@
 
         .job { padding-left: 18px; border-left: 1px solid #e2e8f0; margin-bottom: 15px; position: relative; }
         .job::before { content: ''; position: absolute; left: -4px; top: 5px; width: 7px; height: 7px;
-            border-radius: 50%; background: #10b981; }
+            border-radius: 50%; background: #dc2626; }
         .job-title { font-weight: 700; color: #0f172a; font-size: 12px; }
         .job-meta { color: #64748b; font-size: 10.5px; }
         .job-desc { color: #475569; font-size: 11px; margin-top: 2px; }

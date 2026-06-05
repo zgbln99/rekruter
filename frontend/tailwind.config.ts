@@ -7,12 +7,12 @@ export default <Partial<Config>>{
   theme: {
     extend: {
       colors: {
-        // Akcent marki (mięta) — zarezerwowany dla akcentów, stanów aktywnych, potwierdzeń.
+        // Akcent marki (czerwień) — akcenty, stany aktywne, CTA.
         brand: {
-          DEFAULT: '#10b981',
-          deep: '#059669',
-          soft: '#ecfdf5',
-          light: '#6ee7b7',
+          DEFAULT: '#dc2626',
+          deep: '#b91c1c',
+          soft: '#fef2f2',
+          light: '#fca5a5',
         },
         // Akcja dominująca (czarny pill).
         ink: '#18181b',
