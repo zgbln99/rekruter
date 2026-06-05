@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Actions\Candidates\CreateCandidateFromOfferAction;
+use App\Actions\Profiles\GeneratePosterAction;
 use App\Actions\Profiles\GenerateReferralPdfAction;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\JobPostings\CreateCandidateFromOfferRequest;
@@ -89,6 +90,23 @@ class JobPostingController extends Controller
         return response($pdf, 200, [
             'Content-Type' => 'application/pdf',
             'Content-Disposition' => 'inline; filename="skierowanie.pdf"',
+        ]);
+    }
+
+    /**
+     * Grafika ogłoszenia (PNG) do social media — feed (1080×1350) lub reels (1080×1920).
+     */
+    public function poster(
+        JobPosting $jobPosting,
+        GeneratePosterAction $action,
+        Request $request
+    ): \Illuminate\Http\Response {
+        $format = $request->string('format')->toString() === 'reels' ? 'reels' : 'feed';
+        $png = $action->render($jobPosting, $format);
+
+        return response($png, 200, [
+            'Content-Type' => 'image/png',
+            'Content-Disposition' => 'inline; filename="oferta.png"',
         ]);
     }
 }

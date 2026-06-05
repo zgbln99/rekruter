@@ -35,6 +35,18 @@ async function generateReferral() {
   }
 }
 
+// Grafika ogłoszenia (PNG na social media).
+const posterLoading = ref('')
+async function generatePoster(format: 'feed' | 'reels') {
+  posterLoading.value = format
+  try {
+    const blob = await fetchBlob(`/job-offers/${id.value}/poster?format=${format}`)
+    openBlob(blob, `oferta-${format}-${(offer.value?.title || '').replace(/\s+/g, '-').toLowerCase()}.png`)
+  } finally {
+    posterLoading.value = ''
+  }
+}
+
 // Aktywne wymagania (z mapy requirements).
 const activeRequirements = computed(() =>
   REQUIREMENT_OPTIONS.filter((r) => offer.value?.requirements?.[r.key]),
@@ -92,6 +104,12 @@ async function saveQuick() {
         <button class="inline-flex h-9 items-center gap-1.5 rounded-full bg-ink px-3.5 text-sm font-semibold text-white transition hover:bg-charcoal disabled:opacity-50" :disabled="referralLoading" @click="generateReferral">
           <AppIcon name="pdf" :size="16" /> {{ referralLoading ? 'Generowanie…' : 'Skierowanie PDF' }}
         </button>
+        <button class="inline-flex h-9 items-center gap-1.5 rounded-full border border-hairline px-3.5 text-sm font-medium text-ink transition hover:bg-surface disabled:opacity-50" :disabled="!!posterLoading" @click="generatePoster('feed')">
+          <AppIcon name="camera" :size="16" /> {{ posterLoading === 'feed' ? '…' : 'Grafika (post)' }}
+        </button>
+        <button class="inline-flex h-9 items-center gap-1.5 rounded-full border border-hairline px-3.5 text-sm font-medium text-ink transition hover:bg-surface disabled:opacity-50" :disabled="!!posterLoading" @click="generatePoster('reels')">
+          {{ posterLoading === 'reels' ? '…' : 'Grafika (reels)' }}
+        </button>
         <NuxtLink :to="`/job-offers/${id}/edit`" class="inline-flex h-9 items-center gap-1.5 rounded-full border border-hairline px-3.5 text-sm font-medium text-ink transition hover:bg-surface">
           Edytuj
         </NuxtLink>
@@ -134,9 +152,16 @@ async function saveQuick() {
           ['Kraj', offer.country],
           ['Region / baza', offer.region_base],
           ['System pracy', offer.work_system],
+          ['Rodzaj umowy', offer.contract_type],
+          ['Typ auta', offer.vehicle_type],
+          ['Punkty dziennie', offer.points_per_day],
+          ['Załadunek / rozładunek', offer.loading_info],
+          ['Średni przebieg', offer.daily_km],
+          ['Zakwaterowanie', offer.accommodation],
           ['Wynagrodzenie', offer.salary_amount ? `${offer.salary_amount} ${offer.currency || ''}` : null],
           ['Język', offer.required_language],
           ['Doświadczenie', offer.required_experience],
+          ['Data przyjazdu', offer.arrival_info],
           ['Start', offer.start_date],
         ]" :key="row[0]">
           <template v-if="row[1]">
@@ -145,6 +170,9 @@ async function saveQuick() {
           </template>
         </template>
       </dl>
+      <a v-if="offer.pdf_url" :href="offer.pdf_url" target="_blank" class="mt-3 inline-flex items-center gap-1.5 text-sm font-medium text-brand-deep">
+        <AppIcon name="pdf" :size="15" /> PDF ogłoszenia
+      </a>
     </div>
 
     <!-- Opis stanowiska -->
@@ -189,6 +217,18 @@ async function saveQuick() {
         </button>
       </div>
       <p class="whitespace-pre-line text-sm text-charcoal">{{ offer.public_description }}</p>
+    </div>
+
+    <!-- FAQ dla rekruterki -->
+    <div v-if="offer.faq?.length" class="card p-4">
+      <p class="mb-3 text-[13px] font-medium text-steel">FAQ — najczęstsze pytania kierowców</p>
+      <ul class="space-y-3">
+        <li v-for="(item, i) in offer.faq" :key="i">
+          <p class="text-sm font-semibold text-ink">{{ item.q }}</p>
+          <p v-if="item.a" class="text-sm text-steel">{{ item.a }}</p>
+          <p v-else class="text-sm italic text-muted">— brak odpowiedzi —</p>
+        </li>
+      </ul>
     </div>
 
     <!-- Notatka rekruterki (wewnętrzna) -->

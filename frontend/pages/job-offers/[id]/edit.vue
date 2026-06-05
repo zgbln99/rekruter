@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { LICENSE_CATEGORIES, REQUIREMENT_OPTIONS } from '~/utils/options'
+import { FAQ_PRESETS, LICENSE_CATEGORIES, REQUIREMENT_OPTIONS } from '~/utils/options'
 import type { JobPosting, LicenseCategory, OfferRequirementKey } from '~/types'
 
 // Edycja ogłoszenia.
@@ -16,14 +16,20 @@ const form = reactive<Record<string, any>>({
   region_base: '', work_system: '', salary_amount: '', currency: 'EUR',
   required_language: '', required_experience: '', description: '',
   arrival_info: '', vehicle_type: '', cargo: '', routes_info: '',
-  accommodation: '', onsite_contact: '',
+  accommodation: '', onsite_contact: '', contract_type: '', points_per_day: '',
+  loading_info: '', daily_km: '', pdf_url: '',
   public_description: '', recruiter_notes: '', status: 'open',
 })
 const categories = ref<Set<LicenseCategory>>(new Set())
 const requirements = ref<Set<OfferRequirementKey>>(new Set())
 const callScript = ref<string[]>([''])
+const faqItems = ref<{ q: string; a: string }[]>([])
 const ready = ref(false)
 const error = ref('')
+
+function addFaq(q = '') {
+  faqItems.value.push({ q, a: '' })
+}
 
 watch(offer, (o) => {
   if (!o || ready.value) return
@@ -35,6 +41,7 @@ watch(offer, (o) => {
     Object.entries(o.requirements || {}).filter(([, v]) => v).map(([k]) => k as OfferRequirementKey),
   )
   callScript.value = o.call_script?.length ? [...o.call_script] : ['']
+  faqItems.value = (o.faq || []).map((f) => ({ q: f.q || '', a: f.a || '' }))
   ready.value = true
 }, { immediate: true })
 
@@ -55,6 +62,7 @@ async function save() {
       required_categories: [...categories.value],
       requirements: requirementsMap,
       call_script: callScript.value.map((s) => s.trim()).filter(Boolean),
+      faq: faqItems.value.filter((f) => f.q.trim()),
     } as Partial<JobPosting>)
     await router.push(`/job-offers/${id.value}`)
   } catch {
@@ -120,11 +128,34 @@ async function save() {
         <div class="grid gap-3 sm:grid-cols-2">
           <div><label class="field-label">Data/godzina przyjazdu</label><input v-model="form.arrival_info" class="input-field" /></div>
           <div><label class="field-label">Typ auta (opis)</label><input v-model="form.vehicle_type" class="input-field" /></div>
+          <div><label class="field-label">Rodzaj umowy</label><input v-model="form.contract_type" class="input-field" /></div>
+          <div><label class="field-label">Liczba punktów dziennie</label><input v-model="form.points_per_day" class="input-field" /></div>
+          <div><label class="field-label">Załadunek / rozładunek</label><input v-model="form.loading_info" class="input-field" /></div>
+          <div><label class="field-label">Średni przebieg dzienny</label><input v-model="form.daily_km" class="input-field" /></div>
           <div><label class="field-label">Przewożony towar</label><input v-model="form.cargo" class="input-field" /></div>
+          <div><label class="field-label">Link do PDF ogłoszenia</label><input v-model="form.pdf_url" class="input-field" /></div>
         </div>
         <div class="mt-3"><label class="field-label">Trasy</label><textarea v-model="form.routes_info" rows="2" class="input-field !h-auto py-2.5" /></div>
         <div class="mt-3"><label class="field-label">Zakwaterowanie</label><textarea v-model="form.accommodation" rows="2" class="input-field !h-auto py-2.5" /></div>
         <div class="mt-3"><label class="field-label">Osoba kontaktowa na miejscu</label><textarea v-model="form.onsite_contact" rows="2" class="input-field !h-auto py-2.5" /></div>
+      </div>
+
+      <!-- FAQ dla rekruterki -->
+      <div class="rounded-lg border border-hairline bg-surface-soft p-4">
+        <p class="mb-1 text-[13px] font-semibold text-ink">FAQ dla rekruterki</p>
+        <div class="mb-3 flex flex-wrap gap-1.5">
+          <button v-for="p in FAQ_PRESETS" :key="p" type="button" class="chip" @click="addFaq(p)">+ {{ p }}</button>
+        </div>
+        <div class="space-y-2">
+          <div v-for="(item, i) in faqItems" :key="i" class="rounded-lg border border-hairline bg-canvas p-2.5">
+            <div class="flex gap-2">
+              <input v-model="item.q" placeholder="Pytanie" class="input-field" />
+              <button type="button" class="px-2 text-stone" @click="faqItems.splice(i, 1)"><AppIcon name="x" :size="18" /></button>
+            </div>
+            <input v-model="item.a" placeholder="Odpowiedź" class="input-field mt-2" />
+          </div>
+          <button type="button" class="text-sm font-medium text-brand-deep" @click="addFaq()">+ Dodaj własne pytanie</button>
+        </div>
       </div>
 
       <div>

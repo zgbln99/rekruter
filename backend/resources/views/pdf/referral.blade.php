@@ -75,7 +75,11 @@
             @if ($vehicle)<div class="row"><div class="k">Typ auta</div><div class="v">{{ $vehicle }}</div></div>@endif
             @if ($routes)<div class="row"><div class="k">Trasy</div><div class="v" style="white-space:pre-line;">{{ $routes }}</div></div>@endif
             @if ($offer->cargo)<div class="row"><div class="k">Przewożony towar</div><div class="v">{{ $offer->cargo }}</div></div>@endif
+            @if ($offer->points_per_day)<div class="row"><div class="k">Liczba punktów dziennie</div><div class="v">{{ $offer->points_per_day }}</div></div>@endif
+            @if ($offer->loading_info)<div class="row"><div class="k">Załadunek / rozładunek</div><div class="v">{{ $offer->loading_info }}</div></div>@endif
+            @if ($offer->daily_km)<div class="row"><div class="k">Średni przebieg dzienny</div><div class="v">{{ $offer->daily_km }}</div></div>@endif
             @if ($offer->accommodation)<div class="row"><div class="k">Zakwaterowanie</div><div class="v" style="white-space:pre-line;">{{ $offer->accommodation }}</div></div>@endif
+            @if ($offer->contract_type)<div class="row"><div class="k">Rodzaj umowy</div><div class="v">{{ $offer->contract_type }}</div></div>@endif
             @if ($salary)<div class="row"><div class="k">Wynagrodzenie</div><div class="v"><b>{{ $salary }}</b></div></div>@endif
             @if ($offer->required_language)<div class="row"><div class="k">Wymagany język</div><div class="v">{{ $offer->required_language }}</div></div>@endif
         </div>

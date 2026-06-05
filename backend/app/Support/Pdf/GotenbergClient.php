@@ -49,8 +49,32 @@ class GotenbergClient
         return $response->body();
     }
 
+    /**
+     * Konwertuje HTML do obrazu (PNG/JPEG) — grafika na social media.
+     */
+    public function htmlToImage(string $html, int $width = 1080, int $height = 1350, string $format = 'png'): string
+    {
+        $response = $this->request()
+            ->attach('files', $html, 'index.html')
+            ->post($this->baseUrl.'/forms/chromium/screenshot/html', [
+                'format' => $format,
+                'width' => (string) $width,
+                'height' => (string) $height,
+                'clip' => 'true',
+                'optimizeForSpeed' => 'true',
+            ]);
+
+        if (! $response->successful()) {
+            throw new RuntimeException(
+                'Gotenberg nie wygenerował obrazu (HTTP '.$response->status().').'
+            );
+        }
+
+        return $response->body();
+    }
+
     private function request(): PendingRequest
     {
-        return Http::timeout(30);
+        return Http::timeout(45);
     }
 }

@@ -221,6 +221,12 @@ export interface JobPosting {
   accommodation: string | null
   onsite_contact: string | null
   arrival_info: string | null
+  contract_type: string | null
+  points_per_day: string | null
+  loading_info: string | null
+  daily_km: string | null
+  pdf_url: string | null
+  faq: { q: string; a: string }[]
   country: string | null
   region_base: string | null
   work_system: string | null

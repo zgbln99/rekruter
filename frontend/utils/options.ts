@@ -70,6 +70,17 @@ export const DRIVER_ATTRIBUTE_OPTIONS: { key: string; label: string }[] = [
   { key: 'lang_en', label: 'Angielski' },
 ]
 
+// Typowe pytania kierowców — presety do FAQ ogłoszenia.
+export const FAQ_PRESETS: string[] = [
+  'Ile punktów dziennie?',
+  'Czy jest rozładunek?',
+  'Czy jest wymiana palet?',
+  'Ile kilometrów dziennie?',
+  'Jakie zakwaterowanie?',
+  'Czy jest szkolenie?',
+  'Czy jest niemiecka umowa?',
+]
+
 export const APPLICATION_STATUS_OPTIONS: { value: ApplicationStatus; label: string }[] = [
   { value: 'new', label: 'Nowy' },
   { value: 'interested', label: 'Zainteresowany' },
