@@ -7,13 +7,19 @@ import type {
   QuickAddInput,
 } from '~/types'
 
-export function useCandidatesQuery(search: MaybeRefOrGetter<string>) {
+export function useCandidatesQuery(
+  search: MaybeRefOrGetter<string>,
+  status: MaybeRefOrGetter<string> = '',
+) {
   const api = useApi()
   return useQuery({
-    queryKey: ['candidates', () => toValue(search)] as const,
+    queryKey: ['candidates', () => toValue(search), () => toValue(status)] as const,
     queryFn: () =>
       api<Paginated<Candidate>>('/candidates', {
-        query: { q: toValue(search) || undefined },
+        query: {
+          q: toValue(search) || undefined,
+          status: toValue(status) || undefined,
+        },
       }),
   })
 }

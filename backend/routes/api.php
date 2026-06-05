@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\V1\CandidateInsightController;
 use App\Http\Controllers\Api\V1\CandidateLookupController;
 use App\Http\Controllers\Api\V1\CompanyController;
 use App\Http\Controllers\Api\V1\ContactLogController;
+use App\Http\Controllers\Api\V1\DashboardController;
 use App\Http\Controllers\Api\V1\DocumentController;
 use App\Http\Controllers\Api\V1\JobPostingController;
 use App\Http\Controllers\Api\V1\MatchController;
@@ -29,6 +30,9 @@ Route::prefix('v1')->group(function () {
     Route::middleware(['auth:sanctum', 'tenant'])->group(function () {
         Route::get('auth/me', [AuthController::class, 'me'])->name('auth.me');
         Route::post('auth/logout', [AuthController::class, 'logout'])->name('auth.logout');
+
+        // Pulpit — metryki.
+        Route::get('dashboard', DashboardController::class)->name('dashboard');
 
         // --- Faza 1: rdzeń KPI ---
 

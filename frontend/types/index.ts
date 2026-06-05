@@ -277,6 +277,26 @@ export interface TimelineItem {
   by?: string | null
 }
 
+export interface DashboardStats {
+  candidates: {
+    total: number
+    new_this_week: number
+    by_status: { value: string; label: string; count: number }[]
+  }
+  offers: { total: number; active: number }
+  companies: number
+  tasks: { today: number; overdue: number }
+  profiles: { sent_total: number; sent_this_week: number; pending_decisions: number }
+  pipeline: { value: string; label: string; color: string; count: number }[]
+  recent_activity: {
+    label: string
+    subject: string
+    candidate_id: string | null
+    at: string | null
+    by: string | null
+  }[]
+}
+
 export interface PipelineBoard {
   job_posting: JobPosting
   stages: PipelineColumn[]

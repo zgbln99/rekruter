@@ -1,17 +1,22 @@
 <script setup lang="ts">
-// Lista kandydatów z wyszukiwaniem (imię, nazwisko, miasto, telefon).
+import { CANDIDATE_STATUS_OPTIONS } from '~/utils/options'
+
+// Lista kandydatów z wyszukiwaniem i filtrem statusu.
 const search = ref('')
-const { data, isLoading } = useCandidatesQuery(search)
+const status = ref('')
+const { data, isLoading } = useCandidatesQuery(search, status)
 const candidates = computed(() => data.value?.data ?? [])
+const total = computed(() => data.value?.meta?.total ?? candidates.value.length)
 </script>
 
 <template>
   <section>
-    <header class="mb-4">
+    <header class="mb-4 flex items-center justify-between">
       <h1 class="text-[26px] font-bold tracking-tight text-ink">Kandydaci</h1>
+      <span class="text-sm text-stone">{{ total }}</span>
     </header>
 
-    <div class="relative mb-4">
+    <div class="relative mb-3">
       <span class="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-muted">
         <AppIcon name="search" :size="18" />
       </span>
@@ -21,6 +26,18 @@ const candidates = computed(() => data.value?.data ?? [])
         placeholder="Szukaj: imię, miasto, telefon…"
         class="input-field pl-10"
       />
+    </div>
+
+    <div class="mb-4 flex flex-wrap gap-2">
+      <UiChip :active="status === ''" @click="status = ''">Wszyscy</UiChip>
+      <UiChip
+        v-for="opt in CANDIDATE_STATUS_OPTIONS"
+        :key="opt.value"
+        :active="status === opt.value"
+        @click="status = status === opt.value ? '' : opt.value"
+      >
+        {{ opt.label }}
+      </UiChip>
     </div>
 
     <p v-if="isLoading" class="py-10 text-center text-muted">Ładowanie…</p>
@@ -33,7 +50,7 @@ const candidates = computed(() => data.value?.data ?? [])
         <AppIcon name="users" :size="24" />
       </div>
       <p class="font-semibold text-ink">Brak kandydatów</p>
-      <p class="mt-1 text-sm text-stone">Dodaj pierwszego przyciskiem „Nowy kandydat".</p>
+      <p class="mt-1 text-sm text-stone">Zmień filtr lub dodaj nowego kandydata.</p>
     </div>
 
     <ul v-else class="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
@@ -59,7 +76,7 @@ const candidates = computed(() => data.value?.data ?? [])
               <span v-if="c.has_adr" class="badge bg-amber-50 text-amber-700">ADR</span>
             </div>
           </div>
-          <AppIcon name="chevron" :size="18" class="shrink-0 text-muted" />
+          <span class="badge badge-neutral shrink-0">{{ c.status_label }}</span>
         </NuxtLink>
       </li>
     </ul>

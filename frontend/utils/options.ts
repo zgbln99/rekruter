@@ -82,6 +82,15 @@ export const APPLICATION_STATUS_OPTIONS: { value: ApplicationStatus; label: stri
   { value: 'failed', label: 'Nieudany' },
 ]
 
+export const CANDIDATE_STATUS_OPTIONS: { value: string; label: string }[] = [
+  { value: 'new', label: 'Nowy' },
+  { value: 'active', label: 'Aktywny' },
+  { value: 'placed', label: 'Zatrudniony' },
+  { value: 'unavailable', label: 'Niedostępny' },
+  { value: 'blacklisted', label: 'Czarna lista' },
+  { value: 'archived', label: 'Zarchiwizowany' },
+]
+
 export const CANDIDATE_SOURCE_OPTIONS: { value: string; label: string }[] = [
   { value: 'facebook', label: 'Facebook' },
   { value: 'olx', label: 'OLX' },
