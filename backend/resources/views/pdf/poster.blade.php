@@ -20,7 +20,7 @@
             font-weight: 700;
         }
 
-        /* ---- Tło: AI (etap A) lub zaprojektowany fallback ---- */
+        /* ---- Tło: AI (reużywane) lub zaprojektowany fallback ---- */
         .bg {
             position: absolute; inset: 0;
             background-image: url('{{ $backgroundImage ?? '' }}');
@@ -29,19 +29,19 @@
         .scrim {
             position: absolute; inset: 0;
             background:
-                linear-gradient(96deg, rgba(255,255,255,.98) 0%, rgba(255,255,255,.95) 42%, rgba(255,255,255,.56) 64%, rgba(255,255,255,.12) 100%),
-                linear-gradient(to top, rgba(255,255,255,.96) 0%, rgba(255,255,255,.72) 15%, rgba(255,255,255,0) 34%);
+                linear-gradient(96deg, rgba(255,255,255,.98) 0%, rgba(255,255,255,.95) 44%, rgba(255,255,255,.56) 66%, rgba(255,255,255,.12) 100%),
+                linear-gradient(to top, rgba(255,255,255,.96) 0%, rgba(255,255,255,.72) 14%, rgba(255,255,255,0) 32%);
         }
         .fallback-bg {
             position: absolute; inset: 0;
             background: linear-gradient(155deg, #ffffff 0%, #f4f7fb 52%, #e8eef6 100%);
         }
         .accent-shape {
-            position: absolute; top: -180px; right: -150px; width: 560px; height: 560px; border-radius: 50%;
-            background: radial-gradient(circle at 32% 32%, rgba(201,20,20,.16), rgba(201,20,20,0) 70%);
+            position: absolute; top: -160px; right: -140px; width: 480px; height: 480px; border-radius: 50%;
+            background: radial-gradient(circle at 32% 32%, rgba(201,20,20,.15), rgba(201,20,20,0) 70%);
         }
         .truck-watermark {
-            position: absolute; right: -40px; bottom: 70px; width: 760px; opacity: .06; color: var(--navy);
+            position: absolute; right: -30px; bottom: 70px; width: 640px; opacity: .06; color: var(--navy);
         }
 
         /* ---- Treść ---- */
@@ -49,50 +49,51 @@
             position: relative; z-index: 4;
             width: 100%; height: 100%;
             display: flex; flex-direction: column; justify-content: space-between;
-            padding: 84px 76px;
+            padding: 76px 72px;
         }
 
-        .topmark { width: 92px; height: 12px; background: var(--red); border-radius: 6px; margin-bottom: 26px; }
+        .topmark { width: 76px; height: 9px; background: var(--red); border-radius: 5px; margin-bottom: 22px; }
 
-        .headline { font-weight: 800; line-height: .9; letter-spacing: -3px; color: var(--navy); text-transform: uppercase; }
-        .headline div { font-size: 112px; }
+        .headline { font-weight: 800; line-height: .92; letter-spacing: -2px; color: var(--navy); text-transform: uppercase; }
+        .headline div { font-size: 84px; }
         .headline .accent { color: var(--red); }
 
-        .details { display: flex; flex-direction: column; gap: 30px; max-width: 760px; }
-        .label { font-size: 38px; font-weight: 800; letter-spacing: 3px; text-transform: uppercase; color: var(--label); margin-bottom: 8px; }
-        .value { font-size: 54px; font-weight: 800; color: var(--navy); line-height: 1.04; }
-        .value-main { font-weight: 900; line-height: 1.0; word-break: normal; overflow-wrap: break-word; }
-        .subvalue { font-size: 40px; font-weight: 700; color: var(--label); margin-top: 8px; line-height: 1.1; }
+        .details { display: flex; flex-direction: column; gap: 26px; max-width: 720px; }
+        .label { font-size: 27px; font-weight: 800; letter-spacing: 3px; text-transform: uppercase; color: var(--label); margin-bottom: 6px; }
+        .value { font-size: 40px; font-weight: 800; color: var(--navy); line-height: 1.06; }
+        .value-main { font-weight: 900; line-height: 1.02; overflow-wrap: break-word; }
+        .subvalue { font-size: 30px; font-weight: 700; color: var(--label); margin-top: 6px; line-height: 1.12; }
 
-        .field-row { display: flex; gap: 64px; }
-        .field.compact .value { font-size: 46px; }
+        .field-row { display: flex; gap: 56px; }
+        .field.compact .value { font-size: 36px; }
 
-        .bottom { }
-        .salary-label { font-size: 40px; font-weight: 800; letter-spacing: 3px; text-transform: uppercase; color: var(--label); margin-bottom: 6px; }
-        .salary-value { font-size: 86px; font-weight: 900; color: var(--red); line-height: 1; letter-spacing: -1px; }
+        .salary-label { font-size: 27px; font-weight: 800; letter-spacing: 3px; text-transform: uppercase; color: var(--label); margin-bottom: 4px; }
+        .salary-value { font-size: 64px; font-weight: 900; color: var(--red); line-height: 1; letter-spacing: -1px; }
+        .salary-value .suffix { font-size: 30px; font-weight: 800; color: var(--label); letter-spacing: 0; margin-left: 12px; }
 
         .apply-button {
-            margin-top: 34px; height: 92px; width: 100%;
+            margin-top: 28px; height: 78px; width: 100%;
             display: flex; align-items: center; justify-content: center;
             background: var(--red); color: #fff;
-            font-size: 54px; font-weight: 900; letter-spacing: 2px; text-transform: uppercase;
-            border-radius: 18px; box-shadow: 0 26px 60px -24px rgba(201,20,20,.6);
+            font-size: 40px; font-weight: 900; letter-spacing: 2px; text-transform: uppercase;
+            border-radius: 16px; box-shadow: 0 22px 50px -24px rgba(201,20,20,.6);
         }
 
-        .agency { margin-top: 30px; font-size: 36px; font-weight: 700; color: var(--label); display: flex; align-items: center; gap: 14px; }
-        .agency .dot { width: 16px; height: 16px; border-radius: 50%; background: var(--red); }
+        .agency { margin-top: 24px; font-size: 28px; font-weight: 700; color: var(--label); display: flex; align-items: center; gap: 12px; }
+        .agency .dot { width: 14px; height: 14px; border-radius: 50%; background: var(--red); }
 
-        /* ---- Wariant reels (1080x1920) — więcej miejsca, większe fonty ---- */
-        body.reels .poster { padding: 120px 84px; }
-        body.reels .headline div { font-size: 142px; }
-        body.reels .details { gap: 40px; }
-        body.reels .label, body.reels .salary-label { font-size: 44px; }
-        body.reels .value { font-size: 64px; }
-        body.reels .field.compact .value { font-size: 56px; }
-        body.reels .subvalue { font-size: 48px; }
-        body.reels .salary-value { font-size: 108px; }
-        body.reels .apply-button { height: 112px; font-size: 64px; }
-        body.reels .agency { font-size: 42px; }
+        /* ---- Wariant reels (1080x1920) ---- */
+        body.reels .poster { padding: 104px 80px; }
+        body.reels .headline div { font-size: 108px; }
+        body.reels .details { gap: 34px; }
+        body.reels .label, body.reels .salary-label { font-size: 32px; }
+        body.reels .value { font-size: 50px; }
+        body.reels .field.compact .value { font-size: 44px; }
+        body.reels .subvalue { font-size: 36px; }
+        body.reels .salary-value { font-size: 82px; }
+        body.reels .salary-value .suffix { font-size: 36px; }
+        body.reels .apply-button { height: 96px; font-size: 48px; }
+        body.reels .agency { font-size: 34px; }
     </style>
 </head>
 <body class="{{ $format }}">
@@ -152,7 +153,7 @@
         <section class="bottom">
             @if ($salary)
                 <div class="salary-label">Wynagrodzenie</div>
-                <div class="salary-value">{{ $salary }}</div>
+                <div class="salary-value">{{ $salary }}<span class="suffix">{{ $salarySuffix }}</span></div>
             @endif
 
             <div class="apply-button">Aplikuj teraz</div>

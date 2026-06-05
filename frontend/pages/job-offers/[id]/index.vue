@@ -35,14 +35,16 @@ async function generateReferral() {
   }
 }
 
-// Grafika ogłoszenia (PNG na social media) — generowana przez OpenAI (gpt-image-1).
+// Grafika ogłoszenia (PNG na social media). Tło z AI generujemy raz i reużywamy;
+// ponowne wywołanie AI tylko przy „Odśwież tło" (refresh=1).
 const posterLoading = ref('')
 const posterError = ref('')
-async function generatePoster(format: 'feed' | 'reels') {
+async function generatePoster(format: 'feed' | 'reels', refresh = false) {
   posterError.value = ''
-  posterLoading.value = format
+  posterLoading.value = refresh ? 'refresh' : format
   try {
-    const blob = await fetchBlob(`/job-offers/${id.value}/poster?format=${format}`)
+    const q = `format=${format}${refresh ? '&refresh=1' : ''}`
+    const blob = await fetchBlob(`/job-offers/${id.value}/poster?${q}`)
     openBlob(blob, `oferta-${format}-${(offer.value?.title || '').replace(/\s+/g, '-').toLowerCase()}.png`)
   } catch (e: any) {
     // Odpowiedź błędu przychodzi jako Blob (responseType: blob) — spróbuj odczytać treść.
@@ -53,7 +55,7 @@ async function generatePoster(format: 'feed' | 'reels') {
       const json = text ? JSON.parse(text) : null
       msg = json?.errors?.openai?.[0] || json?.message || msg
     } catch {}
-    posterError.value = msg + ' (Generowanie tła AI może potrwać kilkanaście sekund — wymaga klucza OpenAI i usługi Gotenberg.)'
+    posterError.value = msg + ' (Odświeżenie tła przez AI może potrwać kilkanaście sekund — wymaga klucza OpenAI i usługi Gotenberg.)'
   } finally {
     posterLoading.value = ''
   }
@@ -117,10 +119,13 @@ async function saveQuick() {
           <AppIcon name="pdf" :size="16" /> {{ referralLoading ? 'Generowanie…' : 'Skierowanie PDF' }}
         </button>
         <button class="inline-flex h-9 items-center gap-1.5 rounded-full border border-hairline px-3.5 text-sm font-medium text-ink transition hover:bg-surface disabled:opacity-50" :disabled="!!posterLoading" @click="generatePoster('feed')">
-          <AppIcon name="camera" :size="16" /> {{ posterLoading === 'feed' ? 'Generuję grafikę…' : 'Grafika AI (post)' }}
+          <AppIcon name="camera" :size="16" /> {{ posterLoading === 'feed' ? 'Generuję…' : 'Grafika (post)' }}
         </button>
         <button class="inline-flex h-9 items-center gap-1.5 rounded-full border border-hairline px-3.5 text-sm font-medium text-ink transition hover:bg-surface disabled:opacity-50" :disabled="!!posterLoading" @click="generatePoster('reels')">
-          {{ posterLoading === 'reels' ? 'Generuję grafikę…' : 'Grafika AI (reels)' }}
+          {{ posterLoading === 'reels' ? 'Generuję…' : 'Grafika (reels)' }}
+        </button>
+        <button class="inline-flex h-9 items-center gap-1.5 rounded-full border border-hairline px-3.5 text-sm font-medium text-ink transition hover:bg-surface disabled:opacity-50" :disabled="!!posterLoading" title="Wygeneruj nowe tło przez AI" @click="generatePoster('feed', true)">
+          {{ posterLoading === 'refresh' ? 'Odświeżam tło…' : 'Odśwież tło (AI)' }}
         </button>
         <NuxtLink :to="`/job-offers/${id}/edit`" class="inline-flex h-9 items-center gap-1.5 rounded-full border border-hairline px-3.5 text-sm font-medium text-ink transition hover:bg-surface">
           Edytuj

@@ -1236,11 +1236,18 @@ kontrolowany, a wynik ma dokładny rozmiar **1080×1350** (feed) lub **1080×192
 
 ### 22.2 Odporność i wymagania
 
+- **Tło generujemy raz i reużywamy.** Wygenerowane tło zapisujemy w S3
+  (`job_postings.poster_bg_path`); kolejne plakaty pobierają je z S3 **bez
+  ponownego wywołania AI**. AI uruchamia się ponownie tylko przy „Odśwież tło"
+  (`?refresh=1`).
+- **Gotowe grafiki trafiają do S3** (`{folder}/poster-feed.png`,
+  `poster-reels.png`) — szybkie pobranie / archiwum.
 - Tło z AI jest **opcjonalne**: brak klucza API / błąd / brak sieci → grafika i
-  tak powstaje na czystym, jasnym tle (deterministyczny tekst bez ilustracji).
-  Błąd AI jest logowany (`Log::warning`), nie przerywa generowania.
+  tak powstaje na zaprojektowanym jasnym tle (fallback). Błąd AI jest logowany
+  (`Log::warning`), nie przerywa generowania; w razie błędu reużywamy
+  poprzedniego tła, jeśli istnieje.
 - `OpenAiClient::image()` używa tego samego klucza z ustawień organizacji co opisy.
-- Endpoint bez zmian: `GET /job-offers/{jobPosting}/poster?format=feed|reels`.
+- Endpoint: `GET /job-offers/{jobPosting}/poster?format=feed|reels[&refresh=1]`.
 - `nginx`: `fastcgi_read_timeout` = `180s` (generowanie tła trwa kilkanaście–
   kilkadziesiąt sekund). Serwer potrzebuje dostępu do `api.openai.com`
   (polityka sieci) oraz działającego kontenera Gotenberg.
@@ -1260,7 +1267,7 @@ Logikę danych liczy `GeneratePosterAction` (Blade pozostaje prezentacyjny):
 - **lokalizacja** z osobnych pól (`country` / `region_base`), a dopiero przy ich
   braku z tytułu,
 - **wynagrodzenie** jako zakres z półpauzą i walutą w jednej linii
-  (`2 100 - 2 300` → `2100–2300 EUR`),
+  (`2 100 - 2 300` → `2100–2300 EUR`) z dopiskiem **„na rękę"**,
 - **dobór rozmiaru fontu** stanowiska wg długości (długie nazwy nie wychodzą
   poza canvas).
 

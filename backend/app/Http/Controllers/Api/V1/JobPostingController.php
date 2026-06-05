@@ -103,7 +103,9 @@ class JobPostingController extends Controller
         Request $request
     ): \Illuminate\Http\Response {
         $format = $request->string('format')->toString() === 'reels' ? 'reels' : 'feed';
-        $png = $action->render($jobPosting, $format);
+        // Tło reużywamy; AI generuje ponownie tylko przy „Odśwież tło" (refresh=1).
+        $refresh = $request->boolean('refresh');
+        $png = $action->render($jobPosting, $format, $refresh);
 
         return response($png, 200, [
             'Content-Type' => 'image/png',

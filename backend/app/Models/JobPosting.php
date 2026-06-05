@@ -32,6 +32,7 @@ class JobPosting extends Model
         'loading_info',
         'daily_km',
         'pdf_url',
+        'poster_bg_path',
         'country',
         'region_base',
         'work_system',
@@ -68,6 +69,16 @@ class JobPosting extends Model
     public function company(): BelongsTo
     {
         return $this->belongsTo(Company::class);
+    }
+
+    /**
+     * Czytelny folder ogłoszenia w storage (np. „oferty/kierowca-c-e-a1f3c2d1").
+     */
+    public function storageFolder(): string
+    {
+        $slug = \Illuminate\Support\Str::slug($this->title ?? '') ?: 'oferta';
+
+        return 'oferty/'.$slug.'-'.substr((string) $this->id, 0, 8);
     }
 
     public function applications(): HasMany
