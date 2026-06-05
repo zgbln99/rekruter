@@ -19,7 +19,27 @@ body {
   text-rendering: optimizeLegibility;
 }
 
-/* --- Przejścia między stronami (animacja) --- */
+::selection {
+  background: rgba(16, 185, 129, 0.18);
+}
+
+/* Cienki, dyskretny scrollbar (desktop). */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #d4d4d8 transparent;
+}
+*::-webkit-scrollbar {
+  width: 9px;
+  height: 9px;
+}
+*::-webkit-scrollbar-thumb {
+  background: #d4d4d8;
+  border-radius: 9999px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+
+/* --- Przejścia między stronami --- */
 .page-enter-active,
 .page-leave-active {
   transition:
@@ -35,7 +55,6 @@ body {
   transform: translateY(-6px);
 }
 
-/* Subtelne wejście elementów list/kart. */
 @keyframes fade-in-up {
   from {
     opacity: 0;
@@ -50,65 +69,79 @@ body {
   animation: fade-in-up 0.3s ease both;
 }
 
+/* Skeleton (ładowanie). */
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+.skeleton {
+  @apply relative overflow-hidden rounded-md bg-surface;
+}
+.skeleton::after {
+  content: '';
+  @apply absolute inset-0;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.65),
+    transparent
+  );
+  transform: translateX(-100%);
+  animation: shimmer 1.4s infinite;
+}
+
 @layer components {
   /* --- Przyciski --- */
-  /* Akcja dominująca: czarny pill. */
   .btn-primary {
     @apply inline-flex h-12 w-full items-center justify-center gap-2 rounded-full
-      bg-ink px-5 text-[15px] font-semibold text-white transition
-      active:scale-[0.98] active:bg-charcoal disabled:opacity-40;
+      bg-ink px-5 text-[15px] font-semibold text-white shadow-sm transition
+      hover:bg-charcoal active:scale-[0.98] disabled:opacity-40;
   }
-
-  /* Akcent (mięta) — kluczowe potwierdzenia. */
   .btn-accent {
     @apply inline-flex h-12 w-full items-center justify-center gap-2 rounded-full
-      bg-brand px-5 text-[15px] font-semibold text-white transition
-      active:scale-[0.98] active:bg-brand-deep disabled:opacity-40;
+      bg-brand px-5 text-[15px] font-semibold text-white shadow-sm transition
+      hover:bg-brand-deep active:scale-[0.98] disabled:opacity-40;
   }
-
-  /* Akcja drugorzędna: obrys. */
   .btn-outline {
     @apply inline-flex h-12 w-full items-center justify-center gap-2 rounded-full
       border border-hairline bg-canvas px-5 text-[15px] font-semibold text-ink
-      transition active:scale-[0.98] active:bg-surface disabled:opacity-40;
+      transition hover:bg-surface active:scale-[0.98] disabled:opacity-40;
   }
-
   .btn-sm {
     @apply inline-flex h-9 items-center justify-center gap-1.5 rounded-full
-      bg-ink px-4 text-sm font-medium text-white transition active:scale-[0.97];
+      bg-ink px-4 text-sm font-medium text-white shadow-sm transition
+      hover:bg-charcoal active:scale-[0.97];
   }
 
   /* --- Karty --- */
   .card {
-    @apply rounded-lg border border-hairline bg-canvas shadow-subtle transition duration-200;
+    @apply rounded-xl border border-hairline bg-canvas shadow-card transition duration-200;
   }
-
-  /* Klikalna karta — podniesienie i mocniejszy cień na hover (desktop). */
   .card-tile {
-    @apply card hover:-translate-y-0.5 hover:border-stone/40 hover:shadow-card;
+    @apply card hover:-translate-y-0.5 hover:border-stone/30 hover:shadow-elevated;
   }
 
   /* --- Pola formularzy --- */
   .input-field {
-    @apply h-12 w-full rounded-md border border-hairline bg-canvas px-3.5
+    @apply h-12 w-full rounded-lg border border-hairline bg-canvas px-3.5
       text-[15px] text-ink placeholder:text-muted outline-none transition
       focus:border-brand focus:ring-4 focus:ring-brand/15;
   }
-
   .field-label {
     @apply mb-1.5 block text-[13px] font-medium text-steel;
   }
 
-  /* --- Chipy (pill toggle) --- */
+  /* --- Chipy --- */
   .chip {
     @apply inline-flex items-center rounded-full border border-hairline bg-canvas
-      px-3.5 py-2 text-sm font-medium text-slate transition active:scale-95;
+      px-3.5 py-2 text-sm font-medium text-slate transition hover:border-stone/40 active:scale-95;
   }
   .chip-active {
-    @apply border-ink bg-ink text-white;
+    @apply border-ink bg-ink text-white hover:border-ink;
   }
 
-  /* --- Badge statusu --- */
+  /* --- Badge --- */
   .badge {
     @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium;
   }
@@ -118,4 +151,21 @@ body {
   .badge-accent {
     @apply bg-brand-soft text-brand-deep;
   }
+
+  /* --- Nagłówki --- */
+  .page-title {
+    @apply text-[26px] font-bold tracking-tight text-ink;
+  }
+  .section-label {
+    @apply text-[13px] font-medium text-steel;
+  }
+}
+
+/* Focus-visible dla dostępności (klawiatura). */
+a:focus-visible,
+button:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid #10b981;
+  outline-offset: 2px;
+  border-radius: 8px;
 }
