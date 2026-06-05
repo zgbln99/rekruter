@@ -108,6 +108,12 @@
             @if ($candidate->city)
                 <div class="row"><div class="label">Miejscowość</div><div class="value">{{ $candidate->city }}{{ $candidate->country ? ', '.$candidate->country : '' }}</div></div>
             @endif
+            @if ($candidate->address)
+                <div class="row"><div class="label">Adres</div><div class="value">{{ $candidate->address }}</div></div>
+            @endif
+            @if ($candidate->date_of_birth)
+                <div class="row"><div class="label">Data urodzenia</div><div class="value">{{ $candidate->date_of_birth->format('d.m.Y') }} ({{ $candidate->date_of_birth->age }} lat)</div></div>
+            @endif
             @if ($candidate->nationality)
                 <div class="row"><div class="label">Narodowość</div><div class="value">{{ $candidate->nationality }}</div></div>
             @endif
@@ -144,6 +150,20 @@
         <div class="section">
             <div class="section-title">Opis doświadczenia</div>
             <div>{{ $candidate->experience_notes }}</div>
+        </div>
+    @endif
+
+    @if (! empty($candidate->work_history))
+        <div class="section">
+            <div class="section-title">Historia pracy</div>
+            <div class="grid">
+                @foreach ($candidate->work_history as $job)
+                    <div class="row" style="display:block; padding:6px 0;">
+                        <div class="value">{{ $job['employer'] ?? '' }}@if (! empty($job['position'])) — {{ $job['position'] }}@endif</div>
+                        <div class="label" style="width:auto;">{{ $job['period'] ?? '' }}@if (! empty($job['description'])) · {{ $job['description'] }}@endif</div>
+                    </div>
+                @endforeach
+            </div>
         </div>
     @endif
 

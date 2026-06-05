@@ -16,6 +16,7 @@ use App\Http\Controllers\Api\V1\PipelineStageController;
 use App\Http\Controllers\Api\V1\ProfileController;
 use App\Http\Controllers\Api\V1\RodoController;
 use App\Http\Controllers\Api\V1\TaskController;
+use App\Http\Controllers\Api\V1\UserController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function () {
@@ -133,5 +134,8 @@ Route::prefix('v1')->group(function () {
         // Decyzja firmy po wysłaniu profilu.
         Route::patch('profile-sends/{profileSend}/decision', [ProfileController::class, 'decision'])
             ->name('profile-sends.decision');
+
+        // --- Faza 6: Użytkownicy (zarządzanie — tylko administrator) ---
+        Route::apiResource('users', UserController::class)->only(['index', 'store', 'update', 'destroy']);
     });
 });

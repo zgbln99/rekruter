@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Candidates;
 
+use App\Enums\CandidateSource;
 use App\Enums\CandidateStatus;
 use App\Enums\LicenseCategory;
 use Illuminate\Foundation\Http\FormRequest;
@@ -29,6 +30,11 @@ class UpdateCandidateRequest extends FormRequest
             'email' => ['nullable', 'email', 'max:191'],
             'city' => ['nullable', 'string', 'max:120'],
             'country' => ['nullable', 'string', 'max:120'],
+            'address' => ['nullable', 'string', 'max:191'],
+            'date_of_birth' => ['nullable', 'date'],
+            'nationality' => ['nullable', 'string', 'max:120'],
+            'availability_from' => ['nullable', 'date'],
+            'experience_notes' => ['nullable', 'string'],
             'status' => ['sometimes', new Enum(CandidateStatus::class)],
             'license_categories' => ['sometimes', 'array'],
             'license_categories.*' => [Rule::in(LicenseCategory::values())],
@@ -37,7 +43,18 @@ class UpdateCandidateRequest extends FormRequest
             'has_code_95' => ['sometimes', 'boolean'],
             'code_95_expiry' => ['nullable', 'date'],
             'driver_card_expiry' => ['nullable', 'date'],
-            'source' => ['nullable', 'string', 'max:60'],
+            'has_hds' => ['sometimes', 'boolean'],
+            'exp_reefer' => ['sometimes', 'boolean'],
+            'exp_tilt' => ['sometimes', 'boolean'],
+            'exp_international' => ['sometimes', 'boolean'],
+            'lang_de' => ['sometimes', 'boolean'],
+            'lang_en' => ['sometimes', 'boolean'],
+            'work_history' => ['sometimes', 'array'],
+            'work_history.*.employer' => ['nullable', 'string', 'max:191'],
+            'work_history.*.position' => ['nullable', 'string', 'max:191'],
+            'work_history.*.period' => ['nullable', 'string', 'max:120'],
+            'work_history.*.description' => ['nullable', 'string', 'max:500'],
+            'source' => ['nullable', Rule::in(CandidateSource::values())],
             'consent_rodo_at' => ['nullable', 'date'],
             'internal_notes' => ['nullable', 'string'],
         ];

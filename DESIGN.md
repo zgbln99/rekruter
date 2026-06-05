@@ -1001,3 +1001,56 @@ Strategia (breakpointy Tailwind):
 Realizacja: `layouts/default.vue` warunkowo renderuje `SideNav` (`hidden lg:flex`) oraz
 `BottomNav`/`NewCandidateFab` (`lg:hidden`); kontener `max-w` i `padding` sterowane klasami
 responsywnymi. Brak osobnych „desktopowych" stron — ten sam routing i komponenty.
+
+---
+
+## 20. Faza 6 — Pełna kartoteka kandydata + użytkownicy
+
+> Cel: bogatszy profil kandydata (dane potrzebne klientowi w PDF), wygodny
+> dwukolumnowy widok na desktopie oraz zarządzanie kontami użytkowników agencji.
+
+### 20.1 Rozszerzenie modelu kandydata
+
+Migracja `add_personal_details_to_candidates`:
+
+```
+address           string  null   -- adres zamieszkania
+date_of_birth     date    null   -- data urodzenia
+work_history      jsonb   '[]'   -- historia pracy: [{employer, position, period, description?}]
+```
+
+`work_history` to lista wpisów (pracodawca, stanowisko, okres, opcjonalny opis).
+`CandidateResource` i `UpdateCandidateRequest` rozszerzone o te pola
+(walidacja: `date_of_birth` = data; `work_history` = tablica obiektów string).
+
+### 20.2 PDF profilu — nowe dane
+
+Szablon `pdf/profile.blade.php` rozszerzony o: **adres**, **data urodzenia** (z wyliczonym
+wiekiem) oraz sekcję **Historia pracy** (lista: pracodawca — stanowisko, okres). Dane
+osobowe wrażliwe pozostają poza uwagami wewnętrznymi (bez `recruiter_notes`/`internal_notes`).
+
+### 20.3 Edycja kandydata + profil dwukolumnowy
+
+- Pełny formularz edycji kandydata (`/candidates/{id}/edit`): dane osobowe (imię, nazwisko,
+  e-mail, telefon, adres, data urodzenia, narodowość, miasto/kraj, dostępność, źródło),
+  uprawnienia/atrybuty (kat., ADR, Kod 95, HDS, chłodnia, plandeka, międzynarodowe, DE/EN),
+  historia pracy (dynamiczna lista), notatka wewnętrzna. Endpoint: `PATCH /candidates/{id}`.
+- **Profil 2-kolumnowy (desktop ≥ `lg`)**: lewa kolumna (≈⅔) — dane, uprawnienia, akcje PDF,
+  dokumenty, kontakty; prawa kolumna (≈⅓, „lepki" panel) — kompletność, status w ogłoszeniach,
+  timeline, RODO. Na telefonie układ pozostaje jednokolumnowy (te same komponenty).
+
+### 20.4 Moduł użytkowników (zarządzanie kontami)
+
+- Tabela `users` już istnieje (rola: `admin` / `recruiter`, scoping per tenant).
+- **Autoryzacja: wyłącznie administrator** (Policy `UserPolicy` / sprawdzenie `isAdmin`).
+- Endpointy: `GET/POST/PATCH/DELETE /api/v1/users` (lista, tworzenie, edycja, dezaktywacja).
+  Tworzenie: imię, e-mail (unikalny w tenancie), hasło, rola. Edycja: dane + opcjonalna zmiana
+  hasła + rola. Administrator nie może usunąć samego siebie.
+- Frontend: widok `/users` (lista + dodawanie + edycja), dostępny tylko dla administratora
+  (pozycja nawigacji `adminOnly`, strażnik trasy przekierowuje nie-adminów).
+
+### 20.5 Testy (Faza 6)
+
+Aktualizacja danych osobowych kandydata (adres, data urodzenia, historia pracy) ·
+administrator tworzy/edytuje/usuwa użytkownika · rekruter nie ma dostępu do modułu
+użytkowników (403) · administrator nie może usunąć samego siebie. Cel: 100% zielonych.
