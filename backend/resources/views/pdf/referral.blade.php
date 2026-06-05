@@ -5,45 +5,33 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         html, body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-        body { font-family: 'Helvetica Neue', 'Segoe UI', Arial, sans-serif; color: #0f172a; font-size: 11.5px; line-height: 1.5; }
-        .page { padding: 46px 52px; }
+        body { font-family: 'Helvetica Neue', 'Segoe UI', Arial, sans-serif; color: #0f172a; font-size: 11.5px; line-height: 1.45; }
+        .page { padding: 40px 46px; }
 
-        /* Nagłówek dokumentu */
-        .top { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 2px solid #0f172a; padding-bottom: 12px; }
-        .top .agency { font-size: 18px; font-weight: 800; color: #0f172a; }
-        .top .agency .dot { color: #dc2626; }
-        .top .agency small { display: block; font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase; color: #94a3b8; margin-top: 3px; font-weight: 700; }
-        .top .meta { text-align: right; font-size: 10px; color: #64748b; line-height: 1.6; }
-        .top .meta b { color: #0f172a; }
+        /* Nagłówek */
+        .head { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 14px; }
+        .head .agency { font-size: 18px; font-weight: 800; color: #0f172a; }
+        .head .agency .dot { color: #dc2626; }
+        .head .agency small { display: block; font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase; color: #94a3b8; margin-top: 3px; font-weight: 700; }
+        .head .meta { text-align: right; font-size: 10px; color: #64748b; line-height: 1.7; }
+        .head .meta b { color: #0f172a; }
 
-        /* Tytuł + adresat */
-        .title { margin-top: 22px; font-size: 27px; font-weight: 900; letter-spacing: -0.6px; text-transform: uppercase; color: #0f172a; }
-        .title .accent { color: #dc2626; }
-        .rule { width: 64px; height: 4px; background: #dc2626; border-radius: 2px; margin-top: 10px; }
-        .lead { margin-top: 16px; font-size: 13px; color: #334155; }
-        .lead .who { font-size: 16px; font-weight: 800; color: #0f172a; }
-        .lead .pos { color: #b91c1c; font-weight: 700; }
+        .title-bar { background: #dc2626; color: #fff; padding: 12px 16px; border-radius: 8px 8px 0 0; }
+        .title-bar .t { font-size: 20px; font-weight: 900; letter-spacing: 0.4px; text-transform: uppercase; }
+        .title-bar .for { font-size: 12px; margin-top: 3px; color: #fde2e2; }
+        .title-bar .for b { color: #fff; }
 
-        /* Sekcje */
-        .section { margin-top: 22px; }
-        .s-head { font-size: 11px; font-weight: 800; letter-spacing: 1.4px; text-transform: uppercase; color: #dc2626; padding-bottom: 5px; border-bottom: 1px solid #e5e9f0; margin-bottom: 6px; }
+        /* Tabela */
+        table.doc { width: 100%; border-collapse: collapse; }
+        table.doc td { border: 1px solid #cbd5e1; padding: 8px 13px; vertical-align: top; }
+        tr.sec td { background: #0f172a; color: #fff; font-weight: 800; font-size: 10.5px; letter-spacing: 1.2px; text-transform: uppercase; border-color: #0f172a; padding: 7px 13px; }
+        td.k { width: 34%; background: #f6f8fb; font-size: 10px; letter-spacing: 0.4px; text-transform: uppercase; color: #475569; font-weight: 700; }
+        td.v { font-size: 12px; color: #0f172a; font-weight: 600; white-space: pre-line; }
+        td.v .muted { color: #94a3b8; font-weight: 500; }
+        td.v.salary { color: #b91c1c; font-weight: 800; font-size: 14px; }
+        td.full { white-space: pre-line; font-weight: 500; color: #334155; }
 
-        /* Wiersze label : wartość */
-        .row { display: table; width: 100%; padding: 7px 0; border-bottom: 1px solid #f1f5f9; }
-        .row:last-child { border-bottom: 0; }
-        .row .k { display: table-cell; width: 210px; padding-right: 16px; vertical-align: top; font-size: 10px; letter-spacing: 0.4px; text-transform: uppercase; color: #64748b; font-weight: 700; }
-        .row .v { display: table-cell; vertical-align: top; font-size: 12px; color: #0f172a; font-weight: 600; white-space: pre-line; }
-        .row .v .muted { color: #94a3b8; font-weight: 500; }
-        .row .v.salary { color: #b91c1c; font-weight: 800; font-size: 15px; }
-        .row .v.big { font-size: 14px; font-weight: 800; }
-
-        .block { margin-top: 7px; font-size: 11.5px; color: #334155; white-space: pre-line; line-height: 1.6; }
-
-        .two { display: table; width: 100%; table-layout: fixed; margin-top: 2px; }
-        .two .c { display: table-cell; width: 50%; vertical-align: top; }
-        .two .c:first-child { padding-right: 18px; }
-
-        .footer { margin-top: 30px; padding-top: 12px; border-top: 1px solid #e2e8f0; color: #94a3b8; font-size: 9.5px; display: flex; justify-content: space-between; }
+        .footer { margin-top: 18px; color: #94a3b8; font-size: 9.5px; display: flex; justify-content: space-between; }
         .footer b { color: #0f172a; }
     </style>
 </head>
@@ -56,8 +44,8 @@
     $onsite = $offer->onsite_contact ?: trim(($company?->contact_person ?? '')."\n".($company?->contact_phone ?? '')."\n".($company?->contact_email ?? ''));
     $candidateName = $candidateName ?? null;
     $arrival = ($arrivalOverride ?? null) ?: ($offer->arrival_info ?: ($offer->start_date ? $offer->start_date->format('d.m.Y') : null));
+    $recruiter = trim(($recruiterName ?? '').($recruiterPhone ? ' · '.$recruiterPhone : '').($recruiterEmail ? "\n".$recruiterEmail : ''));
 
-    // Parametry warunków pracy (etykiety z $t).
     $params = [];
     if ($offer->work_system) $params[] = [$t['f_system'], $offer->work_system];
     if ($vehicle) $params[] = [$t['p_vehicle'], $vehicle];
@@ -71,75 +59,54 @@
 
 <div class="page">
     {{-- NAGŁÓWEK --}}
-    <div class="top">
+    <div class="head">
         <div class="agency">{{ $agencyName }} <span class="dot">●</span><small>{{ $t['brand_hr'] }}</small></div>
-        <div class="meta">
-            <div>{{ $t['sub'] }}</div>
-            <div><b>{{ $generatedAt }}</b></div>
+        <div class="meta"><div>{{ $t['sub'] }}</div><div><b>{{ $generatedAt }}</b></div></div>
+    </div>
+
+    {{-- PASEK TYTUŁOWY --}}
+    <div class="title-bar">
+        <div class="t">{{ $t['title_main'] }} {{ $t['title_accent'] }}</div>
+        <div class="for">
+            @if ($candidateName){{ $t['forwho'] }}: <b>{{ $candidateName }}</b> · @endif{{ $offer->title }}
         </div>
     </div>
 
-    {{-- TYTUŁ + ADRESAT --}}
-    <div class="title">{{ $t['title_main'] }} <span class="accent">{{ $t['title_accent'] }}</span></div>
-    <div class="rule"></div>
-    <div class="lead">
-        @if ($candidateName)<span class="who">{{ $candidateName }}</span> — @endif{{ $offer->title }}
-        @if ($company?->name)<br>{{ $t['employer'] }}: <b>{{ $company->name }}</b>@if ($region) · {{ $region }}@endif @endif
-    </div>
+    {{-- TABELA --}}
+    <table class="doc">
+        {{-- Pracodawca --}}
+        <tr class="sec"><td colspan="2">{{ $t['employer'] }}</td></tr>
+        <tr><td class="k">{{ $t['company_name'] }}</td><td class="v">{{ $company?->name ?? '—' }}@if ($company?->website) <span class="muted">· {{ $company->website }}</span>@endif</td></tr>
+        @if ($region)<tr><td class="k">{{ $t['region'] }}</td><td class="v">{{ $region }}</td></tr>@endif
+        @if ($company?->description)<tr><td class="k">{{ $t['about'] }}</td><td class="full">{{ $company->description }}</td></tr>@endif
+        @if ($arrival)<tr><td class="k">{{ $t['f_arrival'] }}</td><td class="v">{{ $arrival }}</td></tr>@endif
 
-    {{-- STANOWISKO I WARUNKI --}}
-    <div class="section">
-        <div class="s-head">{{ $t['sec_conditions'] }}</div>
-        <div class="row"><div class="k">{{ $t['position'] }}</div><div class="v big">{{ $offer->title }}</div></div>
-        @if ($salary)<div class="row"><div class="k">{{ $t['f_salary'] }}</div><div class="v salary">{{ $salary }}</div></div>@endif
-        @if ($arrival)<div class="row"><div class="k">{{ $t['f_arrival'] }}</div><div class="v big">{{ $arrival }}</div></div>@endif
+        {{-- Stanowisko i warunki --}}
+        <tr class="sec"><td colspan="2">{{ $t['sec_conditions'] }}</td></tr>
+        <tr><td class="k">{{ $t['position'] }}</td><td class="v">{{ $offer->title }}</td></tr>
+        @if ($salary)<tr><td class="k">{{ $t['f_salary'] }}</td><td class="v salary">{{ $salary }}</td></tr>@endif
         @foreach ($params as $p)
-            <div class="row"><div class="k">{{ $p[0] }}</div><div class="v">{{ $p[1] }}</div></div>
+            <tr><td class="k">{{ $p[0] }}</td><td class="v">{{ $p[1] }}</td></tr>
         @endforeach
-    </div>
 
-    {{-- PRACODAWCA --}}
-    @if ($company?->name || $company?->description)
-        <div class="section">
-            <div class="s-head">{{ $t['employer'] }}</div>
-            <div class="row"><div class="k">{{ $t['company_name'] }}</div><div class="v">{{ $company?->name ?? '—' }}@if ($company?->website) <span class="muted">· {{ $company->website }}</span>@endif</div></div>
-            @if ($region)<div class="row"><div class="k">{{ $t['region'] }}</div><div class="v">{{ $region }}</div></div>@endif
-            @if ($company?->description)<div class="row"><div class="k">{{ $t['about'] }}</div><div class="v" style="font-weight:500;">{{ $company->description }}</div></div>@endif
-        </div>
-    @endif
+        {{-- Trasy / zakwaterowanie --}}
+        @if ($routes || $offer->accommodation)
+            <tr class="sec"><td colspan="2">{{ $t['sec_routes'] }}</td></tr>
+            @if ($routes)<tr><td class="k">{{ $t['routes'] }}</td><td class="full">{{ $routes }}</td></tr>@endif
+            @if ($offer->accommodation)<tr><td class="k">{{ $t['accommodation'] }}</td><td class="full">{{ $offer->accommodation }}</td></tr>@endif
+        @endif
 
-    {{-- TRASY / ZAKWATEROWANIE --}}
-    @if ($routes || $offer->accommodation)
-        <div class="section">
-            <div class="s-head">{{ $t['sec_routes'] }}</div>
-            @if ($routes)<div class="row"><div class="k">{{ $t['routes'] }}</div><div class="v" style="font-weight:500;">{{ $routes }}</div></div>@endif
-            @if ($offer->accommodation)<div class="row"><div class="k">{{ $t['accommodation'] }}</div><div class="v" style="font-weight:500;">{{ $offer->accommodation }}</div></div>@endif
-        </div>
-    @endif
+        {{-- Kontakt --}}
+        <tr class="sec"><td colspan="2">{{ $t['sec_employer'] }}</td></tr>
+        <tr><td class="k">{{ $t['contact_onsite'] }}</td><td class="full">{{ $onsite ?: '—' }}</td></tr>
+        <tr><td class="k">{{ $t['contact_office'] }}</td><td class="full">{{ $recruiter ?: '—' }}</td></tr>
 
-    {{-- KONTAKT --}}
-    <div class="section">
-        <div class="s-head">{{ $t['sec_employer'] }}</div>
-        <div class="two">
-            <div class="c">
-                <div class="row" style="border-bottom:0;"><div class="k">{{ $t['contact_onsite'] }}</div></div>
-                <div class="block">{{ $onsite ?: '—' }}</div>
-            </div>
-            <div class="c">
-                <div class="row" style="border-bottom:0;"><div class="k">{{ $t['contact_office'] }}</div></div>
-                <div class="block"><b>{{ $recruiterName }}</b>@if ($recruiterPhone) · {{ $recruiterPhone }}@endif @if ($recruiterEmail)
-{{ $recruiterEmail }}@endif</div>
-            </div>
-        </div>
-    </div>
-
-    {{-- DODATKOWE INFORMACJE --}}
-    @if ($offer->public_description)
-        <div class="section">
-            <div class="s-head">{{ $t['sec_extra'] }}</div>
-            <div class="block">{{ $offer->public_description }}</div>
-        </div>
-    @endif
+        {{-- Dodatkowe informacje --}}
+        @if ($offer->public_description)
+            <tr class="sec"><td colspan="2">{{ $t['sec_extra'] }}</td></tr>
+            <tr><td class="full" colspan="2">{{ $offer->public_description }}</td></tr>
+        @endif
+    </table>
 
     <div class="footer">
         <span>{{ $t['footer_by'] }} <b>{{ $agencyName }}</b></span>
