@@ -7,6 +7,8 @@ const updateSettings = useUpdateSettings()
 const form = reactive({
   agency_name: '', agency_phone: '', agency_email: '', agency_website: '',
   openai_model: 'gpt-4o-mini',
+  placement_fee: '' as string | number,
+  placement_currency: 'EUR',
 })
 const openaiKey = ref('') // pusty = bez zmian
 const configured = ref(false)
@@ -21,6 +23,8 @@ watch(data, (s) => {
     form.agency_email = s.agency_email || ''
     form.agency_website = s.agency_website || ''
     form.openai_model = s.openai_model || 'gpt-4o-mini'
+    form.placement_fee = s.placement_fee ?? ''
+    form.placement_currency = s.placement_currency || 'EUR'
     configured.value = !!s.openai_configured
     ready.value = true
   }
@@ -99,6 +103,25 @@ async function save() {
             <option value="gpt-4o">gpt-4o (najlepsza jakość)</option>
           </select>
         </div>
+      </div>
+
+      <!-- Rozliczenia (stała kwota — tylko administrator) -->
+      <div class="card space-y-4 p-5">
+        <p class="text-[13px] font-semibold text-ink">Rozliczenia</p>
+        <div class="grid gap-3 sm:grid-cols-2">
+          <div>
+            <label class="field-label">Stała kwota rozliczenia za kierowcę</label>
+            <input v-model="form.placement_fee" type="number" min="0" step="0.01" placeholder="np. 1000" class="input-field" :disabled="!auth.isAdmin" />
+          </div>
+          <div>
+            <label class="field-label">Waluta</label>
+            <input v-model="form.placement_currency" class="input-field" :disabled="!auth.isAdmin" />
+          </div>
+        </div>
+        <p class="text-xs text-stone">
+          Kwota jest ustalona z góry i używana automatycznie przy każdym skierowaniu.
+          Płatność dzielona na 2 raty (faktury +14 i +28 dni od przyjazdu). Widoczna tylko dla administratora.
+        </p>
       </div>
 
       <p v-if="error" class="text-sm text-red-600">{{ error }}</p>

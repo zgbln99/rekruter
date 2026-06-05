@@ -24,11 +24,16 @@ class CreatePlacementAction
     {
         return DB::transaction(function () use ($candidate, $data, $recruiter) {
             $jobPosting = \App\Models\JobPosting::query()->findOrFail($data['job_posting_id']);
+            $tenant = $recruiter->tenant;
 
             $arrival = Carbon::parse($data['arrival_at']);
-            $total = isset($data['total_amount']) && $data['total_amount'] !== '' && $data['total_amount'] !== null
-                ? round((float) $data['total_amount'], 2)
-                : null;
+
+            // Kwota rozliczenia jest ustalona z góry w ustawieniach agencji
+            // (dane finansowe — rekruterka jej nie podaje). Admin może ją nadpisać.
+            $override = $data['total_amount'] ?? null;
+            $total = ($override !== '' && $override !== null && $recruiter->isAdmin())
+                ? round((float) $override, 2)
+                : $tenant?->placementFee();
 
             $placement = Placement::create([
                 'candidate_id' => $candidate->id,
@@ -38,7 +43,7 @@ class CreatePlacementAction
                 'arrival_at' => $arrival,
                 'arrival_status' => 'pending',
                 'total_amount' => $total,
-                'currency' => $data['currency'] ?? 'EUR',
+                'currency' => $data['currency'] ?? $tenant?->placementCurrency() ?? 'EUR',
                 'notes' => $data['notes'] ?? null,
             ]);
 

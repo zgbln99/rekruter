@@ -22,6 +22,9 @@ export interface Settings {
   agency_website: string | null
   openai_model?: string
   openai_configured?: boolean
+  // Tylko dla administratora (dane finansowe):
+  placement_fee?: number | null
+  placement_currency?: string | null
 }
 
 export interface LoginResponse {

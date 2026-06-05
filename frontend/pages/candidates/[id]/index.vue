@@ -61,8 +61,6 @@ const updateArrival = useUpdateArrival()
 const placementForm = reactive({
   job_posting_id: '',
   arrival_at: '',
-  total_amount: '' as string | number,
-  currency: 'EUR',
 })
 const placementError = ref('')
 const placementLoading = ref(false)
@@ -75,17 +73,15 @@ async function generatePlacement() {
   }
   placementLoading.value = true
   try {
+    // Kwota jest ustalona z góry w ustawieniach — nie wysyłamy jej z formularza.
     const placement = await createPlacement.mutateAsync({
       job_posting_id: placementForm.job_posting_id,
       arrival_at: placementForm.arrival_at,
-      total_amount: placementForm.total_amount === '' ? null : placementForm.total_amount,
-      currency: placementForm.currency,
     })
     // Od razu pobierz PDF skierowania.
     await downloadReferral(placement.id)
     placementForm.job_posting_id = ''
     placementForm.arrival_at = ''
-    placementForm.total_amount = ''
   } catch (e: any) {
     placementError.value =
       e?.response?._data?.message || 'Nie udało się utworzyć skierowania.'
@@ -367,23 +363,13 @@ async function doSend() {
                   </option>
                 </select>
               </div>
-              <div>
+              <div class="sm:col-span-2">
                 <label class="field-label">Data i godzina przyjazdu</label>
                 <input v-model="placementForm.arrival_at" type="datetime-local" class="input-field" />
               </div>
-              <div class="grid grid-cols-2 gap-2">
-                <div>
-                  <label class="field-label">Kwota rozliczenia</label>
-                  <input v-model="placementForm.total_amount" type="number" min="0" step="0.01" placeholder="np. 1000" class="input-field" />
-                </div>
-                <div>
-                  <label class="field-label">Waluta</label>
-                  <input v-model="placementForm.currency" class="input-field" />
-                </div>
-              </div>
             </div>
             <p class="mt-2 text-xs text-stone">
-              Płatność zostanie podzielona na 2 raty: +14 i +28 dni od przyjazdu. Terminy trafią do kalendarza.
+              Termin przyjazdu trafi do kalendarza, gdzie potwierdzisz, czy kierowca dotarł.<template v-if="auth.isAdmin"> Rozliczenie (stała kwota z ustawień) zostanie podzielone na 2 raty: +14 i +28 dni od przyjazdu.</template>
             </p>
             <button
               class="btn-primary mt-3 w-full"
@@ -412,8 +398,8 @@ async function doSend() {
                 >{{ pl.arrival_status_label }}</span>
               </div>
 
-              <!-- Raty rozliczenia -->
-              <div v-if="pl.installments?.length" class="mt-2.5 flex flex-wrap gap-1.5">
+              <!-- Raty rozliczenia (tylko administrator) -->
+              <div v-if="auth.isAdmin && pl.installments?.length" class="mt-2.5 flex flex-wrap gap-1.5">
                 <span
                   v-for="inst in pl.installments"
                   :key="inst.id"

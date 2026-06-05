@@ -51,4 +51,17 @@ class Tenant extends Model
     {
         return $this->settings['openai_model'] ?? 'gpt-4o-mini';
     }
+
+    /** Stała kwota rozliczenia za skierowanego kierowcę (ustalana z góry przez admina). */
+    public function placementFee(): ?float
+    {
+        $fee = $this->settings['placement_fee'] ?? null;
+
+        return ($fee === null || $fee === '') ? null : (float) $fee;
+    }
+
+    public function placementCurrency(): string
+    {
+        return $this->settings['placement_currency'] ?? 'EUR';
+    }
 }

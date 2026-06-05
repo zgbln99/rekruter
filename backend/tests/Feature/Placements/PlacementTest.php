@@ -6,6 +6,7 @@ use App\Models\Candidate;
 use App\Models\Company;
 use App\Models\JobPosting;
 use App\Models\Placement;
+use App\Models\PlacementInstallment;
 use App\Models\Tenant;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -21,7 +22,10 @@ class PlacementTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->tenant = Tenant::factory()->create();
+        // Stała kwota rozliczenia ustalona z góry w ustawieniach agencji.
+        $this->tenant = Tenant::factory()->create([
+            'settings' => ['placement_fee' => 1000, 'placement_currency' => 'EUR'],
+        ]);
         Sanctum::actingAs(User::factory()->for($this->tenant)->create());
     }
 
@@ -32,18 +36,29 @@ class PlacementTest extends TestCase
         return JobPosting::factory()->for($this->tenant)->for($company)->create();
     }
 
-    public function test_creating_placement_schedules_two_installments(): void
+    private function createPlacement(Candidate $candidate, JobPosting $offer, string $arrival = '2026-07-01 09:00'): array
     {
+        return $this->postJson("/api/v1/candidates/{$candidate->id}/placements", [
+            'job_posting_id' => $offer->id,
+            'arrival_at' => $arrival,
+        ])->json();
+    }
+
+    public function test_creating_placement_uses_fixed_fee_and_schedules_two_installments(): void
+    {
+        // Tworzymy jako administrator, aby zobaczyć dane finansowe w odpowiedzi.
+        Sanctum::actingAs(User::factory()->for($this->tenant)->admin()->create());
+
         $candidate = Candidate::factory()->for($this->tenant)->create();
         $offer = $this->offer();
 
         $response = $this->postJson("/api/v1/candidates/{$candidate->id}/placements", [
             'job_posting_id' => $offer->id,
             'arrival_at' => '2026-07-01 09:00',
-            'total_amount' => 1000,
-            'currency' => 'EUR',
         ])->assertCreated();
 
+        // Kwota wzięta ze stałej stawki (1000), nie z formularza.
+        $response->assertJsonPath('total_amount', '1000.00');
         $response->assertJsonCount(2, 'installments');
 
         // Raty: +14 dni / +28 dni od przyjazdu, kwoty 50/50 (suma = total).
@@ -55,30 +70,29 @@ class PlacementTest extends TestCase
         $response->assertJsonPath('installments.1.amount', '500.00');
     }
 
-    public function test_referral_pdf_uses_placement_arrival(): void
+    public function test_recruiter_does_not_see_amounts_or_installments(): void
     {
         $candidate = Candidate::factory()->for($this->tenant)->create();
         $offer = $this->offer();
 
-        $created = $this->postJson("/api/v1/candidates/{$candidate->id}/placements", [
+        $response = $this->postJson("/api/v1/candidates/{$candidate->id}/placements", [
             'job_posting_id' => $offer->id,
             'arrival_at' => '2026-07-01 09:00',
-        ])->assertCreated()->json();
+        ])->assertCreated();
 
-        // Endpoint PDF istnieje i jest dostępny (sam render PDF wymaga Gotenberga,
-        // więc sprawdzamy tylko, że trasa i autoryzacja działają — 200 lub 5xx z Gotenberga).
-        $this->assertNotEmpty($created['id']);
+        // Rekruter: kwoty ukryte, lista rat pusta.
+        $response->assertJsonPath('total_amount', null);
+        $response->assertJsonCount(0, 'installments');
+
+        // Ale w bazie raty istnieją (powstały automatycznie).
+        $this->assertSame(2, PlacementInstallment::count());
     }
 
     public function test_marking_arrival_confirmed_sets_status_and_timestamp(): void
     {
         $candidate = Candidate::factory()->for($this->tenant)->create();
         $offer = $this->offer();
-
-        $placement = $this->postJson("/api/v1/candidates/{$candidate->id}/placements", [
-            'job_posting_id' => $offer->id,
-            'arrival_at' => '2026-07-01 09:00',
-        ])->json();
+        $placement = $this->createPlacement($candidate, $offer);
 
         $this->patchJson("/api/v1/placements/{$placement['id']}/arrival", [
             'status' => 'confirmed',
@@ -92,12 +106,7 @@ class PlacementTest extends TestCase
     {
         $candidate = Candidate::factory()->for($this->tenant)->create();
         $offer = $this->offer();
-
-        $this->postJson("/api/v1/candidates/{$candidate->id}/placements", [
-            'job_posting_id' => $offer->id,
-            'arrival_at' => '2026-07-10 09:00',
-            'total_amount' => 800,
-        ])->assertCreated();
+        $this->createPlacement($candidate, $offer, '2026-07-10 09:00');
 
         $events = $this->getJson('/api/v1/calendar?from=2026-07-01&to=2026-07-31')->assertOk()->json();
 
@@ -110,12 +119,7 @@ class PlacementTest extends TestCase
     {
         $candidate = Candidate::factory()->for($this->tenant)->create();
         $offer = $this->offer();
-
-        $this->postJson("/api/v1/candidates/{$candidate->id}/placements", [
-            'job_posting_id' => $offer->id,
-            'arrival_at' => '2026-07-10 09:00',
-            'total_amount' => 800,
-        ])->assertCreated();
+        $this->createPlacement($candidate, $offer, '2026-07-10 09:00');
 
         Sanctum::actingAs(User::factory()->for($this->tenant)->admin()->create());
 
@@ -128,16 +132,11 @@ class PlacementTest extends TestCase
     {
         $candidate = Candidate::factory()->for($this->tenant)->create();
         $offer = $this->offer();
+        $this->createPlacement($candidate, $offer);
 
-        $placement = $this->postJson("/api/v1/candidates/{$candidate->id}/placements", [
-            'job_posting_id' => $offer->id,
-            'arrival_at' => '2026-07-10 09:00',
-            'total_amount' => 800,
-        ])->json();
+        $installment = PlacementInstallment::firstOrFail();
 
-        $installmentId = $placement['installments'][0]['id'];
-
-        $this->patchJson("/api/v1/placement-installments/{$installmentId}", [
+        $this->patchJson("/api/v1/placement-installments/{$installment->id}", [
             'status' => 'paid',
         ])->assertForbidden();
     }
@@ -146,21 +145,30 @@ class PlacementTest extends TestCase
     {
         $candidate = Candidate::factory()->for($this->tenant)->create();
         $offer = $this->offer();
+        $this->createPlacement($candidate, $offer);
 
-        $placement = $this->postJson("/api/v1/candidates/{$candidate->id}/placements", [
-            'job_posting_id' => $offer->id,
-            'arrival_at' => '2026-07-10 09:00',
-            'total_amount' => 800,
-        ])->json();
-
-        $installmentId = $placement['installments'][0]['id'];
+        $installment = PlacementInstallment::firstOrFail();
 
         Sanctum::actingAs(User::factory()->for($this->tenant)->admin()->create());
 
-        $this->patchJson("/api/v1/placement-installments/{$installmentId}", [
+        $this->patchJson("/api/v1/placement-installments/{$installment->id}", [
             'status' => 'paid',
         ])->assertOk()
             ->assertJsonPath('status', 'paid')
             ->assertJsonPath('paid_at', now()->toDateString());
+    }
+
+    public function test_settings_hide_placement_fee_from_recruiter(): void
+    {
+        // Rekruter nie widzi stałej kwoty w ustawieniach.
+        $this->getJson('/api/v1/settings')
+            ->assertOk()
+            ->assertJsonMissingPath('placement_fee');
+
+        // Administrator widzi.
+        Sanctum::actingAs(User::factory()->for($this->tenant)->admin()->create());
+        $this->getJson('/api/v1/settings')
+            ->assertOk()
+            ->assertJsonPath('placement_fee', 1000);
     }
 }

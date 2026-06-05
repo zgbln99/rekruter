@@ -23,6 +23,8 @@ class UpdateSettingsRequest extends FormRequest
             'agency_website' => ['nullable', 'string', 'max:191'],
             'openai_api_key' => ['nullable', 'string', 'max:255'],
             'openai_model' => ['nullable', 'string', 'max:60'],
+            'placement_fee' => ['nullable', 'numeric', 'min:0'],
+            'placement_currency' => ['nullable', 'string', 'size:3'],
         ];
     }
 }

@@ -1115,13 +1115,20 @@ timestamps
 index(tenant_id, due_date)
 ```
 
+**Kwota rozliczenia jest ustalona z góry** w ustawieniach agencji
+(`settings.placement_fee` + `placement_currency`) — rekruterka jej nie podaje
+ani nie widzi. System bierze ją automatycznie przy tworzeniu skierowania
+(administrator może ją wyjątkowo nadpisać). Dane finansowe (kwota, raty) są
+**widoczne wyłącznie dla administratora**: ukrywa je `PlacementResource`
+(dla nie-admina `total_amount=null`, `installments=[]`) oraz UI.
+
 **Reguła generowania rat** (decyzja biznesowa): przy utworzeniu skierowania z
-`arrival_at` i `total_amount` system tworzy **2 raty**:
+`arrival_at` i stałą kwotą system tworzy **2 raty**:
 - rata 1 — `due_date = data_przyjazdu + 14 dni`, `amount = total/2`,
 - rata 2 — `due_date = data_przyjazdu + 28 dni`, `amount = total − amount_raty_1`
   (różnica wyrównuje zaokrąglenie groszy).
 
-Terminy i kwoty rat można później ręcznie skorygować (PATCH na racie).
+Terminy i kwoty rat administrator może później ręcznie skorygować (PATCH na racie).
 
 ### 21.3 Enumy
 
@@ -1134,8 +1141,12 @@ Terminy i kwoty rat można później ręcznie skorygować (PATCH na racie).
 Na karcie kandydata sekcja **„Skierowania"**:
 1. wybór ogłoszenia (z rekrutacji kandydata lub dowolnego aktywnego ogłoszenia),
 2. **data + godzina przyjazdu** (osobne pole `datetime-local`),
-3. kwota rozliczenia (opcjonalnie) + waluta,
-4. „Generuj skierowanie" → tworzy `Placement` (+ 2 raty) i od razu otwiera PDF.
+3. „Generuj skierowanie" → tworzy `Placement` (kwota ze stałej stawki + 2 raty)
+   i od razu otwiera PDF.
+
+Kwota i raty **nie pojawiają się w formularzu rekruterki** — to dane finansowe,
+ustawiane raz w sekcji „Rozliczenia" w Ustawieniach (admin). Na liście skierowań
+raty/kwoty widzi tylko administrator.
 
 PDF (`pdf/referral.blade.php`) jest ten sam co wcześniej, ale:
 - datę przyjazdu bierzemy z `placement.arrival_at` (wpisana ręcznie), nie z oferty,

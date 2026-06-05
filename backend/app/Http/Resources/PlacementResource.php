@@ -15,6 +15,9 @@ class PlacementResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        // Dane finansowe (kwota, raty/rozliczenia) widzi wyłącznie administrator.
+        $isAdmin = (bool) $request->user()?->isAdmin();
+
         return [
             'id' => $this->id,
             'candidate_id' => $this->candidate_id,
@@ -25,13 +28,16 @@ class PlacementResource extends JsonResource
             'arrival_status_label' => $this->arrival_status->label(),
             'arrival_status_color' => $this->arrival_status->color(),
             'arrival_confirmed_at' => optional($this->arrival_confirmed_at)->toIso8601String(),
-            'total_amount' => $this->total_amount,
-            'currency' => $this->currency,
             'notes' => $this->notes,
             'candidate' => new CandidateResource($this->whenLoaded('candidate')),
             'job_posting' => new JobPostingResource($this->whenLoaded('jobPosting')),
-            'installments' => PlacementInstallmentResource::collection($this->whenLoaded('installments')),
             'created_at' => optional($this->created_at)->toIso8601String(),
+            // Tylko administrator:
+            'total_amount' => $isAdmin ? $this->total_amount : null,
+            'currency' => $this->currency,
+            'installments' => $isAdmin
+                ? PlacementInstallmentResource::collection($this->whenLoaded('installments'))
+                : [],
         ];
     }
 }

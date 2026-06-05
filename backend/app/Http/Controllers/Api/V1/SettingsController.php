@@ -18,7 +18,7 @@ class SettingsController extends Controller
     {
         $tenant = $request->user()->tenant;
 
-        return response()->json($this->payload($tenant));
+        return response()->json($this->payload($tenant, $request->user()->isAdmin()));
     }
 
     public function update(UpdateSettingsRequest $request): JsonResponse
@@ -28,9 +28,13 @@ class SettingsController extends Controller
         $tenant = $request->user()->tenant;
         $settings = $tenant->settings ?? [];
 
-        foreach (['agency_name', 'agency_phone', 'agency_email', 'agency_website', 'openai_model'] as $key) {
+        foreach (['agency_name', 'agency_phone', 'agency_email', 'agency_website', 'openai_model', 'placement_currency'] as $key) {
             $settings[$key] = $request->input($key);
         }
+
+        // Stała kwota rozliczenia (pusto = brak / nie ustawiono).
+        $fee = $request->input('placement_fee');
+        $settings['placement_fee'] = ($fee === null || $fee === '') ? null : (float) $fee;
 
         // Klucz API zapisujemy tylko gdy podano nowy (puste pole = bez zmian).
         if ($request->filled('openai_api_key')) {
@@ -40,17 +44,17 @@ class SettingsController extends Controller
         $tenant->settings = $settings;
         $tenant->save();
 
-        return response()->json($this->payload($tenant->refresh()));
+        return response()->json($this->payload($tenant->refresh(), $request->user()->isAdmin()));
     }
 
     /**
      * @return array<string, mixed>
      */
-    private function payload(Tenant $tenant): array
+    private function payload(Tenant $tenant, bool $isAdmin = false): array
     {
         $s = $tenant->settings ?? [];
 
-        return [
+        $data = [
             'agency_name' => $tenant->agencyName(),
             'agency_phone' => $s['agency_phone'] ?? null,
             'agency_email' => $s['agency_email'] ?? null,
@@ -59,5 +63,13 @@ class SettingsController extends Controller
             // Klucza nie zwracamy — tylko informację, czy jest ustawiony.
             'openai_configured' => ! empty($s['openai_api_key']),
         ];
+
+        // Dane finansowe (stała kwota rozliczenia) — tylko dla administratora.
+        if ($isAdmin) {
+            $data['placement_fee'] = $tenant->placementFee();
+            $data['placement_currency'] = $tenant->placementCurrency();
+        }
+
+        return $data;
     }
 }
