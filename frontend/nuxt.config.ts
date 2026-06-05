@@ -32,7 +32,19 @@ export default defineNuxtConfig({
           content:
             'width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1',
         },
-        { name: 'theme-color', content: '#0f766e' },
+        { name: 'theme-color', content: '#18181b' },
+      ],
+      link: [
+        { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
+        {
+          rel: 'preconnect',
+          href: 'https://fonts.gstatic.com',
+          crossorigin: '',
+        },
+        {
+          rel: 'stylesheet',
+          href: 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap',
+        },
       ],
     },
   },
@@ -48,7 +60,7 @@ export default defineNuxtConfig({
       display: 'standalone',
       orientation: 'portrait',
       background_color: '#ffffff',
-      theme_color: '#0f766e',
+      theme_color: '#18181b',
       icons: [
         { src: 'pwa-192x192.png', sizes: '192x192', type: 'image/png' },
         { src: 'pwa-512x512.png', sizes: '512x512', type: 'image/png' },

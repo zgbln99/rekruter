@@ -13,7 +13,7 @@ async function submit() {
   try {
     await auth.login(email.value, password.value)
     await navigateTo('/')
-  } catch (e: unknown) {
+  } catch {
     error.value = 'Nieprawidłowy e-mail lub hasło.'
   } finally {
     loading.value = false
@@ -24,41 +24,50 @@ async function submit() {
 <template>
   <div class="flex min-h-screen flex-col justify-center px-6 py-12">
     <div class="mx-auto w-full max-w-sm">
-      <h1 class="mb-1 text-center text-3xl font-bold text-brand">Rekruter</h1>
-      <p class="mb-8 text-center text-sm text-gray-500">
-        Recruitment Operating System
-      </p>
-
-      <form class="space-y-4" @submit.prevent="submit">
-        <div>
-          <label class="mb-1 block text-sm font-medium text-gray-700">E-mail</label>
-          <input
-            v-model="email"
-            type="email"
-            autocomplete="username"
-            inputmode="email"
-            class="input-field"
-            required
-          />
+      <div class="mb-8 text-center">
+        <div
+          class="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-ink"
+        >
+          <span class="h-3 w-3 rounded-full bg-brand" />
         </div>
+        <h1 class="text-2xl font-bold tracking-tight text-ink">Rekruter</h1>
+        <p class="mt-1 text-sm text-stone">Recruitment Operating System</p>
+      </div>
 
-        <div>
-          <label class="mb-1 block text-sm font-medium text-gray-700">Hasło</label>
-          <input
-            v-model="password"
-            type="password"
-            autocomplete="current-password"
-            class="input-field"
-            required
-          />
-        </div>
+      <div class="card p-6">
+        <form class="space-y-4" @submit.prevent="submit">
+          <div>
+            <label class="field-label">E-mail</label>
+            <input
+              v-model="email"
+              type="email"
+              autocomplete="username"
+              inputmode="email"
+              placeholder="ty@agencja.pl"
+              class="input-field"
+              required
+            />
+          </div>
 
-        <p v-if="error" class="text-sm text-red-600">{{ error }}</p>
+          <div>
+            <label class="field-label">Hasło</label>
+            <input
+              v-model="password"
+              type="password"
+              autocomplete="current-password"
+              placeholder="••••••••"
+              class="input-field"
+              required
+            />
+          </div>
 
-        <button type="submit" class="btn-primary" :disabled="loading">
-          {{ loading ? 'Logowanie…' : 'Zaloguj się' }}
-        </button>
-      </form>
+          <p v-if="error" class="text-sm text-red-600">{{ error }}</p>
+
+          <button type="submit" class="btn-primary" :disabled="loading">
+            {{ loading ? 'Logowanie…' : 'Zaloguj się' }}
+          </button>
+        </form>
+      </div>
     </div>
   </div>
 </template>

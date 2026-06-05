@@ -560,16 +560,23 @@ poziome kolumn + długie przytrzymanie do przeniesienia, lub bottom-sheet „zmi
 ## 11. System wizualny / Design System
 
 > Mobile-first, czytelny w jasnym otoczeniu (praca w terenie), wysoki kontrast, duże cele.
-> Z istniejącego `DESIGN.md` (Mintlify) adaptujemy jedynie **dyscyplinę tokenów**, nie estetykę.
+> Język wizualny oparty na `docs/design-system.md` (specyfikacja Mintlify): Inter,
+> mięta jako akcent, czarne (ink) pill-buttony jako akcja dominująca, czyste karty
+> z hairline, dyscyplina promieni, ikony liniowe (Heroicons) zamiast emoji.
 
-- **Typografia:** Inter (UI). Rozmiary bazowe ≥ 16 px dla pól (uniknięcie zoomu na iOS).
-- **Kolor:** jeden zdecydowany akcent (do ustalenia z marką agencji), wysoki kontrast tekstu.
-- **Skala odstępów:** 4 px baza (4/8/12/16/24/32).
-- **Promienie:** spójna skala (np. 8 px karty, full dla chipów/FAB).
-- **Komponenty bazowe:** Button (lg/full-width), Chip (toggle), Input (44px+), BottomNav, FAB, BottomSheet, Card, Avatar, Badge (status/dokumenty), EmptyState.
-- **Stany:** loading (skeleton), empty, error — zawsze zaprojektowane.
+**Konkretne tokeny (zaimplementowane w `frontend/tailwind.config.ts`):**
+- **Typografia:** Inter (400/500/600/700), wczytywana z Google Fonts. Pola ≥ 15 px (brak zoomu iOS).
+- **Akcent (mięta):** `brand` `#10b981`, `brand-deep` `#059669`, `brand-soft` `#ecfdf5` — wyłącznie akcenty, stany aktywne, potwierdzenia.
+- **Akcja dominująca (ink):** `#18181b` — pill-buttony, FAB, zapis, zaznaczone chipy.
+- **Tekst:** ink `#18181b` (nagłówki) · charcoal/slate/steel/stone/muted (hierarchia szarości).
+- **Powierzchnie:** canvas `#ffffff`, surface `#f4f4f5`, surface-soft `#fafafa`, hairline `#e4e4e7`.
+- **Promienie:** md 8 · lg 12 · xl 16 · 2xl 20 · full (pill).
+- **Cienie:** subtle / card / elevated / fab — płaskość ze strategiczną elewacją.
+- **Komponenty bazowe** (`assets/css/main.css`): `.btn-primary` (ink pill), `.btn-accent` (mięta), `.btn-outline`, `.btn-sm`, `.card`, `.input-field`, `.chip`/`.chip-active`, `.badge` + warianty; `AppIcon` (ikony liniowe), `BottomNav`, `NewCandidateFab`, `CropperModal`, bottom-sheet.
+- **Stany:** loading, empty (z ikoną + opisem), error — zaprojektowane na każdym ekranie.
 
-Pełna specyfikacja tokenów powstanie w osobnej sekcji po zatwierdzeniu kierunku wizualnego.
+> Kolor akcentu (`brand`) można dopasować do księgi znaku agencji w jednym miejscu
+> (`tailwind.config.ts`) — reszta UI dziedziczy zmianę.
 
 ---
 

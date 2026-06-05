@@ -132,59 +132,62 @@ async function doSend() {
 </script>
 
 <template>
-  <section v-if="isLoading" class="py-8 text-center text-gray-400">Ładowanie…</section>
+  <section v-if="isLoading" class="py-10 text-center text-muted">Ładowanie…</section>
 
   <section v-else-if="candidate" class="space-y-5 pb-8">
     <!-- Nagłówek + zdjęcie -->
     <div class="flex items-start gap-4">
       <button
-        class="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-brand text-2xl font-bold text-white"
+        class="relative flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-ink text-xl font-bold text-white shadow-subtle"
         @click="pickPhoto"
       >
         <img v-if="photoUrl" :src="photoUrl" class="h-full w-full object-cover" alt="" />
         <span v-else>{{ candidate.first_name.charAt(0) }}</span>
+        <span class="absolute -bottom-0 -right-0 flex h-6 w-6 items-center justify-center rounded-full bg-brand text-white ring-2 ring-canvas">
+          <AppIcon name="camera" :size="13" />
+        </span>
       </button>
-      <div class="flex-1">
-        <h1 class="text-2xl font-bold">{{ candidate.full_name }}</h1>
-        <a :href="`tel:${candidate.phone}`" class="text-brand">{{ candidate.phone }}</a>
-        <p class="text-xs text-gray-400">Dotknij zdjęcia, aby ustawić / wyciąć</p>
+      <div class="min-w-0 flex-1">
+        <h1 class="truncate text-2xl font-bold tracking-tight text-ink">{{ candidate.full_name }}</h1>
+        <a :href="`tel:${candidate.phone}`" class="mt-0.5 inline-flex items-center gap-1.5 font-medium text-brand-deep">
+          <AppIcon name="phone" :size="15" /> {{ candidate.phone }}
+        </a>
       </div>
-      <span class="rounded-full bg-gray-100 px-3 py-1 text-xs text-gray-600">
-        {{ candidate.status_label }}
-      </span>
+      <span class="badge badge-neutral shrink-0">{{ candidate.status_label }}</span>
     </div>
     <input ref="photoInput" type="file" accept="image/*" class="hidden" @change="onPhotoSelected" />
 
     <!-- Uprawnienia -->
-    <div class="rounded-xl border border-gray-200 bg-white p-4">
-      <p class="mb-2 text-sm font-medium text-gray-700">Uprawnienia</p>
+    <div class="card p-4">
+      <p class="mb-2.5 text-[13px] font-medium text-steel">Uprawnienia</p>
       <div class="flex flex-wrap gap-2">
-        <span v-for="cat in candidate.license_categories" :key="cat" class="rounded-full bg-gray-100 px-3 py-1 text-sm">{{ cat }}</span>
-        <span v-if="candidate.has_adr" class="rounded-full bg-amber-100 px-3 py-1 text-sm text-amber-700">ADR</span>
-        <span v-if="candidate.has_code_95" class="rounded-full bg-emerald-100 px-3 py-1 text-sm text-emerald-700">Kod 95</span>
+        <span v-for="cat in candidate.license_categories" :key="cat" class="badge badge-neutral">{{ cat }}</span>
+        <span v-if="candidate.has_adr" class="badge bg-amber-50 text-amber-700">ADR</span>
+        <span v-if="candidate.has_code_95" class="badge badge-accent">Kod 95</span>
+        <span v-if="!candidate.license_categories.length && !candidate.has_adr" class="text-sm text-muted">Brak danych</span>
       </div>
     </div>
 
-    <!-- Profil PDF -->
-    <div class="flex gap-2">
-      <button class="flex-1 rounded-xl bg-brand py-3 text-sm font-semibold text-white active:bg-brand-dark" @click="generatePdf">
-        📄 Generuj PDF
+    <!-- Profil PDF / wysyłka -->
+    <div class="flex gap-2.5">
+      <button class="inline-flex h-11 flex-1 items-center justify-center gap-1.5 rounded-full bg-ink text-sm font-semibold text-white transition active:scale-[0.98]" @click="generatePdf">
+        <AppIcon name="pdf" :size="18" /> Generuj PDF
       </button>
-      <button class="flex-1 rounded-xl border border-brand py-3 text-sm font-semibold text-brand" @click="showSend = !showSend">
-        ✉️ Wyślij profil
+      <button class="inline-flex h-11 flex-1 items-center justify-center gap-1.5 rounded-full border border-hairline bg-canvas text-sm font-semibold text-ink transition active:bg-surface" @click="showSend = !showSend">
+        <AppIcon name="mail" :size="18" /> Wyślij profil
       </button>
     </div>
-    <div v-if="showSend" class="rounded-xl border border-gray-200 bg-white p-4">
-      <input v-model="recipient" type="email" placeholder="email@klienta.pl" class="input-field mb-2" />
+    <div v-if="showSend" class="card p-4">
+      <input v-model="recipient" type="email" placeholder="email@klienta.pl" class="input-field mb-2.5" />
       <button class="btn-primary" :disabled="sendProfile.isPending.value" @click="doSend">
         {{ sendProfile.isPending.value ? 'Wysyłanie…' : 'Wyślij' }}
       </button>
     </div>
-    <p v-if="sendMsg" class="text-sm text-brand">{{ sendMsg }}</p>
+    <p v-if="sendMsg" class="text-sm text-brand-deep">{{ sendMsg }}</p>
 
     <!-- Rekrutacje (pipeline) -->
-    <div v-if="postings.length" class="rounded-xl border border-gray-200 bg-white p-4">
-      <p class="mb-2 text-sm font-medium text-gray-700">Dodaj do rekrutacji</p>
+    <div v-if="postings.length" class="card p-4">
+      <p class="mb-2.5 text-[13px] font-medium text-steel">Dodaj do rekrutacji</p>
       <div class="flex gap-2">
         <select v-model="selectedPosting" class="input-field flex-1">
           <option value="">Wybierz ogłoszenie…</option>
@@ -193,71 +196,82 @@ async function doSend() {
           </option>
         </select>
         <button
-          class="rounded-xl bg-brand px-4 text-sm font-semibold text-white disabled:opacity-50"
+          class="btn-sm shrink-0 px-5"
           :disabled="!selectedPosting || addApplication.isPending.value"
           @click="addToPipeline"
         >
           Dodaj
         </button>
       </div>
-      <p v-if="applyMsg" class="mt-2 text-sm text-brand">{{ applyMsg }}</p>
+      <p v-if="applyMsg" class="mt-2 text-sm text-brand-deep">{{ applyMsg }}</p>
     </div>
 
     <!-- Dokumenty -->
     <div>
-      <div class="mb-2 flex items-center justify-between">
-        <h2 class="text-lg font-semibold">Dokumenty</h2>
+      <div class="mb-3 flex items-center justify-between">
+        <h2 class="text-lg font-semibold text-ink">Dokumenty</h2>
         <div class="flex items-center gap-2">
-          <select v-model="docType" class="rounded-lg border border-gray-300 px-2 py-1 text-sm">
+          <select v-model="docType" class="h-9 rounded-md border border-hairline bg-canvas px-2 text-sm text-ink">
             <option v-for="opt in DOCUMENT_TYPE_OPTIONS" :key="opt.value" :value="opt.value">
               {{ opt.label }}
             </option>
           </select>
-          <button class="rounded-lg bg-brand px-3 py-1 text-sm text-white" @click="pickDocument">+ Dodaj</button>
+          <button class="btn-sm" @click="pickDocument">
+            <AppIcon name="plus" :size="16" /> Dodaj
+          </button>
         </div>
       </div>
       <input ref="fileInput" type="file" accept="image/*,application/pdf" class="hidden" @change="onDocumentSelected" />
 
       <ul v-if="documents?.length" class="space-y-2">
-        <li v-for="doc in documents" :key="doc.id" class="flex items-center justify-between rounded-xl border border-gray-200 bg-white p-3 text-sm">
-          <div>
-            <span class="font-medium">{{ doc.type_label }}</span>
-            <span class="ml-2 text-gray-400">{{ doc.original_name }}</span>
+        <li v-for="doc in documents" :key="doc.id" class="card flex items-center justify-between p-3.5">
+          <div class="flex items-center gap-3">
+            <span class="flex h-9 w-9 items-center justify-center rounded-md bg-surface text-stone">
+              <AppIcon name="document" :size="18" />
+            </span>
+            <div class="min-w-0">
+              <p class="text-sm font-medium text-ink">{{ doc.type_label }}</p>
+              <p class="truncate text-xs text-stone">{{ doc.original_name }}</p>
+            </div>
           </div>
-          <button class="text-brand" @click="download(doc)">Pobierz</button>
+          <button class="flex h-9 w-9 items-center justify-center rounded-full text-steel transition active:bg-surface" @click="download(doc)">
+            <AppIcon name="download" :size="18" />
+          </button>
         </li>
       </ul>
-      <p v-else class="text-sm text-gray-400">Brak dokumentów.</p>
+      <p v-else class="text-sm text-muted">Brak dokumentów.</p>
     </div>
 
     <!-- Historia kontaktów -->
     <div>
-      <h2 class="mb-2 text-lg font-semibold">Historia kontaktów</h2>
+      <h2 class="mb-3 text-lg font-semibold text-ink">Historia kontaktów</h2>
       <ul v-if="candidate.contact_logs?.length" class="space-y-2">
-        <li v-for="log in candidate.contact_logs" :key="log.id" class="rounded-xl border border-gray-200 bg-white p-3 text-sm">
-          <div class="flex justify-between">
-            <span class="font-medium">{{ log.outcome_label }}</span>
-            <span class="text-gray-400">{{ log.channel_label }}</span>
+        <li v-for="log in candidate.contact_logs" :key="log.id" class="card p-3.5">
+          <div class="flex items-center justify-between">
+            <span class="text-sm font-semibold text-ink">{{ log.outcome_label }}</span>
+            <span class="badge badge-neutral">{{ log.channel_label }}</span>
           </div>
-          <p v-if="log.note" class="mt-1 text-gray-600">{{ log.note }}</p>
+          <p v-if="log.note" class="mt-1.5 text-sm text-steel">{{ log.note }}</p>
         </li>
       </ul>
-      <p v-else class="text-sm text-gray-400">Brak zapisanych kontaktów.</p>
+      <p v-else class="text-sm text-muted">Brak zapisanych kontaktów.</p>
     </div>
 
     <!-- RODO -->
-    <div class="rounded-xl border border-gray-200 bg-white p-4">
-      <p class="mb-2 text-sm font-medium text-gray-700">RODO</p>
+    <div class="card p-4">
+      <p class="mb-2.5 inline-flex items-center gap-1.5 text-[13px] font-medium text-steel">
+        <AppIcon name="shield" :size="15" /> RODO
+      </p>
       <div class="flex flex-wrap gap-2">
-        <button class="rounded-lg border border-gray-300 px-3 py-2 text-sm" @click="exportData">
-          Eksport danych
+        <button class="inline-flex items-center gap-1.5 rounded-full border border-hairline px-3.5 py-2 text-sm font-medium text-ink transition active:bg-surface" @click="exportData">
+          <AppIcon name="download" :size="16" /> Eksport danych
         </button>
         <button
           v-if="auth.isAdmin"
-          class="rounded-lg border border-red-300 px-3 py-2 text-sm text-red-600"
+          class="inline-flex items-center gap-1.5 rounded-full border border-red-200 px-3.5 py-2 text-sm font-medium text-red-600 transition active:bg-red-50"
           @click="forget"
         >
-          Usuń trwale
+          <AppIcon name="x" :size="16" /> Usuń trwale
         </button>
       </div>
     </div>

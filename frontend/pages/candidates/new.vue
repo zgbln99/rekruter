@@ -94,15 +94,22 @@ const canSave = computed(
 
 <template>
   <section class="pb-8">
-    <div class="mb-4 flex items-center justify-between">
-      <h1 class="text-2xl font-bold">Nowy kandydat</h1>
-      <NuxtLink to="/candidates" class="text-sm text-gray-400">Anuluj</NuxtLink>
+    <div class="mb-5 flex items-center justify-between">
+      <h1 class="text-[26px] font-bold tracking-tight text-ink">Nowy kandydat</h1>
+      <NuxtLink
+        to="/candidates"
+        class="flex h-9 w-9 items-center justify-center rounded-full text-stone active:bg-surface"
+      >
+        <AppIcon name="x" :size="22" />
+      </NuxtLink>
     </div>
 
     <form class="space-y-5" @submit.prevent="save">
       <!-- Telefon -->
       <div>
-        <label class="mb-1 block text-sm font-medium text-gray-700">📞 Telefon</label>
+        <label class="field-label inline-flex items-center gap-1.5">
+          <AppIcon name="phone" :size="15" /> Telefon
+        </label>
         <input
           v-model="phone"
           type="tel"
@@ -114,23 +121,27 @@ const canSave = computed(
         <button
           v-if="duplicate"
           type="button"
-          class="mt-2 w-full rounded-xl border border-amber-300 bg-amber-50 p-3 text-left text-sm"
+          class="mt-2 flex w-full items-center justify-between gap-2 rounded-md border border-amber-200 bg-amber-50 p-3 text-left text-sm text-amber-800"
           @click="openDuplicate"
         >
-          ⚠️ Kandydat <strong>{{ duplicate.full_name }}</strong> już istnieje —
-          dotknij, aby otworzyć.
+          <span>Kandydat <strong>{{ duplicate.full_name }}</strong> już istnieje</span>
+          <AppIcon name="chevron" :size="16" />
         </button>
       </div>
 
       <!-- Imię -->
       <div>
-        <label class="mb-1 block text-sm font-medium text-gray-700">👤 Imię</label>
+        <label class="field-label inline-flex items-center gap-1.5">
+          <AppIcon name="users" :size="15" /> Imię
+        </label>
         <input v-model="firstName" type="text" placeholder="Jan" class="input-field" />
       </div>
 
       <!-- Kategorie -->
       <div>
-        <label class="mb-2 block text-sm font-medium text-gray-700">🚛 Kategorie</label>
+        <label class="field-label inline-flex items-center gap-1.5">
+          <AppIcon name="truck" :size="15" /> Kategorie i uprawnienia
+        </label>
         <div class="flex flex-wrap gap-2">
           <UiChip
             v-for="cat in LICENSE_CATEGORIES"
@@ -147,18 +158,18 @@ const canSave = computed(
 
       <!-- Notatka -->
       <div>
-        <label class="mb-1 block text-sm font-medium text-gray-700">📝 Notatka</label>
+        <label class="field-label">Notatka</label>
         <textarea
           v-model="note"
           rows="2"
           placeholder="Czego szuka, dyspozycyjność…"
-          class="input-field !h-auto py-2"
+          class="input-field !h-auto py-2.5"
         />
       </div>
 
       <!-- Wynik kontaktu -->
       <div>
-        <label class="mb-2 block text-sm font-medium text-gray-700">Wynik kontaktu</label>
+        <label class="field-label">Wynik kontaktu</label>
         <div class="flex flex-wrap gap-2">
           <UiChip
             v-for="opt in OUTCOME_OPTIONS"
@@ -173,15 +184,15 @@ const canSave = computed(
 
       <!-- Następny kontakt -->
       <div v-if="outcome">
-        <label class="mb-2 block text-sm font-medium text-gray-700">⏰ Oddzwonić</label>
+        <label class="field-label inline-flex items-center gap-1.5">
+          <AppIcon name="clock" :size="15" /> Oddzwonić
+        </label>
         <div class="flex flex-wrap gap-2">
           <UiChip
             v-for="preset in nextContactPresets()"
             :key="preset.label"
             :active="nextContactAt === preset.value"
-            @click="
-              nextContactAt = nextContactAt === preset.value ? null : preset.value
-            "
+            @click="nextContactAt = nextContactAt === preset.value ? null : preset.value"
           >
             {{ preset.label }}
           </UiChip>
@@ -195,7 +206,7 @@ const canSave = computed(
         class="btn-primary"
         :disabled="!canSave || createCandidate.isPending.value"
       >
-        {{ createCandidate.isPending.value ? 'Zapisywanie…' : 'Zapisz' }}
+        {{ createCandidate.isPending.value ? 'Zapisywanie…' : 'Zapisz kandydata' }}
       </button>
     </form>
   </section>

@@ -17,33 +17,49 @@ async function add() {
 
 <template>
   <section>
-    <div class="mb-4 flex items-center justify-between">
-      <h1 class="text-2xl font-bold">Firmy</h1>
-      <button class="rounded-lg bg-brand px-3 py-1 text-sm text-white" @click="showAdd = !showAdd">
-        + Dodaj
+    <header class="mb-4 flex items-center justify-between">
+      <h1 class="text-[26px] font-bold tracking-tight text-ink">Firmy</h1>
+      <button class="btn-sm" @click="showAdd = !showAdd">
+        <AppIcon name="plus" :size="16" /> Dodaj
       </button>
-    </div>
+    </header>
 
-    <div v-if="showAdd" class="mb-4 rounded-xl border border-gray-200 bg-white p-4">
-      <input v-model="name" placeholder="Nazwa firmy" class="input-field mb-2" />
+    <div v-if="showAdd" class="card mb-4 p-4">
+      <input v-model="name" placeholder="Nazwa firmy" class="input-field mb-2.5" />
       <button class="btn-primary" :disabled="createCompany.isPending.value" @click="add">
         Zapisz firmę
       </button>
     </div>
 
-    <input v-model="search" type="search" placeholder="Szukaj firmy…" class="input-field mb-4" />
+    <div class="relative mb-4">
+      <span class="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-muted">
+        <AppIcon name="search" :size="18" />
+      </span>
+      <input v-model="search" type="search" placeholder="Szukaj firmy…" class="input-field pl-10" />
+    </div>
 
-    <p v-if="isLoading" class="py-8 text-center text-gray-400">Ładowanie…</p>
-    <p v-else-if="!companies.length" class="py-8 text-center text-gray-400">Brak firm.</p>
+    <p v-if="isLoading" class="py-10 text-center text-muted">Ładowanie…</p>
 
-    <ul v-else class="space-y-2">
+    <div v-else-if="!companies.length" class="card flex flex-col items-center px-6 py-12 text-center">
+      <div class="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-surface text-stone">
+        <AppIcon name="building" :size="24" />
+      </div>
+      <p class="font-semibold text-ink">Brak firm</p>
+      <p class="mt-1 text-sm text-stone">Dodaj pierwszego klienta.</p>
+    </div>
+
+    <ul v-else class="space-y-2.5">
       <li v-for="c in companies" :key="c.id">
-        <NuxtLink :to="`/companies/${c.id}`" class="flex items-center justify-between rounded-xl border border-gray-200 bg-white p-4">
-          <div>
-            <p class="font-semibold">{{ c.name }}</p>
-            <p class="text-sm text-gray-500">{{ c.city || '—' }}</p>
+        <NuxtLink :to="`/companies/${c.id}`" class="card flex items-center gap-3 p-4 transition active:bg-surface-soft">
+          <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-surface text-stone">
+            <AppIcon name="building" :size="20" />
+          </span>
+          <div class="min-w-0 flex-1">
+            <p class="truncate font-semibold text-ink">{{ c.name }}</p>
+            <p class="text-sm text-stone">{{ c.city || '—' }}</p>
           </div>
-          <span class="text-xs text-gray-400">{{ c.job_postings_count ?? 0 }} ogł.</span>
+          <span class="badge badge-neutral shrink-0">{{ c.job_postings_count ?? 0 }} ogł.</span>
+          <AppIcon name="chevron" :size="18" class="shrink-0 text-muted" />
         </NuxtLink>
       </li>
     </ul>

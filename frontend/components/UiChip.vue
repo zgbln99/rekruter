@@ -4,15 +4,7 @@ defineProps<{ active?: boolean }>()
 </script>
 
 <template>
-  <button
-    type="button"
-    class="rounded-full border px-4 py-2 text-sm font-medium transition active:scale-95"
-    :class="
-      active
-        ? 'border-brand bg-brand text-white'
-        : 'border-gray-300 bg-white text-gray-700'
-    "
-  >
+  <button type="button" class="chip" :class="{ 'chip-active': active }">
     <slot />
   </button>
 </template>

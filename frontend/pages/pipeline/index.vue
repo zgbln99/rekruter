@@ -6,21 +6,33 @@ const postings = computed(() => data.value?.data ?? [])
 
 <template>
   <section>
-    <h1 class="mb-4 text-2xl font-bold">Pipeline</h1>
+    <header class="mb-4">
+      <h1 class="text-[26px] font-bold tracking-tight text-ink">Pipeline</h1>
+      <p class="text-sm text-stone">Wybierz ogłoszenie, aby otworzyć tablicę</p>
+    </header>
 
-    <p v-if="isLoading" class="py-8 text-center text-gray-400">Ładowanie…</p>
-    <p v-else-if="!postings.length" class="py-8 text-center text-gray-400">
-      Brak ogłoszeń. Dodaj ogłoszenie w sekcji „Firmy".
-    </p>
+    <p v-if="isLoading" class="py-10 text-center text-muted">Ładowanie…</p>
 
-    <ul v-else class="space-y-2">
+    <div v-else-if="!postings.length" class="card flex flex-col items-center px-6 py-12 text-center">
+      <div class="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-surface text-stone">
+        <AppIcon name="board" :size="24" />
+      </div>
+      <p class="font-semibold text-ink">Brak ogłoszeń</p>
+      <p class="mt-1 text-sm text-stone">Dodaj ogłoszenie w sekcji „Firmy".</p>
+    </div>
+
+    <ul v-else class="space-y-2.5">
       <li v-for="p in postings" :key="p.id">
-        <NuxtLink :to="`/pipeline/${p.id}`" class="flex items-center justify-between rounded-xl border border-gray-200 bg-white p-4">
-          <div>
-            <p class="font-semibold">{{ p.title }}</p>
-            <p class="text-sm text-gray-500">{{ p.company?.name }} · {{ p.status_label }}</p>
+        <NuxtLink :to="`/pipeline/${p.id}`" class="card flex items-center gap-3 p-4 transition active:bg-surface-soft">
+          <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-surface text-stone">
+            <AppIcon name="board" :size="20" />
+          </span>
+          <div class="min-w-0 flex-1">
+            <p class="truncate font-semibold text-ink">{{ p.title }}</p>
+            <p class="truncate text-sm text-stone">{{ p.company?.name }} · {{ p.status_label }}</p>
           </div>
-          <span class="text-xs text-gray-400">{{ p.applications_count ?? 0 }} kand.</span>
+          <span class="badge badge-neutral shrink-0">{{ p.applications_count ?? 0 }} kand.</span>
+          <AppIcon name="chevron" :size="18" class="shrink-0 text-muted" />
         </NuxtLink>
       </li>
     </ul>

@@ -35,30 +35,39 @@ async function addPosting() {
 </script>
 
 <template>
-  <section v-if="isLoading" class="py-8 text-center text-gray-400">Ładowanie…</section>
+  <section v-if="isLoading" class="py-10 text-center text-muted">Ładowanie…</section>
 
   <section v-else-if="company" class="space-y-5 pb-8">
-    <div>
-      <h1 class="text-2xl font-bold">{{ company.name }}</h1>
-      <p class="text-sm text-gray-500">{{ company.city || '—' }}</p>
+    <div class="flex items-center gap-3">
+      <span class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-surface text-stone">
+        <AppIcon name="building" :size="22" />
+      </span>
+      <div class="min-w-0">
+        <h1 class="truncate text-2xl font-bold tracking-tight text-ink">{{ company.name }}</h1>
+        <p class="text-sm text-stone">{{ company.city || '—' }}</p>
+      </div>
     </div>
 
-    <div v-if="company.contact_person || company.contact_phone" class="rounded-xl border border-gray-200 bg-white p-4 text-sm">
-      <p class="font-medium text-gray-700">Kontakt</p>
-      <p>{{ company.contact_person }}</p>
-      <a v-if="company.contact_phone" :href="`tel:${company.contact_phone}`" class="text-brand">{{ company.contact_phone }}</a>
-      <p v-if="company.contact_email" class="text-gray-500">{{ company.contact_email }}</p>
+    <div v-if="company.contact_person || company.contact_phone" class="card p-4">
+      <p class="mb-1.5 text-[13px] font-medium text-steel">Kontakt</p>
+      <p class="font-medium text-ink">{{ company.contact_person }}</p>
+      <a v-if="company.contact_phone" :href="`tel:${company.contact_phone}`" class="inline-flex items-center gap-1.5 text-brand-deep">
+        <AppIcon name="phone" :size="15" /> {{ company.contact_phone }}
+      </a>
+      <p v-if="company.contact_email" class="text-sm text-stone">{{ company.contact_email }}</p>
     </div>
 
     <div>
-      <div class="mb-2 flex items-center justify-between">
-        <h2 class="text-lg font-semibold">Ogłoszenia</h2>
-        <button class="rounded-lg bg-brand px-3 py-1 text-sm text-white" @click="showAdd = !showAdd">+ Dodaj</button>
+      <div class="mb-3 flex items-center justify-between">
+        <h2 class="text-lg font-semibold text-ink">Ogłoszenia</h2>
+        <button class="btn-sm" @click="showAdd = !showAdd">
+          <AppIcon name="plus" :size="16" /> Dodaj
+        </button>
       </div>
 
-      <div v-if="showAdd" class="mb-3 rounded-xl border border-gray-200 bg-white p-4">
-        <input v-model="title" placeholder="Tytuł, np. Kierowca C+E" class="input-field mb-2" />
-        <input v-model="location" placeholder="Lokalizacja" class="input-field mb-2" />
+      <div v-if="showAdd" class="card mb-3 p-4">
+        <input v-model="title" placeholder="Tytuł, np. Kierowca C+E" class="input-field mb-2.5" />
+        <input v-model="location" placeholder="Lokalizacja" class="input-field mb-3" />
         <div class="mb-3 flex flex-wrap gap-2">
           <UiChip v-for="cat in LICENSE_CATEGORIES" :key="cat" :active="categories.has(cat)" @click="toggle(cat)">
             {{ cat }}
@@ -67,18 +76,20 @@ async function addPosting() {
         <button class="btn-primary" :disabled="createPosting.isPending.value" @click="addPosting">Zapisz ogłoszenie</button>
       </div>
 
-      <ul v-if="company.job_postings?.length" class="space-y-2">
+      <ul v-if="company.job_postings?.length" class="space-y-2.5">
         <li v-for="p in company.job_postings" :key="p.id">
-          <NuxtLink :to="`/pipeline/${p.id}`" class="flex items-center justify-between rounded-xl border border-gray-200 bg-white p-4">
-            <div>
-              <p class="font-semibold">{{ p.title }}</p>
-              <p class="text-sm text-gray-500">{{ p.status_label }} · {{ p.location || '—' }}</p>
+          <NuxtLink :to="`/pipeline/${p.id}`" class="card flex items-center gap-3 p-4 transition active:bg-surface-soft">
+            <div class="min-w-0 flex-1">
+              <p class="truncate font-semibold text-ink">{{ p.title }}</p>
+              <p class="text-sm text-stone">{{ p.status_label }} · {{ p.location || '—' }}</p>
             </div>
-            <span class="text-xs text-brand">Pipeline →</span>
+            <span class="inline-flex items-center gap-1 text-sm font-medium text-brand-deep">
+              Pipeline <AppIcon name="chevron" :size="15" />
+            </span>
           </NuxtLink>
         </li>
       </ul>
-      <p v-else class="text-sm text-gray-400">Brak ogłoszeń.</p>
+      <p v-else class="text-sm text-muted">Brak ogłoszeń.</p>
     </div>
   </section>
 </template>

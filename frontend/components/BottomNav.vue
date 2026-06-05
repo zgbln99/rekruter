@@ -1,26 +1,28 @@
 <script setup lang="ts">
 // Dolna nawigacja — główny sposób poruszania się po aplikacji (mobile-first).
 const items = [
-  { to: '/', label: 'Dziś', icon: '📅' },
-  { to: '/candidates', label: 'Kandydaci', icon: '👤' },
-  { to: '/pipeline', label: 'Pipeline', icon: '📊' },
-  { to: '/companies', label: 'Firmy', icon: '🏢' },
+  { to: '/', label: 'Dziś', icon: 'home' },
+  { to: '/candidates', label: 'Kandydaci', icon: 'users' },
+  { to: '/pipeline', label: 'Pipeline', icon: 'board' },
+  { to: '/companies', label: 'Firmy', icon: 'building' },
 ]
 </script>
 
 <template>
   <nav
-    class="fixed inset-x-0 bottom-0 z-30 border-t border-gray-200 bg-white pb-safe-bottom"
+    class="fixed inset-x-0 bottom-0 z-30 border-t border-hairline bg-canvas/95
+      backdrop-blur pb-safe-bottom"
   >
-    <ul class="grid grid-cols-4">
+    <ul class="mx-auto grid max-w-2xl grid-cols-4">
       <li v-for="item in items" :key="item.to">
         <NuxtLink
           :to="item.to"
-          class="flex h-16 flex-col items-center justify-center gap-1 text-xs text-gray-500"
-          active-class="text-brand"
+          class="group flex h-16 flex-col items-center justify-center gap-1 text-stone"
+          :active-class="item.to === '/' ? '' : '!text-ink'"
+          :exact-active-class="item.to === '/' ? '!text-ink' : ''"
         >
-          <span class="text-xl">{{ item.icon }}</span>
-          <span>{{ item.label }}</span>
+          <AppIcon :name="item.icon" :size="23" />
+          <span class="text-[11px] font-medium">{{ item.label }}</span>
         </NuxtLink>
       </li>
     </ul>
