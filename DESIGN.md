@@ -1244,3 +1244,25 @@ kontrolowany, a wynik ma dokładny rozmiar **1080×1350** (feed) lub **1080×192
 - `nginx`: `fastcgi_read_timeout` = `180s` (generowanie tła trwa kilkanaście–
   kilkadziesiąt sekund). Serwer potrzebuje dostępu do `api.openai.com`
   (polityka sieci) oraz działającego kontenera Gotenberg.
+
+### 22.3 Układ i przygotowanie danych
+
+Szablon `pdf/poster.blade.php` to czytelny plakat ogłoszenia pracy: duży nagłówek
+„PRACA DLA / KIEROWCY", sekcje z labelami (Stanowisko + podtytuł, Lokalizacja,
+Kategoria, System pracy), wyróżnione **wynagrodzenie na czerwono**, pełnej
+szerokości czerwony przycisk „APLIKUJ TERAZ" i stopka z nazwą agencji. Paleta:
+granat `#071A33`, labele `#3A4656`, czerwony `#C91414`. Warianty `feed`
+(1080×1350) i `reels` (1080×1920) różnią się rozmiarami fontów (klasa na `body`).
+
+Logikę danych liczy `GeneratePosterAction` (Blade pozostaje prezentacyjny):
+- **rozbicie tytułu** po „–/—/-" → `headline`, `subtitle`, fallback lokalizacji
+  (`Kierowca C+E – Dystrybucja … – Niemcy (Lipsk)`),
+- **lokalizacja** z osobnych pól (`country` / `region_base`), a dopiero przy ich
+  braku z tytułu,
+- **wynagrodzenie** jako zakres z półpauzą i walutą w jednej linii
+  (`2 100 - 2 300` → `2100–2300 EUR`),
+- **dobór rozmiaru fontu** stanowiska wg długości (długie nazwy nie wychodzą
+  poza canvas).
+
+Fallback bez AI (jasny gradient + znak wodny ciężarówki SVG + czerwony akcent)
+wygląda samodzielnie — brak pustych `url('')`.
