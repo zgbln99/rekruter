@@ -97,5 +97,7 @@ php artisan test          # wymaga PostgreSQL (kolumny jsonb)
 
 - **Faza 0 — Fundament** ✅ — docker-compose, Laravel 11 (API + Sanctum + multi-tenant
   scope), Nuxt 3 PWA (SPA, dolna nawigacja, FAB, logowanie), testy autoryzacji.
-- **Faza 1 — Rdzeń KPI** ⏳ — Kandydaci, Quick-Add < 60s, Call Log, follow-up.
+- **Faza 1 — Rdzeń KPI** ✅ — Kandydaci, **Quick-Add < 60s** z deduplikacją po numerze,
+  Call Log (kontakt → automatyczny task follow-up), ekran „Dziś". 15 testów zielonych.
+- **Faza 2 — Dokumenty + Profil** ⏳ — upload S3, Cropper, generator PDF (Gotenberg), wysyłka.
 - Kolejne fazy: patrz [`DESIGN.md`](./DESIGN.md) sekcja 17.

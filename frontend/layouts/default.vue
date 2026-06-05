@@ -9,9 +9,13 @@ const auth = useAuthStore()
         border-gray-200 bg-white px-4 pt-safe-top"
     >
       <span class="text-lg font-bold text-brand">Rekruter</span>
-      <span v-if="auth.user" class="text-sm text-gray-500">
-        {{ auth.user.name }}
-      </span>
+      <button
+        v-if="auth.user"
+        class="text-sm text-gray-500"
+        @click="auth.logout()"
+      >
+        {{ auth.user.name }} · Wyloguj
+      </button>
     </header>
 
     <main class="mx-auto max-w-2xl px-4 py-4">

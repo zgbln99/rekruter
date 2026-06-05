@@ -1,6 +1,10 @@
 <?php
 
 use App\Http\Controllers\Api\V1\AuthController;
+use App\Http\Controllers\Api\V1\CandidateController;
+use App\Http\Controllers\Api\V1\CandidateLookupController;
+use App\Http\Controllers\Api\V1\ContactLogController;
+use App\Http\Controllers\Api\V1\TaskController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function () {
@@ -14,8 +18,21 @@ Route::prefix('v1')->group(function () {
         Route::get('auth/me', [AuthController::class, 'me'])->name('auth.me');
         Route::post('auth/logout', [AuthController::class, 'logout'])->name('auth.logout');
 
-        // Kolejne moduły (Faza 1+) dołączane tutaj:
-        // Route::apiResource('candidates', CandidateController::class);
-        // ...
+        // --- Faza 1: rdzeń KPI ---
+
+        // Deduplikacja po numerze (lookup w locie).
+        Route::get('candidates/lookup', CandidateLookupController::class)->name('candidates.lookup');
+
+        Route::apiResource('candidates', CandidateController::class)->except(['create', 'edit']);
+
+        // Historia kontaktów (Call Log) per kandydat.
+        Route::get('candidates/{candidate}/contacts', [ContactLogController::class, 'index'])
+            ->name('candidates.contacts.index');
+        Route::post('candidates/{candidate}/contacts', [ContactLogController::class, 'store'])
+            ->name('candidates.contacts.store');
+
+        // Zadania (follow-up) — ekran „Dziś".
+        Route::get('tasks', [TaskController::class, 'index'])->name('tasks.index');
+        Route::patch('tasks/{task}', [TaskController::class, 'update'])->name('tasks.update');
     });
 });
