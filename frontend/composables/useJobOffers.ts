@@ -47,6 +47,18 @@ export function useUpdateJobOffer(id: MaybeRefOrGetter<string>) {
   })
 }
 
+/** AI (ChatGPT): generuje opis ogłoszenia na podstawie danych formularza. */
+export async function generateOfferDescription(
+  payload: Record<string, unknown>,
+): Promise<string> {
+  const api = useApi()
+  const res = await api<{ description: string }>('/ai/offer-description', {
+    method: 'POST',
+    body: payload,
+  })
+  return res.description
+}
+
 export function useDeleteJobOffer() {
   const api = useApi()
   const queryClient = useQueryClient()

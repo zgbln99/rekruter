@@ -40,4 +40,15 @@ class Tenant extends Model
             ?? $this->name
             ?? config('app.name', 'Rekruter');
     }
+
+    /** Klucz API OpenAI (ChatGPT) — z ustawień organizacji. */
+    public function openaiApiKey(): ?string
+    {
+        return $this->settings['openai_api_key'] ?? null;
+    }
+
+    public function openaiModel(): string
+    {
+        return $this->settings['openai_model'] ?? 'gpt-4o-mini';
+    }
 }

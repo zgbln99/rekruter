@@ -20,6 +20,8 @@ export interface Settings {
   agency_phone: string | null
   agency_email: string | null
   agency_website: string | null
+  openai_model?: string
+  openai_configured?: boolean
 }
 
 export interface LoginResponse {

@@ -28,8 +28,13 @@ class SettingsController extends Controller
         $tenant = $request->user()->tenant;
         $settings = $tenant->settings ?? [];
 
-        foreach (['agency_name', 'agency_phone', 'agency_email', 'agency_website'] as $key) {
+        foreach (['agency_name', 'agency_phone', 'agency_email', 'agency_website', 'openai_model'] as $key) {
             $settings[$key] = $request->input($key);
+        }
+
+        // Klucz API zapisujemy tylko gdy podano nowy (puste pole = bez zmian).
+        if ($request->filled('openai_api_key')) {
+            $settings['openai_api_key'] = $request->string('openai_api_key')->toString();
         }
 
         $tenant->settings = $settings;
@@ -50,6 +55,9 @@ class SettingsController extends Controller
             'agency_phone' => $s['agency_phone'] ?? null,
             'agency_email' => $s['agency_email'] ?? null,
             'agency_website' => $s['agency_website'] ?? null,
+            'openai_model' => $tenant->openaiModel(),
+            // Klucza nie zwracamy — tylko informację, czy jest ustawiony.
+            'openai_configured' => ! empty($s['openai_api_key']),
         ];
     }
 }

@@ -129,6 +129,8 @@ Route::prefix('v1')->group(function () {
             ->name('job-offers.referral-pdf');
         Route::get('job-offers/{jobPosting}/poster', [JobPostingController::class, 'poster'])
             ->name('job-offers.poster');
+        Route::post('ai/offer-description', [JobPostingController::class, 'aiDescription'])
+            ->name('ai.offer-description');
 
         // Dopasowanie kandydata do ogłoszenia.
         Route::get('candidates/{candidate}/match/{jobOffer}', MatchController::class)

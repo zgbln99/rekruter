@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Actions\Ai\GenerateOfferDescriptionAction;
 use App\Actions\Candidates\CreateCandidateFromOfferAction;
 use App\Actions\Profiles\GeneratePosterAction;
 use App\Actions\Profiles\GenerateReferralPdfAction;
@@ -108,5 +109,15 @@ class JobPostingController extends Controller
             'Content-Type' => 'image/png',
             'Content-Disposition' => 'inline; filename="oferta.png"',
         ]);
+    }
+
+    /**
+     * AI (ChatGPT): generuje gotowy opis ogłoszenia na podstawie danych z formularza.
+     */
+    public function aiDescription(Request $request, GenerateOfferDescriptionAction $action): JsonResponse
+    {
+        $description = $action->execute($request->user()->tenant, $request->all());
+
+        return response()->json(['description' => $description]);
     }
 }

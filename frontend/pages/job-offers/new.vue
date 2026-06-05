@@ -48,6 +48,21 @@ function addFaq(q = '') {
   faqItems.value.push({ q, a: '' })
 }
 
+// AI: generowanie opisu publicznego.
+const aiLoading = ref(false)
+const aiError = ref('')
+async function aiDescription() {
+  aiError.value = ''
+  aiLoading.value = true
+  try {
+    form.public_description = await generateOfferDescription({ ...form, required_categories: [...categories.value] })
+  } catch (e: any) {
+    aiError.value = e?.response?._data?.errors?.openai?.[0] || 'Nie udało się wygenerować opisu (sprawdź klucz API w Ustawieniach).'
+  } finally {
+    aiLoading.value = false
+  }
+}
+
 function toggleCat(c: LicenseCategory) {
   const s = new Set(categories.value)
   s.has(c) ? s.delete(c) : s.add(c)
@@ -218,8 +233,14 @@ async function submit() {
       </div>
 
       <div>
-        <label class="field-label">Gotowy opis ogłoszenia (publiczny — do kopiowania)</label>
-        <textarea v-model="form.public_description" rows="4" class="input-field !h-auto py-2.5" placeholder="Treść na FB / OLX / Jooble…" />
+        <div class="mb-1.5 flex items-center justify-between">
+          <label class="field-label !mb-0">Gotowy opis ogłoszenia (publiczny — do kopiowania)</label>
+          <button type="button" class="btn-sm" :disabled="aiLoading" @click="aiDescription">
+            <AppIcon name="check" :size="15" /> {{ aiLoading ? 'Generuję…' : 'Generuj opis (AI)' }}
+          </button>
+        </div>
+        <textarea v-model="form.public_description" rows="6" class="input-field !h-auto py-2.5" placeholder="Treść na FB / OLX / Jooble… lub kliknij „Generuj opis (AI)”" />
+        <p v-if="aiError" class="mt-1 text-sm text-red-600">{{ aiError }}</p>
       </div>
 
       <div>

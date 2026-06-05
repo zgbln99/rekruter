@@ -21,6 +21,8 @@ class UpdateSettingsRequest extends FormRequest
             'agency_phone' => ['nullable', 'string', 'max:40'],
             'agency_email' => ['nullable', 'email', 'max:191'],
             'agency_website' => ['nullable', 'string', 'max:191'],
+            'openai_api_key' => ['nullable', 'string', 'max:255'],
+            'openai_model' => ['nullable', 'string', 'max:60'],
         ];
     }
 }
