@@ -103,5 +103,18 @@ php artisan test          # wymaga PostgreSQL (kolumny jsonb)
   generator PDF (Gotenberg), wysyłka profilu mailem (kolejka), audit log. 25 testów zielonych.
 - **Faza 3 — Pipeline + Klienci** ✅ — Firmy, Ogłoszenia, Aplikacje, kanban rekrutacyjny
   (bottom-sheet zmiany etapu). 32 testy zielone.
-- **Faza 4 — Utwardzenie** ⏳ — RODO (retencja, zgody, eksport/usunięcie), offline, hardening.
-- Kolejne fazy: patrz [`DESIGN.md`](./DESIGN.md) sekcja 17.
+- **Faza 4 — Utwardzenie** ✅ — RODO (eksport/zgoda/usunięcie danych), autoryzacja per rola,
+  offline queue (PWA), nagłówki bezpieczeństwa, `docker-compose.prod.yml`. 39 testów zielonych.
+
+**MVP kompletne (Fazy 0–4).** Dalszy rozwój: patrz [`DESIGN.md`](./DESIGN.md) sekcje 15 i 17.
+
+## Uruchomienie produkcyjne
+
+```bash
+cp .env.example .env                  # zmienne dla compose (DB/S3)
+cp backend/.env.example backend/.env  # ustaw realny S3, SMTP, APP_KEY, DB_PASSWORD
+docker compose -f docker-compose.prod.yml up -d --build
+```
+
+Produkcyjny compose nie zawiera MinIO/Mailpit — używa realnego S3 (docelowo MEGA S3)
+i SMTP z konfiguracji `backend/.env`. Seed nie jest uruchamiany automatycznie.

@@ -68,6 +68,13 @@ async function save() {
     }
   }
 
+  // Brak sieci → zapis do kolejki offline (KPI 60s działa też w terenie).
+  if (import.meta.client && !navigator.onLine) {
+    enqueueCandidate(payload)
+    await router.push('/candidates')
+    return
+  }
+
   try {
     const candidate = await createCandidate.mutateAsync(payload)
     await router.push(`/candidates/${candidate.id}`)

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 const auth = useAuthStore()
+const online = useOnline()
 </script>
 
 <template>
@@ -17,6 +18,10 @@ const auth = useAuthStore()
         {{ auth.user.name }} · Wyloguj
       </button>
     </header>
+
+    <div v-if="!online" class="bg-amber-500 px-4 py-1 text-center text-xs font-medium text-white">
+      Tryb offline — zmiany zostaną zsynchronizowane po odzyskaniu połączenia
+    </div>
 
     <main class="mx-auto max-w-2xl px-4 py-4">
       <slot />

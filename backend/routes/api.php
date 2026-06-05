@@ -12,6 +12,7 @@ use App\Http\Controllers\Api\V1\JobPostingController;
 use App\Http\Controllers\Api\V1\PipelineController;
 use App\Http\Controllers\Api\V1\PipelineStageController;
 use App\Http\Controllers\Api\V1\ProfileController;
+use App\Http\Controllers\Api\V1\RodoController;
 use App\Http\Controllers\Api\V1\TaskController;
 use Illuminate\Support\Facades\Route;
 
@@ -28,8 +29,10 @@ Route::prefix('v1')->group(function () {
 
         // --- Faza 1: rdzeń KPI ---
 
-        // Deduplikacja po numerze (lookup w locie).
-        Route::get('candidates/lookup', CandidateLookupController::class)->name('candidates.lookup');
+        // Deduplikacja po numerze (lookup w locie) — z limitem zapytań.
+        Route::get('candidates/lookup', CandidateLookupController::class)
+            ->middleware('throttle:60,1')
+            ->name('candidates.lookup');
 
         Route::apiResource('candidates', CandidateController::class)->except(['create', 'edit']);
 
@@ -68,6 +71,14 @@ Route::prefix('v1')->group(function () {
         // Audit log kandydata.
         Route::get('candidates/{candidate}/activities', [ActivityController::class, 'forCandidate'])
             ->name('candidates.activities');
+
+        // --- Faza 4: RODO ---
+        Route::get('candidates/{candidate}/export', [RodoController::class, 'export'])
+            ->name('candidates.export');
+        Route::patch('candidates/{candidate}/consent', [RodoController::class, 'consent'])
+            ->name('candidates.consent');
+        Route::delete('candidates/{candidate}/forget', [RodoController::class, 'forget'])
+            ->name('candidates.forget');
 
         // --- Faza 3: Pipeline + Klienci ---
 

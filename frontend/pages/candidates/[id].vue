@@ -98,6 +98,26 @@ async function generatePdf() {
 const showSend = ref(false)
 const recipient = ref('')
 const sendMsg = ref('')
+
+// --- RODO ---
+const auth = useAuthStore()
+const api = useApi()
+const router = useRouter()
+
+async function exportData() {
+  const data = await api(`/candidates/${id.value}/export`)
+  const blob = new Blob([JSON.stringify(data, null, 2)], {
+    type: 'application/json',
+  })
+  openBlob(blob, `rodo-${id.value}.json`)
+}
+
+async function forget() {
+  if (!confirm('Trwale usunąć wszystkie dane tego kandydata? Operacja nieodwracalna.'))
+    return
+  await api(`/candidates/${id.value}/forget`, { method: 'DELETE' })
+  await router.push('/candidates')
+}
 async function doSend() {
   sendMsg.value = ''
   try {
@@ -223,6 +243,23 @@ async function doSend() {
         </li>
       </ul>
       <p v-else class="text-sm text-gray-400">Brak zapisanych kontaktów.</p>
+    </div>
+
+    <!-- RODO -->
+    <div class="rounded-xl border border-gray-200 bg-white p-4">
+      <p class="mb-2 text-sm font-medium text-gray-700">RODO</p>
+      <div class="flex flex-wrap gap-2">
+        <button class="rounded-lg border border-gray-300 px-3 py-2 text-sm" @click="exportData">
+          Eksport danych
+        </button>
+        <button
+          v-if="auth.isAdmin"
+          class="rounded-lg border border-red-300 px-3 py-2 text-sm text-red-600"
+          @click="forget"
+        >
+          Usuń trwale
+        </button>
+      </div>
     </div>
 
     <!-- Cropper -->

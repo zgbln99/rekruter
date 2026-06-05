@@ -49,6 +49,8 @@ class CompanyController extends Controller
 
     public function destroy(Company $company): JsonResponse
     {
+        $this->authorize('delete', $company);
+
         $company->delete();
 
         return response()->json(['message' => 'Firma usunięta.']);

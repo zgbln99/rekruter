@@ -48,6 +48,8 @@ class JobPostingController extends Controller
 
     public function destroy(JobPosting $jobPosting): JsonResponse
     {
+        $this->authorize('delete', $jobPosting);
+
         $jobPosting->delete();
 
         return response()->json(['message' => 'Ogłoszenie usunięte.']);

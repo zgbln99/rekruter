@@ -88,6 +88,11 @@ class Candidate extends Model
         return $this->hasMany(Document::class);
     }
 
+    public function applications(): HasMany
+    {
+        return $this->hasMany(Application::class);
+    }
+
     public function profilePhoto(): BelongsTo
     {
         return $this->belongsTo(Document::class, 'profile_photo_id');
