@@ -137,6 +137,21 @@ MEGA_S4_REGION=eu-amsterdam
 MEGA_S4_USE_PATH_STYLE_ENDPOINT=true
 ```
 
+**Masz tylko zmienne `AWS_*` (bez `MEGA_S4_*`)?** Dysk `mega_s3` używa klucza i sekretu
+z `AWS_*` jako fallback, a endpoint/bucket/region MEGA S4 mają wbudowane wartości domyślne.
+Wystarczy więc:
+
+```env
+DOCUMENTS_DISK=mega_s3
+AWS_ACCESS_KEY_ID=twoj_klucz_MEGA
+AWS_SECRET_ACCESS_KEY=twoj_sekret_MEGA
+# (opcjonalnie nadpisz bucket/endpoint/region zmiennymi MEGA_S4_*)
+```
+
+> Uwaga: jeśli używasz wbudowanego MinIO (dev/prod compose), nie wpisuj kluczy MEGA do
+> `AWS_*` na tej samej instancji — MinIO korzysta z `AWS_*`. W takim wypadku podaj klucze
+> MEGA w `MEGA_S4_ACCESS_KEY_ID` / `MEGA_S4_SECRET_ACCESS_KEY`.
+
 Pobieranie dokumentów: backend najpierw próbuje wygenerować **tymczasowy signed URL**
 (jeśli dysk go wspiera), a w razie braku wsparcia robi **fallback do stream download**
 przez uwierzytelniony, audytowany endpoint (dokumenty nigdy nie są publiczne — RODO).

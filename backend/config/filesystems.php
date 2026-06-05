@@ -61,14 +61,15 @@ return [
         ],
 
         // MEGA S4 — S3-compatible storage dokumentów kandydatów.
-        // Konfiguracja przez zmienne MEGA_S4_* (sekcja README: MEGA S4).
+        // Klucz/sekret: MEGA_S4_* lub (fallback) AWS_* — wystarczy wypełnić jeden zestaw.
+        // Endpoint/bucket/region mają domyślne wartości MEGA S4 (można nadpisać MEGA_S4_*).
         'mega_s3' => [
             'driver' => 's3',
-            'key' => env('MEGA_S4_ACCESS_KEY_ID'),
-            'secret' => env('MEGA_S4_SECRET_ACCESS_KEY'),
+            'key' => env('MEGA_S4_ACCESS_KEY_ID', env('AWS_ACCESS_KEY_ID')),
+            'secret' => env('MEGA_S4_SECRET_ACCESS_KEY', env('AWS_SECRET_ACCESS_KEY')),
             'region' => env('MEGA_S4_REGION', 'eu-amsterdam'),
-            'bucket' => env('MEGA_S4_BUCKET'),
-            'endpoint' => env('MEGA_S4_ENDPOINT'),
+            'bucket' => env('MEGA_S4_BUCKET', 'driver-ddd-files'),
+            'endpoint' => env('MEGA_S4_ENDPOINT', 'https://s3.eu-luxembourg.megas4.com'),
             'use_path_style_endpoint' => env('MEGA_S4_USE_PATH_STYLE_ENDPOINT', true),
             'visibility' => 'private',
             'throw' => false,
