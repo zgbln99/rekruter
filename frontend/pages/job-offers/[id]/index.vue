@@ -8,6 +8,20 @@ const router = useRouter()
 const id = computed(() => route.params.id as string)
 const { data: offer, isLoading } = useJobOfferQuery(id)
 const createCandidate = useCreateCandidateFromOffer(id)
+const updateOffer = useUpdateJobOffer(id)
+const deleteOffer = useDeleteJobOffer()
+const auth = useAuthStore()
+
+// Aktywuj / wstrzymaj ogłoszenie.
+async function toggleActive() {
+  const next = offer.value?.status === 'open' ? 'paused' : 'open'
+  await updateOffer.mutateAsync({ status: next } as any)
+}
+async function removeOffer() {
+  if (!confirm('Usunąć to ogłoszenie? Operacja nieodwracalna.')) return
+  await deleteOffer.mutateAsync(id.value)
+  await navigateTo('/job-offers')
+}
 
 // Aktywne wymagania (z mapy requirements).
 const activeRequirements = computed(() =>
@@ -54,9 +68,25 @@ async function saveQuick() {
   <section v-if="isLoading" class="py-10 text-center text-muted">Ładowanie…</section>
 
   <section v-else-if="offer" class="mx-auto max-w-4xl space-y-5 pb-8">
-    <div>
-      <h1 class="text-2xl font-bold tracking-tight text-ink">{{ offer.title }}</h1>
-      <p class="text-sm text-stone">{{ offer.company?.name }} · {{ offer.status_label }}</p>
+    <div class="flex flex-wrap items-start justify-between gap-3">
+      <div>
+        <h1 class="text-2xl font-bold tracking-tight text-ink">{{ offer.title }}</h1>
+        <p class="text-sm text-stone">
+          {{ offer.company?.name }} ·
+          <span :class="offer.status === 'open' ? 'text-brand-deep font-medium' : 'text-amber-600'">{{ offer.status_label }}</span>
+        </p>
+      </div>
+      <div class="flex flex-wrap gap-2">
+        <NuxtLink :to="`/job-offers/${id}/edit`" class="inline-flex h-9 items-center gap-1.5 rounded-full border border-hairline px-3.5 text-sm font-medium text-ink transition hover:bg-surface">
+          Edytuj
+        </NuxtLink>
+        <button class="inline-flex h-9 items-center gap-1.5 rounded-full border border-hairline px-3.5 text-sm font-medium text-ink transition hover:bg-surface" @click="toggleActive">
+          {{ offer.status === 'open' ? 'Wstrzymaj' : 'Aktywuj' }}
+        </button>
+        <button v-if="auth.isAdmin" class="inline-flex h-9 items-center gap-1.5 rounded-full border border-red-200 px-3.5 text-sm font-medium text-red-600 transition hover:bg-red-50" @click="removeOffer">
+          Usuń
+        </button>
+      </div>
     </div>
 
     <!-- Główna akcja: nowy kandydat z ogłoszenia -->

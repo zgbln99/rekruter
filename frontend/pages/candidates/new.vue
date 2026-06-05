@@ -6,12 +6,23 @@ import type {
   QuickAddInput,
 } from '~/types'
 
-// Ekran Quick-Add — rdzeń KPI: dodanie kandydata podczas rozmowy < 60s.
+// Quick-Add — rdzeń KPI: dodanie kandydata podczas rozmowy < 60s.
+// Rekruterka może najpierw wybrać ofertę → pokazuje się skrypt rozmowy.
+const route = useRoute()
 const router = useRouter()
 const createCandidate = useCreateCandidate()
+const addApplication = useAddApplication()
+
+const { data: offersData } = useJobOffersQuery()
+const offers = computed(() => offersData.value?.data ?? [])
+const selectedOffer = ref<string>((route.query.offer as string) || '')
+const selectedOfferData = computed(() =>
+  offers.value.find((o) => o.id === selectedOffer.value),
+)
 
 const phone = ref('')
 const firstName = ref('')
+const lastName = ref('')
 const categories = ref<Set<LicenseCategory>>(new Set())
 const hasAdr = ref(false)
 const hasCode95 = ref(false)
@@ -20,10 +31,8 @@ const outcome = ref<ContactOutcome | null>(null)
 const nextContactAt = ref<string | null>(null)
 const error = ref('')
 
-// --- Deduplikacja w locie ---
 const duplicate = ref<LookupResponse['candidate']>(null)
 let lookupTimer: ReturnType<typeof setTimeout> | null = null
-
 watch(phone, (value) => {
   duplicate.value = null
   if (lookupTimer) clearTimeout(lookupTimer)
@@ -34,7 +43,7 @@ watch(phone, (value) => {
       const res = await lookupPhone(value)
       duplicate.value = res.exists ? res.candidate : null
     } catch {
-      /* ignoruj błędy lookupu */
+      /* ignoruj */
     }
   }, 350)
 })
@@ -44,7 +53,6 @@ function toggleCategory(cat: LicenseCategory) {
   set.has(cat) ? set.delete(cat) : set.add(cat)
   categories.value = set
 }
-
 function openDuplicate() {
   if (duplicate.value) router.push(`/candidates/${duplicate.value.id}`)
 }
@@ -54,6 +62,7 @@ async function save() {
   const payload: QuickAddInput = {
     phone: phone.value,
     first_name: firstName.value,
+    last_name: lastName.value || null,
     license_categories: [...categories.value],
     has_adr: hasAdr.value,
     has_code_95: hasCode95.value,
@@ -68,7 +77,6 @@ async function save() {
     }
   }
 
-  // Brak sieci → zapis do kolejki offline (KPI 60s działa też w terenie).
   if (import.meta.client && !navigator.onLine) {
     enqueueCandidate(payload)
     await router.push('/candidates')
@@ -77,6 +85,16 @@ async function save() {
 
   try {
     const candidate = await createCandidate.mutateAsync(payload)
+    if (selectedOffer.value) {
+      try {
+        await addApplication.mutateAsync({
+          candidate_id: candidate.id,
+          job_posting_id: selectedOffer.value,
+        })
+      } catch {
+        /* jeśli już przypisany — pomijamy */
+      }
+    }
     await router.push(`/candidates/${candidate.id}`)
   } catch (e: any) {
     if (e?.response?.status === 409 && e.response._data?.candidate) {
@@ -95,62 +113,65 @@ const canSave = computed(
 <template>
   <section class="mx-auto max-w-3xl pb-8">
     <div class="mb-5 flex items-center justify-between">
-      <h1 class="text-[26px] font-bold tracking-tight text-ink">Nowy kandydat</h1>
-      <NuxtLink
-        to="/candidates"
-        class="flex h-9 w-9 items-center justify-center rounded-full text-stone active:bg-surface"
-      >
+      <h1 class="page-title">Nowy kandydat</h1>
+      <NuxtLink to="/candidates" class="flex h-9 w-9 items-center justify-center rounded-full text-stone hover:bg-surface">
         <AppIcon name="x" :size="22" />
       </NuxtLink>
     </div>
 
     <form class="space-y-5" @submit.prevent="save">
-      <!-- Telefon -->
+      <!-- Oferta -->
       <div>
         <label class="field-label inline-flex items-center gap-1.5">
-          <AppIcon name="phone" :size="15" /> Telefon
+          <AppIcon name="document" :size="15" /> Oferta (na którą dzwoni kandydat)
         </label>
-        <input
-          v-model="phone"
-          type="tel"
-          inputmode="tel"
-          autofocus
-          placeholder="+48 600 000 000"
-          class="input-field"
-        />
-        <button
-          v-if="duplicate"
-          type="button"
-          class="mt-2 flex w-full items-center justify-between gap-2 rounded-md border border-amber-200 bg-amber-50 p-3 text-left text-sm text-amber-800"
-          @click="openDuplicate"
-        >
+        <select v-model="selectedOffer" class="input-field">
+          <option value="">— bez przypisania —</option>
+          <option v-for="o in offers" :key="o.id" :value="o.id">
+            {{ o.title }} — {{ o.company?.name }}
+          </option>
+        </select>
+      </div>
+
+      <!-- Skrypt rozmowy wybranej oferty -->
+      <div v-if="selectedOfferData?.call_script?.length" class="rounded-lg border border-brand/30 bg-brand-soft/50 p-4">
+        <p class="mb-2 inline-flex items-center gap-1.5 text-[13px] font-semibold text-brand-deep">
+          <AppIcon name="check" :size="15" /> Skrypt rozmowy
+        </p>
+        <ul class="space-y-1.5">
+          <li v-for="(q, i) in selectedOfferData.call_script" :key="i" class="flex gap-2 text-sm text-ink">
+            <span class="text-brand-deep">{{ i + 1 }}.</span> {{ q }}
+          </li>
+        </ul>
+      </div>
+
+      <!-- Telefon -->
+      <div>
+        <label class="field-label inline-flex items-center gap-1.5"><AppIcon name="phone" :size="15" /> Telefon</label>
+        <input v-model="phone" type="tel" inputmode="tel" autofocus placeholder="+48 600 000 000" class="input-field" />
+        <button v-if="duplicate" type="button" class="mt-2 flex w-full items-center justify-between gap-2 rounded-md border border-amber-200 bg-amber-50 p-3 text-left text-sm text-amber-800" @click="openDuplicate">
           <span>Kandydat <strong>{{ duplicate.full_name }}</strong> już istnieje</span>
           <AppIcon name="chevron" :size="16" />
         </button>
       </div>
 
-      <!-- Imię -->
-      <div>
-        <label class="field-label inline-flex items-center gap-1.5">
-          <AppIcon name="users" :size="15" /> Imię
-        </label>
-        <input v-model="firstName" type="text" placeholder="Jan" class="input-field" />
+      <!-- Imię i nazwisko -->
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="field-label">Imię</label>
+          <input v-model="firstName" type="text" placeholder="Jan" class="input-field" />
+        </div>
+        <div>
+          <label class="field-label">Nazwisko</label>
+          <input v-model="lastName" type="text" placeholder="Kowalski" class="input-field" />
+        </div>
       </div>
 
       <!-- Kategorie -->
       <div>
-        <label class="field-label inline-flex items-center gap-1.5">
-          <AppIcon name="truck" :size="15" /> Kategorie i uprawnienia
-        </label>
+        <label class="field-label inline-flex items-center gap-1.5"><AppIcon name="truck" :size="15" /> Kategorie i uprawnienia</label>
         <div class="flex flex-wrap gap-2">
-          <UiChip
-            v-for="cat in LICENSE_CATEGORIES"
-            :key="cat"
-            :active="categories.has(cat)"
-            @click="toggleCategory(cat)"
-          >
-            {{ cat }}
-          </UiChip>
+          <UiChip v-for="cat in LICENSE_CATEGORIES" :key="cat" :active="categories.has(cat)" @click="toggleCategory(cat)">{{ cat }}</UiChip>
           <UiChip :active="hasAdr" @click="hasAdr = !hasAdr">ADR</UiChip>
           <UiChip :active="hasCode95" @click="hasCode95 = !hasCode95">Kod 95</UiChip>
         </div>
@@ -159,53 +180,27 @@ const canSave = computed(
       <!-- Notatka -->
       <div>
         <label class="field-label">Notatka</label>
-        <textarea
-          v-model="note"
-          rows="2"
-          placeholder="Czego szuka, dyspozycyjność…"
-          class="input-field !h-auto py-2.5"
-        />
+        <textarea v-model="note" rows="2" placeholder="Czego szuka, dyspozycyjność…" class="input-field !h-auto py-2.5" />
       </div>
 
       <!-- Wynik kontaktu -->
       <div>
         <label class="field-label">Wynik kontaktu</label>
         <div class="flex flex-wrap gap-2">
-          <UiChip
-            v-for="opt in OUTCOME_OPTIONS"
-            :key="opt.value"
-            :active="outcome === opt.value"
-            @click="outcome = outcome === opt.value ? null : opt.value"
-          >
-            {{ opt.label }}
-          </UiChip>
+          <UiChip v-for="opt in OUTCOME_OPTIONS" :key="opt.value" :active="outcome === opt.value" @click="outcome = outcome === opt.value ? null : opt.value">{{ opt.label }}</UiChip>
         </div>
       </div>
 
       <!-- Następny kontakt -->
       <div v-if="outcome">
-        <label class="field-label inline-flex items-center gap-1.5">
-          <AppIcon name="clock" :size="15" /> Oddzwonić
-        </label>
+        <label class="field-label inline-flex items-center gap-1.5"><AppIcon name="clock" :size="15" /> Oddzwonić</label>
         <div class="flex flex-wrap gap-2">
-          <UiChip
-            v-for="preset in nextContactPresets()"
-            :key="preset.label"
-            :active="nextContactAt === preset.value"
-            @click="nextContactAt = nextContactAt === preset.value ? null : preset.value"
-          >
-            {{ preset.label }}
-          </UiChip>
+          <UiChip v-for="preset in nextContactPresets()" :key="preset.label" :active="nextContactAt === preset.value" @click="nextContactAt = nextContactAt === preset.value ? null : preset.value">{{ preset.label }}</UiChip>
         </div>
       </div>
 
       <p v-if="error" class="text-sm text-red-600">{{ error }}</p>
-
-      <button
-        type="submit"
-        class="btn-primary"
-        :disabled="!canSave || createCandidate.isPending.value"
-      >
+      <button type="submit" class="btn-primary" :disabled="!canSave || createCandidate.isPending.value">
         {{ createCandidate.isPending.value ? 'Zapisywanie…' : 'Zapisz kandydata' }}
       </button>
     </form>

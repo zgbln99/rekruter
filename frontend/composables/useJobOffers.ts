@@ -47,6 +47,15 @@ export function useUpdateJobOffer(id: MaybeRefOrGetter<string>) {
   })
 }
 
+export function useDeleteJobOffer() {
+  const api = useApi()
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (id: string) => api(`/job-offers/${id}`, { method: 'DELETE' }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['job-offers'] }),
+  })
+}
+
 /** Szybkie tworzenie kandydata z ogłoszenia (krok 1). */
 export function useCreateCandidateFromOffer(offerId: MaybeRefOrGetter<string>) {
   const api = useApi()
