@@ -14,8 +14,10 @@ const online = useOnline()
         class="sticky top-0 z-30 flex h-14 items-center justify-between border-b border-hairline bg-canvas/90 px-4 pt-safe-top backdrop-blur lg:hidden"
       >
         <NuxtLink to="/" class="flex items-center gap-2">
-          <span class="flex h-7 w-7 items-center justify-center rounded-lg bg-ink text-xs font-bold text-brand">R</span>
-          <span class="text-[17px] font-bold tracking-tight text-ink">Rekruter</span>
+          <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-ink text-xs font-bold text-brand">
+            {{ (auth.user?.agency_name || 'R').charAt(0) }}
+          </span>
+          <span class="truncate text-[17px] font-bold tracking-tight text-ink">{{ auth.user?.agency_name || 'Rekruter' }}</span>
         </NuxtLink>
         <button v-if="auth.user" class="rounded-full p-2 text-steel active:bg-surface" @click="auth.logout()">
           <AppIcon name="logout" :size="20" />

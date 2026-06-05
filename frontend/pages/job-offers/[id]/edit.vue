@@ -15,6 +15,8 @@ const form = reactive<Record<string, any>>({
   company_id: '', title: '', driver_type: '', trailer_type: '', country: '',
   region_base: '', work_system: '', salary_amount: '', currency: 'EUR',
   required_language: '', required_experience: '', description: '',
+  arrival_info: '', vehicle_type: '', cargo: '', routes_info: '',
+  accommodation: '', onsite_contact: '',
   public_description: '', recruiter_notes: '', status: 'open',
 })
 const categories = ref<Set<LicenseCategory>>(new Set())
@@ -111,6 +113,18 @@ async function save() {
         <div class="flex flex-wrap gap-2">
           <UiChip v-for="r in REQUIREMENT_OPTIONS" :key="r.key" :active="requirements.has(r.key)" @click="toggleReq(r.key)">{{ r.label }}</UiChip>
         </div>
+      </div>
+
+      <div class="rounded-lg border border-hairline bg-surface-soft p-4">
+        <p class="mb-3 text-[13px] font-semibold text-ink">Skierowanie do pracy (PDF dla kierowcy)</p>
+        <div class="grid gap-3 sm:grid-cols-2">
+          <div><label class="field-label">Data/godzina przyjazdu</label><input v-model="form.arrival_info" class="input-field" /></div>
+          <div><label class="field-label">Typ auta (opis)</label><input v-model="form.vehicle_type" class="input-field" /></div>
+          <div><label class="field-label">Przewożony towar</label><input v-model="form.cargo" class="input-field" /></div>
+        </div>
+        <div class="mt-3"><label class="field-label">Trasy</label><textarea v-model="form.routes_info" rows="2" class="input-field !h-auto py-2.5" /></div>
+        <div class="mt-3"><label class="field-label">Zakwaterowanie</label><textarea v-model="form.accommodation" rows="2" class="input-field !h-auto py-2.5" /></div>
+        <div class="mt-3"><label class="field-label">Osoba kontaktowa na miejscu</label><textarea v-model="form.onsite_contact" rows="2" class="input-field !h-auto py-2.5" /></div>
       </div>
 
       <div>

@@ -31,7 +31,7 @@ class GenerateProfilePdfAction
             'offer' => $offer,
             'company' => $offer?->company,
             'photoDataUri' => $this->photoDataUri($candidate),
-            'agencyName' => config('app.name'),
+            'agencyName' => $candidate->tenant?->agencyName() ?? config('app.name'),
             'generatedAt' => now()->format('d.m.Y'),
         ])->render();
 

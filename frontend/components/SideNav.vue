@@ -12,8 +12,10 @@ const items = computed(() =>
     <div class="sticky top-0 flex h-screen flex-col bg-ink text-white">
       <!-- Logo -->
       <div class="flex h-16 items-center gap-2.5 px-6">
-        <span class="flex h-8 w-8 items-center justify-center rounded-lg bg-brand text-sm font-bold text-ink">R</span>
-        <span class="text-[17px] font-bold tracking-tight">Rekruter</span>
+        <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-brand text-sm font-bold text-ink">
+          {{ (auth.user?.agency_name || 'R').charAt(0) }}
+        </span>
+        <span class="truncate text-[16px] font-bold tracking-tight">{{ auth.user?.agency_name || 'Rekruter' }}</span>
       </div>
 
       <!-- Główna akcja -->

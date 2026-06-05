@@ -20,6 +20,8 @@ class StoreCompanyRequest extends FormRequest
     {
         return [
             'name' => ['required', 'string', 'max:191'],
+            'description' => ['nullable', 'string'],
+            'website' => ['nullable', 'string', 'max:191'],
             'nip' => ['nullable', 'string', 'max:32'],
             'address' => ['nullable', 'string', 'max:191'],
             'city' => ['nullable', 'string', 'max:120'],

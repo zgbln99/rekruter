@@ -23,6 +23,18 @@ async function removeOffer() {
   await navigateTo('/job-offers')
 }
 
+// Skierowanie do pracy (PDF dla kierowcy).
+const referralLoading = ref(false)
+async function generateReferral() {
+  referralLoading.value = true
+  try {
+    const blob = await fetchBlob(`/job-offers/${id.value}/referral-pdf`)
+    openBlob(blob, `skierowanie-${(offer.value?.title || 'oferta').replace(/\s+/g, '-').toLowerCase()}.pdf`)
+  } finally {
+    referralLoading.value = false
+  }
+}
+
 // Aktywne wymagania (z mapy requirements).
 const activeRequirements = computed(() =>
   REQUIREMENT_OPTIONS.filter((r) => offer.value?.requirements?.[r.key]),
@@ -77,6 +89,9 @@ async function saveQuick() {
         </p>
       </div>
       <div class="flex flex-wrap gap-2">
+        <button class="inline-flex h-9 items-center gap-1.5 rounded-full bg-ink px-3.5 text-sm font-semibold text-white transition hover:bg-charcoal disabled:opacity-50" :disabled="referralLoading" @click="generateReferral">
+          <AppIcon name="pdf" :size="16" /> {{ referralLoading ? 'Generowanie…' : 'Skierowanie PDF' }}
+        </button>
         <NuxtLink :to="`/job-offers/${id}/edit`" class="inline-flex h-9 items-center gap-1.5 rounded-full border border-hairline px-3.5 text-sm font-medium text-ink transition hover:bg-surface">
           Edytuj
         </NuxtLink>

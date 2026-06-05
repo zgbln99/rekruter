@@ -11,7 +11,15 @@ export interface User {
   phone: string | null
   avatar_path: string | null
   tenant_id: string
+  agency_name?: string | null
   last_login_at: string | null
+}
+
+export interface Settings {
+  agency_name: string
+  agency_phone: string | null
+  agency_email: string | null
+  agency_website: string | null
 }
 
 export interface LoginResponse {
@@ -180,6 +188,8 @@ export interface ProfileSend {
 export interface Company {
   id: string
   name: string
+  description?: string | null
+  website?: string | null
   nip: string | null
   city: string | null
   country: string | null
@@ -205,6 +215,12 @@ export interface JobPosting {
   title: string
   driver_type: string | null
   trailer_type: string | null
+  vehicle_type: string | null
+  cargo: string | null
+  routes_info: string | null
+  accommodation: string | null
+  onsite_contact: string | null
+  arrival_info: string | null
   country: string | null
   region_base: string | null
   work_system: string | null

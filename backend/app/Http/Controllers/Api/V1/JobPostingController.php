@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Actions\Candidates\CreateCandidateFromOfferAction;
+use App\Actions\Profiles\GenerateReferralPdfAction;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\JobPostings\CreateCandidateFromOfferRequest;
 use App\Http\Requests\JobPostings\StoreJobPostingRequest;
@@ -73,5 +74,21 @@ class JobPostingController extends Controller
         $payload['duplicate'] = $result['duplicate'];
 
         return response()->json($payload, $result['duplicate'] ? 200 : 201);
+    }
+
+    /**
+     * Dokument „Skierowanie do pracy" (PDF) dla kierowcy.
+     */
+    public function referralPdf(
+        JobPosting $jobPosting,
+        GenerateReferralPdfAction $action,
+        Request $request
+    ): \Illuminate\Http\Response {
+        $pdf = $action->render($jobPosting, $request->user());
+
+        return response($pdf, 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'inline; filename="skierowanie.pdf"',
+        ]);
     }
 }

@@ -16,6 +16,7 @@ use App\Http\Controllers\Api\V1\PipelineController;
 use App\Http\Controllers\Api\V1\PipelineStageController;
 use App\Http\Controllers\Api\V1\ProfileController;
 use App\Http\Controllers\Api\V1\RodoController;
+use App\Http\Controllers\Api\V1\SettingsController;
 use App\Http\Controllers\Api\V1\TaskController;
 use App\Http\Controllers\Api\V1\UserController;
 use Illuminate\Support\Facades\Route;
@@ -124,6 +125,8 @@ Route::prefix('v1')->group(function () {
             ->name('job-offers.create-candidate');
         Route::get('job-offers/{jobPosting}/pipeline', [PipelineController::class, 'board'])
             ->name('job-offers.pipeline');
+        Route::get('job-offers/{jobPosting}/referral-pdf', [JobPostingController::class, 'referralPdf'])
+            ->name('job-offers.referral-pdf');
 
         // Dopasowanie kandydata do ogłoszenia.
         Route::get('candidates/{candidate}/match/{jobOffer}', MatchController::class)
@@ -141,5 +144,9 @@ Route::prefix('v1')->group(function () {
 
         // --- Faza 6: Użytkownicy (zarządzanie — tylko administrator) ---
         Route::apiResource('users', UserController::class)->only(['index', 'store', 'update', 'destroy']);
+
+        // Ustawienia organizacji (nazwa agencji itp.).
+        Route::get('settings', [SettingsController::class, 'show'])->name('settings.show');
+        Route::put('settings', [SettingsController::class, 'update'])->name('settings.update');
     });
 });

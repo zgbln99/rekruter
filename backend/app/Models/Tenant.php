@@ -29,4 +29,15 @@ class Tenant extends Model
     {
         return $this->hasMany(User::class);
     }
+
+    /**
+     * Nazwa agencji używana w całej aplikacji i dokumentach (PDF).
+     * Konfigurowalna w ustawieniach; fallback do nazwy tenanta / nazwy aplikacji.
+     */
+    public function agencyName(): string
+    {
+        return $this->settings['agency_name']
+            ?? $this->name
+            ?? config('app.name', 'Rekruter');
+    }
 }

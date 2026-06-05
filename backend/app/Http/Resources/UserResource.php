@@ -24,6 +24,7 @@ class UserResource extends JsonResource
             'phone' => $this->phone,
             'avatar_path' => $this->avatar_path,
             'tenant_id' => $this->tenant_id,
+            'agency_name' => $this->tenant?->agencyName(),
             'last_login_at' => $this->last_login_at?->toIso8601String(),
         ];
     }

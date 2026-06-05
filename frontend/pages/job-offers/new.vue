@@ -21,6 +21,12 @@ const form = reactive<Partial<JobPosting>>({
   currency: 'EUR',
   required_language: '',
   required_experience: '',
+  arrival_info: '',
+  vehicle_type: '',
+  cargo: '',
+  routes_info: '',
+  accommodation: '',
+  onsite_contact: '',
   description: '',
   public_description: '',
   recruiter_notes: '',
@@ -141,6 +147,19 @@ async function submit() {
             {{ r.label }}
           </UiChip>
         </div>
+      </div>
+
+      <!-- Skierowanie do pracy (dane do PDF dla kierowcy) -->
+      <div class="rounded-lg border border-hairline bg-surface-soft p-4">
+        <p class="mb-3 text-[13px] font-semibold text-ink">Skierowanie do pracy (PDF dla kierowcy)</p>
+        <div class="grid gap-3 sm:grid-cols-2">
+          <div><label class="field-label">Data/godzina przyjazdu</label><input v-model="form.arrival_info" placeholder="08.06.2026 godz. 9:00" class="input-field" /></div>
+          <div><label class="field-label">Typ auta (opis)</label><input v-model="form.vehicle_type" placeholder="Zestaw 25t z przyczepą" class="input-field" /></div>
+          <div><label class="field-label">Przewożony towar</label><input v-model="form.cargo" placeholder="Dystrybucja do sklepów…" class="input-field" /></div>
+        </div>
+        <div class="mt-3"><label class="field-label">Trasy</label><textarea v-model="form.routes_info" rows="2" class="input-field !h-auto py-2.5" placeholder="Opis tras / system zmian" /></div>
+        <div class="mt-3"><label class="field-label">Zakwaterowanie</label><textarea v-model="form.accommodation" rows="2" class="input-field !h-auto py-2.5" placeholder="W aucie / bezpłatne…" /></div>
+        <div class="mt-3"><label class="field-label">Osoba kontaktowa na miejscu</label><textarea v-model="form.onsite_contact" rows="2" class="input-field !h-auto py-2.5" placeholder="Imię, telefon, e-mail (jeśli inne niż dane firmy)" /></div>
       </div>
 
       <div>

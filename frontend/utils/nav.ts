@@ -14,4 +14,5 @@ export const NAV_ITEMS: NavItem[] = [
   { to: '/pipeline', label: 'Pipeline', icon: 'board' },
   { to: '/companies', label: 'Firmy', icon: 'building' },
   { to: '/users', label: 'Użytkownicy', icon: 'shield', adminOnly: true },
+  { to: '/settings', label: 'Ustawienia', icon: 'settings', adminOnly: true },
 ]
