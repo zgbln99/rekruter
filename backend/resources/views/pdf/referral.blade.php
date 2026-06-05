@@ -22,6 +22,8 @@
         /* Pasek-hero z najważniejszymi faktami */
         .hero { margin-top: 18px; border: 1px solid #e8edf3; border-radius: 14px; overflow: hidden; }
         .hero-top { background: #0f172a; padding: 16px 20px; color: #fff; }
+        .hero-top .forwho { font-size: 10px; color: #fca5a5; letter-spacing: 0.6px; text-transform: uppercase; margin-bottom: 6px; font-weight: 700; }
+        .hero-top .forwho b { color: #fff; }
         .hero-top .pos { font-size: 19px; font-weight: 800; letter-spacing: -0.2px; }
         .hero-top .co { font-size: 11px; color: #cbd5e1; margin-top: 3px; }
         .hero-top .co b { color: #fff; }
@@ -69,7 +71,8 @@
     $routes = $offer->routes_info ?: $offer->description;
     $salary = trim(($offer->salary_amount ?? '').' '.($offer->currency ?? ''));
     $onsite = $offer->onsite_contact ?: trim(($company?->contact_person ?? '')."\n".($company?->contact_phone ?? '')."\n".($company?->contact_email ?? ''));
-    $arrival = $offer->arrival_info ?: ($offer->start_date ? $offer->start_date->format('d.m.Y') : null);
+    $candidateName = $candidateName ?? null;
+    $arrival = ($arrivalOverride ?? null) ?: ($offer->arrival_info ?: ($offer->start_date ? $offer->start_date->format('d.m.Y') : null));
 
     // Parametry pracy → wyświetlane w równej siatce 2-kolumnowej.
     $params = [];
@@ -101,6 +104,7 @@
     {{-- HERO: stanowisko + firma + 3 kluczowe fakty --}}
     <div class="hero">
         <div class="hero-top">
+            @if ($candidateName)<div class="forwho">Kierowca: <b>{{ $candidateName }}</b></div>@endif
             <div class="pos">{{ $offer->title }}</div>
             <div class="co">Pracodawca: <b>{{ $company?->name ?? '—' }}</b>@if ($region) · {{ $region }} @endif</div>
         </div>

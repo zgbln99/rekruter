@@ -12,6 +12,7 @@ export const NAV_ITEMS: NavItem[] = [
   { to: '/job-offers', label: 'Ogłoszenia', icon: 'document' },
   { to: '/candidates', label: 'Kandydaci', icon: 'users' },
   { to: '/pipeline', label: 'Pipeline', icon: 'board' },
+  { to: '/calendar', label: 'Kalendarz', icon: 'calendar' },
   { to: '/companies', label: 'Firmy', icon: 'building' },
   { to: '/users', label: 'Użytkownicy', icon: 'shield', adminOnly: true },
   { to: '/settings', label: 'Ustawienia', icon: 'settings', adminOnly: true },

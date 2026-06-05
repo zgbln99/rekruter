@@ -12,8 +12,11 @@ use App\Http\Controllers\Api\V1\DashboardController;
 use App\Http\Controllers\Api\V1\DocumentController;
 use App\Http\Controllers\Api\V1\JobPostingController;
 use App\Http\Controllers\Api\V1\MatchController;
+use App\Http\Controllers\Api\V1\CalendarController;
 use App\Http\Controllers\Api\V1\PipelineController;
 use App\Http\Controllers\Api\V1\PipelineStageController;
+use App\Http\Controllers\Api\V1\PlacementController;
+use App\Http\Controllers\Api\V1\PlacementInstallmentController;
 use App\Http\Controllers\Api\V1\ProfileController;
 use App\Http\Controllers\Api\V1\RodoController;
 use App\Http\Controllers\Api\V1\SettingsController;
@@ -145,6 +148,27 @@ Route::prefix('v1')->group(function () {
         // Decyzja firmy po wysłaniu profilu.
         Route::patch('profile-sends/{profileSend}/decision', [ProfileController::class, 'decision'])
             ->name('profile-sends.decision');
+
+        // --- Faza 7: Skierowania, kalendarz przyjazdów i rozliczenia ---
+
+        // Skierowania kierowcy (Placement) — generowane z karty kandydata.
+        Route::get('candidates/{candidate}/placements', [PlacementController::class, 'index'])
+            ->name('candidates.placements.index');
+        Route::post('candidates/{candidate}/placements', [PlacementController::class, 'store'])
+            ->name('candidates.placements.store');
+        Route::get('placements/{placement}/referral-pdf', [PlacementController::class, 'referralPdf'])
+            ->name('placements.referral-pdf');
+        Route::patch('placements/{placement}/arrival', [PlacementController::class, 'updateArrival'])
+            ->name('placements.arrival');
+        Route::delete('placements/{placement}', [PlacementController::class, 'destroy'])
+            ->name('placements.destroy');
+
+        // Raty rozliczenia — edycja tylko dla administratora.
+        Route::patch('placement-installments/{placementInstallment}', [PlacementInstallmentController::class, 'update'])
+            ->name('placement-installments.update');
+
+        // Kalendarz (przyjazdy + terminy rozliczeń dla admina).
+        Route::get('calendar', CalendarController::class)->name('calendar');
 
         // --- Faza 6: Użytkownicy (zarządzanie — tylko administrator) ---
         Route::apiResource('users', UserController::class)->only(['index', 'store', 'update', 'destroy']);

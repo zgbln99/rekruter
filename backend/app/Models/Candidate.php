@@ -132,6 +132,11 @@ class Candidate extends Model
         return $this->hasMany(ProfileSend::class);
     }
 
+    public function placements(): HasMany
+    {
+        return $this->hasMany(Placement::class);
+    }
+
     public function profilePhoto(): BelongsTo
     {
         return $this->belongsTo(Document::class, 'profile_photo_id');

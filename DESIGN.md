@@ -35,6 +35,9 @@
 16. [Ryzyka i mitygacje](#16-ryzyka-i-mitygacje)
 17. [Roadmapa wdrożeniowa](#17-roadmapa-wdrożeniowa)
 18. [Otwarte pytania do decyzji](#18-otwarte-pytania-do-decyzji)
+19. [Faza 5 — Ogłoszenia jako centrum systemu](#19-faza-5--ogłoszenia-jako-centrum-systemu)
+20. [Faza 6 — Pełna kartoteka kandydata + użytkownicy](#20-faza-6--pełna-kartoteka-kandydata--użytkownicy)
+21. [Faza 7 — Skierowania, kalendarz przyjazdów i rozliczenia](#21-faza-7--skierowania-kalendarz-przyjazdów-i-rozliczenia)
 
 ---
 
@@ -1054,3 +1057,142 @@ osobowe wrażliwe pozostają poza uwagami wewnętrznymi (bez `recruiter_notes`/`
 Aktualizacja danych osobowych kandydata (adres, data urodzenia, historia pracy) ·
 administrator tworzy/edytuje/usuwa użytkownika · rekruter nie ma dostępu do modułu
 użytkowników (403) · administrator nie może usunąć samego siebie. Cel: 100% zielonych.
+
+---
+
+## 21. Faza 7 — Skierowania, kalendarz przyjazdów i rozliczenia
+
+> Cel: skierowanie do pracy generujemy **z karty kierowcy**, z osobno wpisywaną
+> datą i godziną przyjazdu. Przyjazd trafia do **wbudowanego kalendarza**, gdzie
+> rekruter weryfikuje, czy kierowca dotarł („Dotarł / Nie dotarł"). Dla
+> administratora powstają **terminy rozliczeń**: płatność dzielimy na **dwie raty**
+> (faktury co 2 tygodnie), a ich terminy widać w tym samym kalendarzu.
+
+### 21.1 Pojęcie domenowe: `Placement` (skierowanie)
+
+Dotychczas „Skierowanie do pracy" było generowane doraźnie z ogłoszenia (statyczne
+dane oferty). Wprowadzamy trwały byt **`Placement`** = konkretne skierowanie
+*danego kierowcy* do *danego ogłoszenia/firmy* na *konkretny termin przyjazdu*.
+
+Dzięki temu mamy do czego podpiąć: status przyjazdu (kalendarz) oraz harmonogram
+rozliczeń (raty/faktury).
+
+### 21.2 Model danych
+
+Migracja `create_placements_table`:
+
+```
+id                   uuid    pk
+tenant_id            uuid    fk tenants
+candidate_id         uuid    fk candidates  (kierowca)
+job_posting_id       uuid    fk job_postings
+company_id           uuid    fk companies   (denormalizacja — pracodawca, do rozliczeń)
+created_by           uuid    fk users  null
+arrival_at           datetime               -- data i GODZINA przyjazdu (wpisywane osobno)
+arrival_status       enum(pending|confirmed|no_show) default pending
+arrival_confirmed_at datetime null
+arrival_confirmed_by uuid fk users null
+total_amount         decimal(10,2) null     -- kwota całkowita rozliczenia
+currency             string(3) default 'EUR'
+notes                text null
+timestamps, softDeletes
+index(tenant_id, arrival_at)
+```
+
+Migracja `create_placement_installments_table` (raty rozliczenia):
+
+```
+id            uuid pk
+tenant_id     uuid fk tenants
+placement_id  uuid fk placements cascade
+sequence      smallint        -- 1 lub 2
+due_date      date            -- termin wystawienia faktury
+amount        decimal(10,2) null
+status        enum(pending|invoiced|paid) default pending
+invoiced_at   date null
+paid_at       date null
+timestamps
+index(tenant_id, due_date)
+```
+
+**Reguła generowania rat** (decyzja biznesowa): przy utworzeniu skierowania z
+`arrival_at` i `total_amount` system tworzy **2 raty**:
+- rata 1 — `due_date = data_przyjazdu + 14 dni`, `amount = total/2`,
+- rata 2 — `due_date = data_przyjazdu + 28 dni`, `amount = total − amount_raty_1`
+  (różnica wyrównuje zaokrąglenie groszy).
+
+Terminy i kwoty rat można później ręcznie skorygować (PATCH na racie).
+
+### 21.3 Enumy
+
+`ArrivalStatus`: `pending` (oczekuje), `confirmed` (dotarł), `no_show` (nie dotarł).
+`InstallmentStatus`: `pending` (do wystawienia), `invoiced` (wystawiona),
+`paid` (opłacona).
+
+### 21.4 Generowanie skierowania z karty kierowcy
+
+Na karcie kandydata sekcja **„Skierowania"**:
+1. wybór ogłoszenia (z rekrutacji kandydata lub dowolnego aktywnego ogłoszenia),
+2. **data + godzina przyjazdu** (osobne pole `datetime-local`),
+3. kwota rozliczenia (opcjonalnie) + waluta,
+4. „Generuj skierowanie" → tworzy `Placement` (+ 2 raty) i od razu otwiera PDF.
+
+PDF (`pdf/referral.blade.php`) jest ten sam co wcześniej, ale:
+- datę przyjazdu bierzemy z `placement.arrival_at` (wpisana ręcznie), nie z oferty,
+- w nagłówku/hero pokazujemy **imię i nazwisko kierowcy**.
+
+`GenerateReferralPdfAction::render()` przyjmuje teraz dodatkowo opcjonalnie
+`?Candidate $candidate` i `?string $arrivalOverride`, aby spersonalizować dokument.
+
+### 21.5 Kalendarz (wbudowany)
+
+Endpoint `GET /api/v1/calendar?from=&to=` zwraca listę wydarzeń w zakresie:
+- **przyjazdy** (`type=arrival`) — z `placements`: `date=arrival_at`, kierowca,
+  firma, tytuł ogłoszenia, `arrival_status`; widoczne dla wszystkich,
+- **rozliczenia** (`type=installment`) — z `placement_installments`:
+  `date=due_date`, kierowca, kwota, `sequence`, `status`; **tylko administrator**.
+
+Frontend `/calendar`:
+- responsywna **siatka miesięczna** (nawigacja prev/next, etykieta miesiąca),
+  kafelki dni z kolorowymi „chipami" wydarzeń (przyjazd = czerwony/akcent,
+  rozliczenie = neutralny/bursztynowy wg statusu),
+- wybór dnia otwiera panel agendy z akcjami:
+  - przy przyjeździe: **„Dotarł" / „Nie dotarł"** (PATCH `arrival_status`),
+  - przy racie (admin): **„Wystawiona" / „Opłacona"** (PATCH `status`).
+- filtr typów wydarzeń (przyjazdy / rozliczenia).
+
+Pozycja nawigacji **„Kalendarz"** dla wszystkich (rozliczenia widzi tylko admin).
+
+### 21.6 Endpointy (API)
+
+```
+# Skierowania
+GET    /candidates/{candidate}/placements          lista skierowań kierowcy
+POST   /candidates/{candidate}/placements          utwórz (job_posting_id, arrival_at, total_amount?, currency?, notes?)
+GET    /placements/{placement}/referral-pdf        PDF skierowania (z datą z placement)
+PATCH  /placements/{placement}/arrival             { status: confirmed|no_show }
+DELETE /placements/{placement}                      usuń skierowanie
+
+# Raty (rozliczenia) — tylko administrator
+PATCH  /placement-installments/{installment}        { status, invoiced_at?, paid_at?, amount?, due_date? }
+
+# Kalendarz
+GET    /calendar?from=YYYY-MM-DD&to=YYYY-MM-DD       wydarzenia (przyjazdy + raty[admin])
+```
+
+Stary endpoint `GET /job-offers/{jobPosting}/referral-pdf` zostaje (skierowanie
+„czyste", bez konkretnego kierowcy) dla zachowania kompatybilności.
+
+### 21.7 Autoryzacja
+
+- Tworzenie/oznaczanie przyjazdu skierowania: rekruter i administrator.
+- Edycja rat (statusy/kwoty/terminy) oraz podgląd wydarzeń rozliczeniowych w
+  kalendarzu: **wyłącznie administrator** (kwoty faktur to dane finansowe agencji).
+
+### 21.8 Testy (Faza 7)
+
+Utworzenie skierowania liczy 2 raty (+14 / +28 dni, kwoty 50/50, suma = total) ·
+PDF skierowania używa wpisanej daty przyjazdu i nazwiska kierowcy · oznaczenie
+„Dotarł" ustawia status i znacznik czasu · kalendarz zwraca przyjazdy dla
+rekrutera, a raty tylko dla administratora · rekruter nie może edytować raty (403).
+Cel: 100% zielonych.

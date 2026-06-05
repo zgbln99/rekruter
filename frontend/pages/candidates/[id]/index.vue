@@ -54,6 +54,63 @@ async function addToPipeline() {
   }
 }
 
+// --- Skierowania (Placement): generowane z karty kierowcy ---
+const { data: placements } = useCandidatePlacements(id)
+const createPlacement = useCreatePlacement(id)
+const updateArrival = useUpdateArrival()
+const placementForm = reactive({
+  job_posting_id: '',
+  arrival_at: '',
+  total_amount: '' as string | number,
+  currency: 'EUR',
+})
+const placementError = ref('')
+const placementLoading = ref(false)
+
+async function generatePlacement() {
+  placementError.value = ''
+  if (!placementForm.job_posting_id || !placementForm.arrival_at) {
+    placementError.value = 'Wybierz ogłoszenie i podaj datę przyjazdu.'
+    return
+  }
+  placementLoading.value = true
+  try {
+    const placement = await createPlacement.mutateAsync({
+      job_posting_id: placementForm.job_posting_id,
+      arrival_at: placementForm.arrival_at,
+      total_amount: placementForm.total_amount === '' ? null : placementForm.total_amount,
+      currency: placementForm.currency,
+    })
+    // Od razu pobierz PDF skierowania.
+    await downloadReferral(placement.id)
+    placementForm.job_posting_id = ''
+    placementForm.arrival_at = ''
+    placementForm.total_amount = ''
+  } catch (e: any) {
+    placementError.value =
+      e?.response?._data?.message || 'Nie udało się utworzyć skierowania.'
+  } finally {
+    placementLoading.value = false
+  }
+}
+
+async function downloadReferral(placementId: string) {
+  const blob = await fetchBlob(`/placements/${placementId}/referral-pdf`)
+  const name = (candidate.value?.full_name || 'kierowca').replace(/\s+/g, '-').toLowerCase()
+  openBlob(blob, `skierowanie-${name}.pdf`)
+}
+
+async function markArrival(placementId: string, status: 'confirmed' | 'no_show' | 'pending') {
+  await updateArrival.mutateAsync({ placementId, status })
+}
+
+function fmtDateTime(iso?: string | null) {
+  return iso ? new Date(iso).toLocaleString('pl-PL', { dateStyle: 'medium', timeStyle: 'short' }) : ''
+}
+function fmtDate(d?: string | null) {
+  return d ? new Date(d).toLocaleDateString('pl-PL', { dateStyle: 'medium' }) : ''
+}
+
 // --- Upload dokumentu (plik / aparat) ---
 const docType = ref<DocumentType>('cv')
 const fileInput = ref<HTMLInputElement | null>(null)
@@ -289,6 +346,109 @@ async function doSend() {
             </button>
           </div>
           <p v-if="applyMsg" class="mt-2 text-sm text-brand-deep">{{ applyMsg }}</p>
+        </div>
+
+        <!-- Skierowania do pracy -->
+        <div class="card p-4">
+          <div class="mb-3 flex items-center gap-2">
+            <AppIcon name="calendar" :size="18" class="text-brand-deep" />
+            <h2 class="text-lg font-semibold text-ink">Skierowania do pracy</h2>
+          </div>
+
+          <!-- Formularz generowania -->
+          <div class="rounded-xl border border-hairline bg-surface-soft p-3.5">
+            <div class="grid gap-3 sm:grid-cols-2">
+              <div class="sm:col-span-2">
+                <label class="field-label">Ogłoszenie</label>
+                <select v-model="placementForm.job_posting_id" class="input-field">
+                  <option value="">Wybierz ogłoszenie…</option>
+                  <option v-for="p in postings" :key="p.id" :value="p.id">
+                    {{ p.title }} — {{ p.company?.name }}
+                  </option>
+                </select>
+              </div>
+              <div>
+                <label class="field-label">Data i godzina przyjazdu</label>
+                <input v-model="placementForm.arrival_at" type="datetime-local" class="input-field" />
+              </div>
+              <div class="grid grid-cols-2 gap-2">
+                <div>
+                  <label class="field-label">Kwota rozliczenia</label>
+                  <input v-model="placementForm.total_amount" type="number" min="0" step="0.01" placeholder="np. 1000" class="input-field" />
+                </div>
+                <div>
+                  <label class="field-label">Waluta</label>
+                  <input v-model="placementForm.currency" class="input-field" />
+                </div>
+              </div>
+            </div>
+            <p class="mt-2 text-xs text-stone">
+              Płatność zostanie podzielona na 2 raty: +14 i +28 dni od przyjazdu. Terminy trafią do kalendarza.
+            </p>
+            <button
+              class="btn-primary mt-3 w-full"
+              :disabled="placementLoading"
+              @click="generatePlacement"
+            >
+              <AppIcon name="pdf" :size="18" />
+              {{ placementLoading ? 'Generowanie…' : 'Generuj skierowanie (PDF)' }}
+            </button>
+            <p v-if="placementError" class="mt-2 text-sm text-red-600">{{ placementError }}</p>
+          </div>
+
+          <!-- Lista skierowań -->
+          <ul v-if="placements?.length" class="mt-3 space-y-2.5">
+            <li v-for="pl in placements" :key="pl.id" class="rounded-xl border border-hairline p-3.5">
+              <div class="flex items-start justify-between gap-2">
+                <div class="min-w-0">
+                  <p class="truncate text-sm font-semibold text-ink">{{ pl.job_posting?.title || 'Ogłoszenie' }}</p>
+                  <p class="text-xs text-stone">
+                    Przyjazd: <span class="font-medium text-ink">{{ fmtDateTime(pl.arrival_at) }}</span>
+                  </p>
+                </div>
+                <span
+                  class="badge shrink-0"
+                  :style="{ backgroundColor: pl.arrival_status_color + '1a', color: pl.arrival_status_color }"
+                >{{ pl.arrival_status_label }}</span>
+              </div>
+
+              <!-- Raty rozliczenia -->
+              <div v-if="pl.installments?.length" class="mt-2.5 flex flex-wrap gap-1.5">
+                <span
+                  v-for="inst in pl.installments"
+                  :key="inst.id"
+                  class="inline-flex items-center gap-1 rounded-full border border-hairline px-2.5 py-1 text-xs"
+                  :style="{ color: inst.status_color }"
+                >
+                  <AppIcon name="cash" :size="13" />
+                  Rata {{ inst.sequence }}/2 · {{ fmtDate(inst.due_date) }}<template v-if="inst.amount"> · {{ inst.amount }} {{ pl.currency }}</template>
+                </span>
+              </div>
+
+              <!-- Akcje -->
+              <div class="mt-3 flex flex-wrap items-center gap-2">
+                <button
+                  class="inline-flex h-8 items-center gap-1 rounded-full bg-emerald-50 px-3 text-xs font-semibold text-emerald-700 transition hover:bg-emerald-100"
+                  @click="markArrival(pl.id, 'confirmed')"
+                >
+                  <AppIcon name="check" :size="14" /> Dotarł
+                </button>
+                <button
+                  class="inline-flex h-8 items-center gap-1 rounded-full bg-red-50 px-3 text-xs font-semibold text-red-600 transition hover:bg-red-100"
+                  @click="markArrival(pl.id, 'no_show')"
+                >
+                  <AppIcon name="x" :size="14" /> Nie dotarł
+                </button>
+                <button
+                  class="ml-auto inline-flex h-8 items-center gap-1 rounded-full border border-hairline px-3 text-xs font-medium text-ink transition hover:bg-surface"
+                  @click="downloadReferral(pl.id)"
+                >
+                  <AppIcon name="download" :size="14" /> PDF
+                </button>
+              </div>
+            </li>
+          </ul>
+          <p v-else class="mt-3 text-sm text-muted">Brak skierowań. Wygeneruj pierwsze powyżej.</p>
         </div>
 
         <!-- Dokumenty -->

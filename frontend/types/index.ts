@@ -274,6 +274,59 @@ export interface PipelineColumn {
   applications: Application[]
 }
 
+export type ArrivalStatus = 'pending' | 'confirmed' | 'no_show'
+export type InstallmentStatus = 'pending' | 'invoiced' | 'paid'
+
+export interface PlacementInstallment {
+  id: string
+  placement_id: string
+  sequence: number
+  due_date: string | null
+  amount: string | null
+  status: InstallmentStatus
+  status_label: string
+  status_color: string
+  invoiced_at: string | null
+  paid_at: string | null
+}
+
+export interface Placement {
+  id: string
+  candidate_id: string
+  job_posting_id: string
+  company_id: string | null
+  arrival_at: string | null
+  arrival_status: ArrivalStatus
+  arrival_status_label: string
+  arrival_status_color: string
+  arrival_confirmed_at: string | null
+  total_amount: string | null
+  currency: string
+  notes: string | null
+  candidate?: Candidate
+  job_posting?: JobPosting
+  installments?: PlacementInstallment[]
+  created_at?: string
+}
+
+export interface CalendarEvent {
+  type: 'arrival' | 'installment'
+  date: string
+  datetime: string
+  time: string | null
+  title: string
+  subtitle: string
+  status: string
+  status_label: string
+  color: string
+  placement_id: string
+  installment_id?: string
+  sequence?: number
+  amount?: string | null
+  currency?: string
+  candidate_id: string | null
+}
+
 export interface MatchResult {
   result: 'match' | 'partial' | 'no_match'
   required: number
