@@ -72,7 +72,7 @@ function remove(u: User) {
       </button>
     </header>
 
-    <div v-if="showAdd" class="card mb-4 max-w-2xl space-y-2.5 p-4">
+    <div v-if="showAdd" class="card mb-4 max-w-3xl space-y-2.5 p-4">
       <div class="grid gap-2.5 sm:grid-cols-2">
         <input v-model="form.name" placeholder="Imię i nazwisko" class="input-field" />
         <input v-model="form.email" type="email" placeholder="E-mail" class="input-field" />

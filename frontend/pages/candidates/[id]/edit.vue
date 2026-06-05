@@ -66,7 +66,7 @@ async function save() {
 </script>
 
 <template>
-  <section class="mx-auto max-w-3xl pb-8">
+  <section class="mx-auto max-w-5xl pb-8">
     <div class="mb-5 flex items-center justify-between">
       <h1 class="text-[26px] font-bold tracking-tight text-ink">Edycja kandydata</h1>
       <NuxtLink :to="`/candidates/${id}`" class="text-sm text-stone">Anuluj</NuxtLink>
