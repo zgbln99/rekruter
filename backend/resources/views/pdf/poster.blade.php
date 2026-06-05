@@ -48,7 +48,7 @@
         .poster {
             position: relative; z-index: 4;
             width: 100%; height: 100%;
-            display: flex; flex-direction: column; justify-content: space-between;
+            display: flex; flex-direction: column;
             padding: 76px 72px;
         }
 
@@ -58,7 +58,8 @@
         .headline div { font-size: 84px; }
         .headline .accent { color: var(--red); }
 
-        .details { display: flex; flex-direction: column; gap: 26px; max-width: 720px; }
+        /* Nagłówek + dane razem u góry, wynagrodzenie + CTA przyklejone do dołu */
+        .details { display: flex; flex-direction: column; gap: 28px; max-width: 720px; margin-top: 54px; }
         .label { font-size: 27px; font-weight: 800; letter-spacing: 3px; text-transform: uppercase; color: var(--label); margin-bottom: 6px; }
         .value { font-size: 40px; font-weight: 800; color: var(--navy); line-height: 1.06; }
         .value-main { font-weight: 900; line-height: 1.02; overflow-wrap: break-word; }
@@ -67,6 +68,7 @@
         .field-row { display: flex; gap: 56px; }
         .field.compact .value { font-size: 36px; }
 
+        .bottom { margin-top: auto; }
         .salary-label { font-size: 27px; font-weight: 800; letter-spacing: 3px; text-transform: uppercase; color: var(--label); margin-bottom: 4px; }
         .salary-value { font-size: 64px; font-weight: 900; color: var(--red); line-height: 1; letter-spacing: -1px; }
         .salary-value .suffix { font-size: 30px; font-weight: 800; color: var(--label); letter-spacing: 0; margin-left: 12px; }
@@ -85,7 +87,7 @@
         /* ---- Wariant reels (1080x1920) ---- */
         body.reels .poster { padding: 104px 80px; }
         body.reels .headline div { font-size: 108px; }
-        body.reels .details { gap: 34px; }
+        body.reels .details { gap: 36px; margin-top: 70px; }
         body.reels .label, body.reels .salary-label { font-size: 32px; }
         body.reels .value { font-size: 50px; }
         body.reels .field.compact .value { font-size: 44px; }
