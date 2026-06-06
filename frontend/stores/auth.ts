@@ -41,12 +41,20 @@ export const useAuthStore = defineStore('auth', {
     },
 
     async logout() {
-      try {
-        await useApi()('/auth/logout', { method: 'POST' })
-      } catch {
-        // ignorujemy błąd — i tak czyścimy sesję lokalnie
-      }
+      // Czyścimy sesję od razu (UI reaguje natychmiast), token unieważniamy
+      // w tle, a następnie przekierowujemy na ekran logowania.
+      const token = this.token
       this.clear()
+      if (import.meta.client) {
+        if (token) {
+          $fetch('/auth/logout', {
+            method: 'POST',
+            baseURL: useRuntimeConfig().public.apiBase,
+            headers: { Authorization: `Bearer ${token}` },
+          }).catch(() => {})
+        }
+        await navigateTo('/login')
+      }
     },
 
     clear() {

@@ -1,69 +1,91 @@
 <script setup lang="ts">
-import { NAV_ITEMS } from '~/utils/nav'
-// Boczna nawigacja — desktop (≥ lg). Ciemny panel, jak w dojrzałych SaaS-ach.
+import { NAV_ITEMS, type NavItem } from '~/utils/nav'
+
+// Boczna nawigacja — desktop (≥ lg). Jasny, „cichy" panel z hairline,
+// pogrupowane sekcje i subtelny stan aktywny w kolorze marki.
 const auth = useAuthStore()
 const searchOpen = useState('global-search-open', () => false)
-const items = computed(() =>
-  NAV_ITEMS.filter((i) => !i.adminOnly || auth.isAdmin),
-)
+
+const can = (i: NavItem) => !i.adminOnly || auth.isAdmin
+const pick = (...routes: string[]) =>
+  NAV_ITEMS.filter((i) => routes.includes(i.to) && can(i))
+
+// Sekcje — porządkują nawigację bez zmiany płaskiej listy współdzielonej z mobile.
+const groups = computed(() => [
+  { label: '', items: pick('/') },
+  { label: 'Rekrutacja', items: pick('/job-offers', '/candidates', '/pipeline', '/calendar') },
+  { label: 'Organizacja', items: pick('/companies', '/users', '/settings') },
+].filter((g) => g.items.length))
+
+const initials = computed(() => {
+  const n = auth.user?.name?.trim() || ''
+  return n.split(/\s+/).slice(0, 2).map((p) => p[0]).join('').toUpperCase() || '?'
+})
 </script>
 
 <template>
-  <aside class="hidden w-64 shrink-0 lg:block">
-    <div class="sticky top-0 flex h-screen flex-col bg-ink text-white">
+  <aside class="hidden w-[264px] shrink-0 lg:block">
+    <div class="sticky top-0 flex h-screen flex-col border-r border-hairline bg-canvas">
       <!-- Logo -->
-      <NuxtLink to="/" class="flex h-[76px] items-center justify-center border-b border-white/5 px-4">
-        <AppLogo dark :size="38" />
+      <NuxtLink to="/" class="flex h-16 items-center px-5">
+        <AppLogo :size="30" />
       </NuxtLink>
 
-      <!-- Główna akcja -->
-      <div class="px-4 pb-2 pt-4">
+      <!-- Akcje -->
+      <div class="space-y-2 px-3 pb-1 pt-1">
         <NuxtLink
           to="/candidates/new"
-          class="flex h-11 items-center justify-center gap-2 rounded-xl bg-brand text-[15px] font-semibold text-white shadow-[0_8px_20px_-8px_rgba(220,38,38,0.7)] transition hover:bg-brand-deep active:scale-[0.98]"
+          class="flex h-10 items-center justify-center gap-2 rounded-xl bg-ink text-[14px] font-semibold text-white transition hover:bg-charcoal active:scale-[0.98]"
         >
-          <AppIcon name="plus" :size="18" /> Nowy kandydat
+          <AppIcon name="plus" :size="17" /> Nowy kandydat
         </NuxtLink>
-      </div>
-
-      <!-- Szukaj -->
-      <div class="px-4 pb-1">
         <button
-          class="flex w-full items-center gap-2.5 rounded-xl bg-white/5 px-3 py-2.5 text-sm font-medium text-white/55 transition hover:bg-white/10 hover:text-white"
+          class="flex h-9 w-full items-center gap-2.5 rounded-lg border border-hairline bg-surface-soft px-3 text-[13px] font-medium text-stone transition hover:border-muted/50 hover:text-slate"
           @click="searchOpen = true"
         >
-          <AppIcon name="search" :size="18" /> Szukaj…
-          <kbd class="ml-auto rounded border border-white/15 px-1.5 py-0.5 text-[10px] text-white/40">⌘K</kbd>
+          <AppIcon name="search" :size="16" /> Szukaj…
+          <kbd class="ml-auto rounded border border-hairline bg-canvas px-1.5 py-0.5 text-[10px] font-medium text-muted">⌘K</kbd>
         </button>
       </div>
 
       <!-- Nawigacja -->
-      <nav class="mt-3 flex-1 space-y-0.5 px-3">
-        <NuxtLink
-          v-for="item in items"
-          :key="item.to"
-          :to="item.to"
-          class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-white/55 transition hover:bg-white/5 hover:text-white"
-          :active-class="item.exact ? '' : 'bg-white/10 !text-white shadow-[inset_3px_0_0_0_#dc2626]'"
-          :exact-active-class="item.exact ? 'bg-white/10 !text-white shadow-[inset_3px_0_0_0_#dc2626]' : ''"
-        >
-          <AppIcon :name="item.icon" :size="19" />
-          {{ item.label }}
-        </NuxtLink>
+      <nav class="flex-1 overflow-y-auto px-3 pt-3">
+        <div v-for="(group, gi) in groups" :key="gi" :class="gi ? 'mt-5' : ''">
+          <p v-if="group.label" class="mb-1.5 px-3 text-[11px] font-semibold uppercase tracking-wider text-muted">
+            {{ group.label }}
+          </p>
+          <div class="space-y-0.5">
+            <NuxtLink
+              v-for="item in group.items"
+              :key="item.to"
+              :to="item.to"
+              class="group relative flex items-center gap-3 rounded-lg px-3 py-2 text-[14px] font-medium text-steel transition hover:bg-surface hover:text-ink"
+              :active-class="item.exact ? '' : 'nav-active'"
+              :exact-active-class="item.exact ? 'nav-active' : ''"
+            >
+              <AppIcon :name="item.icon" :size="18" class="shrink-0" />
+              {{ item.label }}
+            </NuxtLink>
+          </div>
+        </div>
       </nav>
 
       <!-- Użytkownik -->
-      <div class="border-t border-white/10 p-3">
-        <div class="flex items-center gap-3 rounded-xl bg-white/[0.03] px-3 py-2.5">
-          <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand/90 text-sm font-semibold text-white">
-            {{ auth.user?.name?.charAt(0) }}
+      <div class="border-t border-hairline p-3">
+        <div class="flex items-center gap-3 rounded-xl px-2 py-1.5">
+          <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-ink text-[13px] font-semibold text-white">
+            {{ initials }}
           </span>
           <div class="min-w-0 flex-1">
-            <p class="truncate text-sm font-medium text-white">{{ auth.user?.name }}</p>
-            <p class="truncate text-xs text-white/50">{{ auth.user?.role_label }}</p>
+            <p class="truncate text-[13px] font-semibold text-ink">{{ auth.user?.name }}</p>
+            <p class="truncate text-[12px] text-stone">{{ auth.user?.role_label }}</p>
           </div>
-          <NotificationBell dark up />
-          <button class="rounded-lg p-1.5 text-white/50 transition hover:bg-white/10 hover:text-white" title="Wyloguj" @click="auth.logout()">
+          <NotificationBell up />
+          <button
+            class="rounded-lg p-1.5 text-stone transition hover:bg-surface hover:text-brand"
+            title="Wyloguj"
+            @click="auth.logout()"
+          >
             <AppIcon name="logout" :size="18" />
           </button>
         </div>
@@ -71,3 +93,22 @@ const items = computed(() =>
     </div>
   </aside>
 </template>
+
+<style scoped>
+/* Stan aktywny — delikatne tło marki, tekst marki i pionowy akcent. */
+.nav-active {
+  background-color: theme('colors.brand.soft');
+  color: theme('colors.brand.deep') !important;
+}
+.nav-active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  height: 18px;
+  width: 3px;
+  transform: translateY(-50%);
+  border-radius: 0 3px 3px 0;
+  background-color: theme('colors.brand.DEFAULT');
+}
+</style>
