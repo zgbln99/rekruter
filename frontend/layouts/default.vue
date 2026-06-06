@@ -36,7 +36,7 @@ const searchOpen = useState('global-search-open', () => false)
 
       <!-- Treść -->
       <main class="flex-1 px-4 py-5 pb-24 lg:px-10 lg:py-8 lg:pb-10">
-        <div class="mx-auto w-full max-w-[1600px]">
+        <div class="mx-auto w-full max-w-[1850px]">
           <slot />
         </div>
       </main>

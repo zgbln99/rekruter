@@ -64,7 +64,7 @@ async function save() {
 </script>
 
 <template>
-  <section class="mx-auto max-w-5xl">
+  <section class="mx-auto max-w-6xl">
     <UiPageHeader title="Ustawienia" subtitle="Dane agencji i integracje" />
 
     <p v-if="isLoading" class="py-10 text-center text-muted">Ładowanie…</p>

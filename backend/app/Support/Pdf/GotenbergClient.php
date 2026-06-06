@@ -33,10 +33,10 @@ class GotenbergClient
             ->post($this->baseUrl.'/forms/chromium/convert/html', [
                 'paperWidth' => '8.27',   // A4
                 'paperHeight' => '11.69',
-                'marginTop' => '0.4',
-                'marginBottom' => '0.4',
-                'marginLeft' => '0.4',
-                'marginRight' => '0.4',
+                'marginTop' => '0.3',
+                'marginBottom' => '0.3',
+                'marginLeft' => '0.22',
+                'marginRight' => '0.22',
                 'printBackground' => 'true',
             ]);
 

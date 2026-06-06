@@ -6,7 +6,7 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         html, body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
         body { font-family: 'Helvetica Neue', 'Segoe UI', Arial, sans-serif; color: #0f172a; font-size: 9.5px; line-height: 1.3; }
-        .page { padding: 26px 38px 40px; }
+        .page { padding: 22px 26px 36px; }
 
         /* Nagłówek */
         .head { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 9px; }
@@ -39,7 +39,7 @@
         table.doc { page-break-inside: auto; }
 
         /* Stopka zawsze na dole strony (drukowana na każdej stronie). */
-        .footer { position: fixed; left: 0; right: 0; bottom: 0; padding: 6px 38px;
+        .footer { position: fixed; left: 0; right: 0; bottom: 0; padding: 6px 26px;
             background: #fff; border-top: 1px solid #e2e8f0; color: #94a3b8; font-size: 8.5px;
             display: flex; justify-content: space-between; }
         .footer b { color: #0f172a; }

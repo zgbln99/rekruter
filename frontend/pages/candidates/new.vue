@@ -111,7 +111,7 @@ const canSave = computed(
 </script>
 
 <template>
-  <section class="mx-auto max-w-6xl pb-8">
+  <section class="mx-auto max-w-7xl pb-8">
     <div class="mb-5 flex items-center justify-between">
       <h1 class="page-title">Nowy kandydat</h1>
       <NuxtLink to="/candidates" class="flex h-9 w-9 items-center justify-center rounded-full text-stone hover:bg-surface">

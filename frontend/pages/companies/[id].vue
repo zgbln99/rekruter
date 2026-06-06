@@ -37,7 +37,7 @@ async function addPosting() {
 <template>
   <section v-if="isLoading" class="py-10 text-center text-muted">Ładowanie…</section>
 
-  <section v-else-if="company" class="mx-auto max-w-6xl space-y-5 pb-8">
+  <section v-else-if="company" class="mx-auto max-w-7xl space-y-5 pb-8">
     <div class="flex items-center gap-3">
       <span class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-surface text-stone">
         <AppIcon name="building" :size="22" />

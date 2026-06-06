@@ -11,7 +11,7 @@
             font-size: 9.5px;
             line-height: 1.32;
         }
-        .page { padding: 28px 40px 38px; }
+        .page { padding: 24px 28px 36px; }
 
         /* Nagłówek */
         .header { display: flex; justify-content: space-between; align-items: flex-start; }
@@ -69,7 +69,7 @@
         .offer-d { color: #475569; font-size: 9.5px; margin-top: 6px; white-space: pre-line; }
 
         /* Stopka zawsze na dole strony (drukowana na każdej stronie). */
-        .footer { position: fixed; left: 0; right: 0; bottom: 0; padding: 6px 40px;
+        .footer { position: fixed; left: 0; right: 0; bottom: 0; padding: 6px 28px;
             background: #fff; border-top: 1px solid #e2e8f0;
             color: #94a3b8; font-size: 8.5px; display: flex; justify-content: space-between; }
         .footer b { color: #0f172a; font-weight: 600; }
@@ -192,7 +192,6 @@
             <div class="offer">
                 <div class="offer-t">{{ $offer->title }}</div>
                 <div class="offer-s">@if ($company){{ $company->name }}@endif @if ($offer->country)&middot; {{ $offer->country }}@endif</div>
-                @if (! empty($offer->public_description))<div class="offer-d">{{ $offer->public_description }}</div>@endif
             </div>
         </div>
     @endif
