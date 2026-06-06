@@ -62,8 +62,8 @@ async function submit() {
 </script>
 
 <template>
-  <div class="flex min-h-screen items-center justify-center bg-ink p-0 sm:p-5 lg:p-6">
-    <div class="flex h-screen w-full max-w-[1400px] overflow-hidden bg-canvas sm:h-auto sm:min-h-[640px] sm:rounded-[28px] sm:shadow-elevated lg:min-h-[720px]">
+  <div class="flex min-h-screen bg-canvas">
+    <div class="flex min-h-screen w-full overflow-hidden">
       <!-- LEWY PANEL — prezentacja / karuzela -->
       <div class="relative hidden w-1/2 overflow-hidden lg:block">
         <!-- Slajdy -->
