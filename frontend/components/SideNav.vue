@@ -12,15 +12,15 @@ const items = computed(() =>
   <aside class="hidden w-64 shrink-0 lg:block">
     <div class="sticky top-0 flex h-screen flex-col bg-ink text-white">
       <!-- Logo -->
-      <NuxtLink to="/" class="flex h-20 items-center justify-center px-4">
-        <AppLogo dark :size="44" />
+      <NuxtLink to="/" class="flex h-[76px] items-center justify-center border-b border-white/5 px-4">
+        <AppLogo dark :size="38" />
       </NuxtLink>
 
       <!-- Główna akcja -->
-      <div class="px-4 pb-2 pt-2">
+      <div class="px-4 pb-2 pt-4">
         <NuxtLink
           to="/candidates/new"
-          class="flex h-11 items-center justify-center gap-2 rounded-xl bg-brand text-[15px] font-semibold text-white shadow-sm transition hover:bg-brand-deep active:scale-[0.98]"
+          class="flex h-11 items-center justify-center gap-2 rounded-xl bg-brand text-[15px] font-semibold text-white shadow-[0_8px_20px_-8px_rgba(220,38,38,0.7)] transition hover:bg-brand-deep active:scale-[0.98]"
         >
           <AppIcon name="plus" :size="18" /> Nowy kandydat
         </NuxtLink>
@@ -29,7 +29,7 @@ const items = computed(() =>
       <!-- Szukaj -->
       <div class="px-4 pb-1">
         <button
-          class="flex w-full items-center gap-2.5 rounded-xl bg-white/5 px-3 py-2.5 text-sm font-medium text-white/60 transition hover:bg-white/10 hover:text-white"
+          class="flex w-full items-center gap-2.5 rounded-xl bg-white/5 px-3 py-2.5 text-sm font-medium text-white/55 transition hover:bg-white/10 hover:text-white"
           @click="searchOpen = true"
         >
           <AppIcon name="search" :size="18" /> Szukaj…
@@ -38,24 +38,24 @@ const items = computed(() =>
       </div>
 
       <!-- Nawigacja -->
-      <nav class="mt-2 flex-1 space-y-1 px-3">
+      <nav class="mt-3 flex-1 space-y-0.5 px-3">
         <NuxtLink
           v-for="item in items"
           :key="item.to"
           :to="item.to"
-          class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-white/60 transition hover:bg-white/5 hover:text-white"
-          :active-class="item.exact ? '' : 'bg-white/10 !text-white'"
-          :exact-active-class="item.exact ? 'bg-white/10 !text-white' : ''"
+          class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-white/55 transition hover:bg-white/5 hover:text-white"
+          :active-class="item.exact ? '' : 'bg-white/10 !text-white shadow-[inset_3px_0_0_0_#dc2626]'"
+          :exact-active-class="item.exact ? 'bg-white/10 !text-white shadow-[inset_3px_0_0_0_#dc2626]' : ''"
         >
-          <AppIcon :name="item.icon" :size="20" />
+          <AppIcon :name="item.icon" :size="19" />
           {{ item.label }}
         </NuxtLink>
       </nav>
 
       <!-- Użytkownik -->
       <div class="border-t border-white/10 p-3">
-        <div class="flex items-center gap-3 rounded-lg px-3 py-2">
-          <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/10 text-sm font-semibold">
+        <div class="flex items-center gap-3 rounded-xl bg-white/[0.03] px-3 py-2.5">
+          <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand/90 text-sm font-semibold text-white">
             {{ auth.user?.name?.charAt(0) }}
           </span>
           <div class="min-w-0 flex-1">
