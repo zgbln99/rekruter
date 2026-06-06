@@ -226,6 +226,47 @@ async function doMerge(sourceId: string, name: string) {
   }
 }
 
+// --- Zadania / przypomnienia ---
+const createTask = useCreateTask()
+const updateTask = useUpdateTask()
+const taskTitle = ref('')
+const taskDue = ref('')
+const taskError = ref('')
+const openTasks = computed(() => (candidate.value?.tasks ?? []).filter((t) => t.status === 'open'))
+
+function taskPreset(days: number, hour = 9) {
+  const d = new Date()
+  d.setDate(d.getDate() + days)
+  d.setHours(hour, 0, 0, 0)
+  const pad = (n: number) => String(n).padStart(2, '0')
+  taskDue.value = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`
+}
+async function addTask() {
+  taskError.value = ''
+  if (!taskTitle.value.trim()) {
+    taskError.value = 'Podaj treść zadania.'
+    return
+  }
+  try {
+    await createTask.mutateAsync({
+      candidate_id: id.value,
+      title: taskTitle.value.trim(),
+      due_at: taskDue.value || null,
+    })
+    taskTitle.value = ''
+    taskDue.value = ''
+  } catch {
+    taskError.value = 'Nie udało się dodać zadania.'
+  }
+}
+async function completeTask(taskId: string) {
+  await updateTask.mutateAsync({ id: taskId, status: 'done' })
+  await queryClient.invalidateQueries({ queryKey: ['candidate', id.value] })
+}
+function taskDueLabel(iso?: string | null) {
+  return iso ? new Date(iso).toLocaleString('pl-PL', { dateStyle: 'medium', timeStyle: 'short' }) : 'bez terminu'
+}
+
 // --- RODO ---
 const auth = useAuthStore()
 const api = useApi()
@@ -501,6 +542,48 @@ async function doSend() {
             </li>
           </ul>
           <p v-else class="mt-3 text-sm text-muted">Brak skierowań. Wygeneruj pierwsze powyżej.</p>
+        </div>
+
+        <!-- Zadania i przypomnienia -->
+        <div class="card p-4">
+          <div class="mb-3 flex items-center gap-2">
+            <AppIcon name="clock" :size="18" class="text-brand-deep" />
+            <h2 class="text-lg font-semibold text-ink">Zadania i przypomnienia</h2>
+          </div>
+
+          <!-- Formularz -->
+          <div class="rounded-xl border border-hairline bg-surface-soft p-3.5">
+            <input v-model="taskTitle" placeholder="np. Oddzwonić w sprawie ADR" class="input-field" @keyup.enter="addTask" />
+            <div class="mt-2 flex flex-wrap items-center gap-2">
+              <input v-model="taskDue" type="datetime-local" class="input-field !h-10 max-w-[230px]" />
+              <button type="button" class="chip" @click="taskPreset(0)">Dziś</button>
+              <button type="button" class="chip" @click="taskPreset(1)">Jutro</button>
+              <button type="button" class="chip" @click="taskPreset(3)">Za 3 dni</button>
+              <button type="button" class="chip" @click="taskPreset(7)">Za tydzień</button>
+            </div>
+            <button class="btn-primary mt-3 w-full" :disabled="createTask.isPending.value" @click="addTask">
+              <AppIcon name="plus" :size="18" /> {{ createTask.isPending.value ? 'Dodawanie…' : 'Dodaj zadanie' }}
+            </button>
+            <p v-if="taskError" class="mt-2 text-sm text-red-600">{{ taskError }}</p>
+          </div>
+
+          <!-- Lista otwartych zadań -->
+          <ul v-if="openTasks.length" class="mt-3 space-y-2">
+            <li v-for="t in openTasks" :key="t.id" class="flex items-start gap-3 rounded-xl border border-hairline p-3">
+              <button
+                class="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-md border border-hairline transition hover:border-brand hover:bg-brand-soft"
+                title="Oznacz jako zrobione"
+                @click="completeTask(t.id)"
+              >
+                <AppIcon name="check" :size="13" class="text-brand-deep" />
+              </button>
+              <div class="min-w-0 flex-1">
+                <p class="text-sm font-medium text-ink">{{ t.title }}</p>
+                <p class="text-xs text-stone">{{ taskDueLabel(t.due_at) }}</p>
+              </div>
+            </li>
+          </ul>
+          <p v-else class="mt-3 text-sm text-muted">Brak otwartych zadań.</p>
         </div>
 
         <!-- Dokumenty -->

@@ -11,6 +11,20 @@ export function useTasksQuery(filter: MaybeRefOrGetter<string> = 'today') {
   })
 }
 
+/** Utworzenie zadania / przypomnienia dla kandydata. */
+export function useCreateTask() {
+  const api = useApi()
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (input: { candidate_id: string; title: string; due_at?: string | null }) =>
+      api<Task>('/tasks', { method: 'POST', body: input }),
+    onSuccess: (_d, vars) => {
+      queryClient.invalidateQueries({ queryKey: ['tasks'] })
+      queryClient.invalidateQueries({ queryKey: ['candidate', vars.candidate_id] })
+    },
+  })
+}
+
 export function useUpdateTask() {
   const api = useApi()
   const queryClient = useQueryClient()

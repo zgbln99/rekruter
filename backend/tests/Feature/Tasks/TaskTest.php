@@ -87,4 +87,26 @@ class TaskTest extends TestCase
             $task->fresh()->due_at->toIso8601String()
         );
     }
+
+    public function test_can_create_task_for_candidate(): void
+    {
+        $candidate = Candidate::factory()->for($this->tenant)->create();
+        $due = now()->addDay()->startOfHour();
+
+        $this->postJson('/api/v1/tasks', [
+            'candidate_id' => $candidate->id,
+            'title' => 'Oddzwonić w sprawie ADR',
+            'due_at' => $due->toIso8601String(),
+        ])->assertCreated()
+            ->assertJsonPath('title', 'Oddzwonić w sprawie ADR')
+            ->assertJsonPath('candidate_id', $candidate->id)
+            ->assertJsonPath('status', 'open');
+
+        $this->assertDatabaseHas('tasks', [
+            'candidate_id' => $candidate->id,
+            'assigned_to' => $this->user->id,
+            'created_by' => $this->user->id,
+            'title' => 'Oddzwonić w sprawie ADR',
+        ]);
+    }
 }

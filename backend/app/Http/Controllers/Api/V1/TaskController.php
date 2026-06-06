@@ -4,9 +4,11 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Enums\TaskStatus;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Tasks\StoreTaskRequest;
 use App\Http\Requests\Tasks\UpdateTaskRequest;
 use App\Http\Resources\TaskResource;
 use App\Models\Task;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
@@ -47,10 +49,28 @@ class TaskController extends Controller
         );
     }
 
-    public function update(UpdateTaskRequest $request, Task $task): TaskResource
+    /** Utworzenie zadania / przypomnienia dla kandydata. */
+    public function store(StoreTaskRequest $request): JsonResponse
     {
         $data = $request->validated();
 
+        $task = Task::create([
+            'candidate_id' => $data['candidate_id'],
+            'assigned_to' => $data['assigned_to'] ?? $request->user()->id,
+            'created_by' => $request->user()->id,
+            'type' => $data['type'] ?? 'follow_up',
+            'status' => 'open',
+            'title' => $data['title'],
+            'description' => $data['description'] ?? null,
+            'due_at' => $data['due_at'] ?? null,
+        ]);
+
+        return (new TaskResource($task->load('candidate')))->response()->setStatusCode(201);
+    }
+
+    public function update(UpdateTaskRequest $request, Task $task): TaskResource
+    {
+        $data = $request->validated();
         // Przejście statusu na „done" ustawia znacznik wykonania.
         if (isset($data['status'])) {
             $status = TaskStatus::from($data['status']);

@@ -65,6 +65,7 @@ Route::prefix('v1')->group(function () {
 
         // Zadania (follow-up) — ekran „Dziś".
         Route::get('tasks', [TaskController::class, 'index'])->name('tasks.index');
+        Route::post('tasks', [TaskController::class, 'store'])->name('tasks.store');
         Route::patch('tasks/{task}', [TaskController::class, 'update'])->name('tasks.update');
 
         // --- Faza 2: Dokumenty + Profil ---
