@@ -114,7 +114,7 @@ class CandidateController extends Controller
             \App\Models\PlacementInstallment::whereIn('placement_id', $placementIds)->delete();
             $candidate->placements()->forceDelete();
 
-            $candidate->tasks()->delete();
+            $candidate->tasks()->forceDelete();
             $candidate->contactLogs()->delete();
             $candidate->applications()->delete();
             $candidate->profileSends()->delete();
