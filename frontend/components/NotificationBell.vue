@@ -19,6 +19,11 @@ async function togglePush() {
     if (err) pushMsg.value = err
   }
 }
+async function testPush() {
+  pushMsg.value = ''
+  const err = await push.test()
+  pushMsg.value = err || 'Wysłano testowe powiadomienie — sprawdź telefon.'
+}
 
 const count = computed(() => data.value?.count ?? 0)
 const items = computed(() => data.value?.items ?? [])
@@ -95,7 +100,10 @@ onBeforeUnmount(() => document.removeEventListener('click', onDocClick))
             {{ push.busy.value ? '…' : push.enabled.value ? 'Włączone' : 'Włącz' }}
           </span>
         </button>
-        <p v-if="pushMsg" class="mt-1 text-xs text-red-600">{{ pushMsg }}</p>
+        <button v-if="push.enabled.value" type="button" class="mt-1.5 text-xs font-medium text-brand-deep" @click="testPush">
+          Wyślij testowe powiadomienie
+        </button>
+        <p v-if="pushMsg" class="mt-1 text-xs text-stone">{{ pushMsg }}</p>
       </div>
     </div>
   </div>

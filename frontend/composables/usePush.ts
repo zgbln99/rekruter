@@ -60,6 +60,19 @@ export function usePush() {
     }
   }
 
+  /** Wysyła testowe powiadomienie do siebie. Zwraca komunikat (null = sukces). */
+  async function test(): Promise<string | null> {
+    try {
+      const res = await api<{ ok: boolean; reason?: string }>('/push/test', { method: 'POST' })
+      if (res.ok) return null
+      if (res.reason === 'no_vapid') return 'Push nieskonfigurowany na serwerze (brak kluczy VAPID).'
+      if (res.reason === 'no_subscription') return 'To urządzenie nie jest zasubskrybowane — kliknij „Włącz".'
+      return 'Nie udało się wysłać testu.'
+    } catch (e: any) {
+      return e?.message || 'Nie udało się wysłać testu.'
+    }
+  }
+
   async function disable(): Promise<void> {
     busy.value = true
     try {
@@ -77,5 +90,5 @@ export function usePush() {
     }
   }
 
-  return { supported, enabled, available, busy, enable, disable }
+  return { supported, enabled, available, busy, enable, disable, test }
 }

@@ -52,6 +52,7 @@ Route::prefix('v1')->group(function () {
         // Web Push (VAPID) — subskrypcje urządzeń.
         Route::get('push/public-key', [PushController::class, 'publicKey'])->name('push.public-key');
         Route::post('push/subscribe', [PushController::class, 'subscribe'])->name('push.subscribe');
+        Route::post('push/test', [PushController::class, 'test'])->name('push.test');
         Route::delete('push/unsubscribe', [PushController::class, 'unsubscribe'])->name('push.unsubscribe');
 
         // --- Faza 1: rdzeń KPI ---

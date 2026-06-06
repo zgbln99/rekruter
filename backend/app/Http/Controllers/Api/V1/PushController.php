@@ -50,4 +50,21 @@ class PushController extends Controller
 
         return response()->json(['ok' => true]);
     }
+
+    /** Wysyła testowe powiadomienie push do bieżącego użytkownika. */
+    public function test(Request $request, WebPushService $push): JsonResponse
+    {
+        if (! $push->configured()) {
+            return response()->json(['ok' => false, 'reason' => 'no_vapid']);
+        }
+
+        $count = PushSubscription::withoutGlobalScopes()->where('user_id', $request->user()->id)->count();
+        if ($count === 0) {
+            return response()->json(['ok' => false, 'reason' => 'no_subscription']);
+        }
+
+        $push->sendToUser($request->user(), 'Rekruter', 'Powiadomienia push działają ✅', '/');
+
+        return response()->json(['ok' => true, 'subscriptions' => $count]);
+    }
 }
