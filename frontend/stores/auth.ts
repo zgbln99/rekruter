@@ -15,14 +15,14 @@ export const useAuthStore = defineStore('auth', {
   },
 
   actions: {
-    /** Wczytuje token z localStorage (start aplikacji). */
+    /** Wczytuje token (start aplikacji) — trwały (localStorage) lub sesyjny. */
     init() {
       if (import.meta.client) {
-        this.token = localStorage.getItem(TOKEN_KEY)
+        this.token = localStorage.getItem(TOKEN_KEY) || sessionStorage.getItem(TOKEN_KEY)
       }
     },
 
-    async login(email: string, password: string) {
+    async login(email: string, password: string, remember = true) {
       const data = await $fetch<LoginResponse>('/auth/login', {
         method: 'POST',
         baseURL: useRuntimeConfig().public.apiBase,
@@ -31,7 +31,11 @@ export const useAuthStore = defineStore('auth', {
       this.token = data.token
       this.user = data.user
       if (import.meta.client) {
-        localStorage.setItem(TOKEN_KEY, data.token)
+        // „Zapamiętaj mnie": localStorage (trwałe) vs sessionStorage (do zamknięcia karty).
+        const store = remember ? localStorage : sessionStorage
+        const other = remember ? sessionStorage : localStorage
+        store.setItem(TOKEN_KEY, data.token)
+        other.removeItem(TOKEN_KEY)
       }
     },
 
@@ -62,6 +66,7 @@ export const useAuthStore = defineStore('auth', {
       this.user = null
       if (import.meta.client) {
         localStorage.removeItem(TOKEN_KEY)
+        sessionStorage.removeItem(TOKEN_KEY)
       }
     },
   },
