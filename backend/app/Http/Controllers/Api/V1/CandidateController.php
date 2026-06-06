@@ -99,7 +99,7 @@ class CandidateController extends Controller
 
     public function destroy(Candidate $candidate): JsonResponse
     {
-        // Usuń pliki z storage (dokumenty + wygenerowane PDF), potem rekord.
+        // Usuń pliki z storage (dokumenty + wygenerowane PDF).
         foreach ($candidate->documents()->withTrashed()->get() as $document) {
             Storage::disk($document->disk)->delete($document->path);
         }
@@ -107,11 +107,24 @@ class CandidateController extends Controller
             Storage::disk(config('rekruter.documents_disk'))->delete($pdf);
         }
 
-        $candidate->documents()->forceDelete();
-        $candidate->forceFill(['profile_photo_id' => null])->save();
-        $candidate->delete();
+        \Illuminate\Support\Facades\DB::transaction(function () use ($candidate) {
+            // Usuń wszystkie powiązania, żeby nie zostawały „sieroty"
+            // (zadania na pulpicie, przyjazdy/raty w kalendarzu, pipeline).
+            $placementIds = $candidate->placements()->pluck('id');
+            \App\Models\PlacementInstallment::whereIn('placement_id', $placementIds)->delete();
+            $candidate->placements()->forceDelete();
 
-        return response()->json(['message' => 'Kandydat usunięty wraz z dokumentami.']);
+            $candidate->tasks()->delete();
+            $candidate->contactLogs()->delete();
+            $candidate->applications()->delete();
+            $candidate->profileSends()->delete();
+            $candidate->documents()->forceDelete();
+
+            $candidate->forceFill(['profile_photo_id' => null])->save();
+            $candidate->delete();
+        });
+
+        return response()->json(['message' => 'Kandydat usunięty wraz z dokumentami i powiązaniami.']);
     }
 }
 
