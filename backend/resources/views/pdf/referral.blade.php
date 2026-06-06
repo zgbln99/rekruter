@@ -30,6 +30,11 @@
         td.v .muted { color: #94a3b8; font-weight: 500; }
         td.v.salary { color: #b91c1c; font-weight: 800; font-size: 12.5px; }
         td.full { white-space: pre-line; font-weight: 500; color: #334155; }
+        td.html { font-weight: 500; color: #334155; }
+        td.html ul { list-style: disc; padding-left: 16px; margin: 0; }
+        td.html ol { list-style: decimal; padding-left: 16px; margin: 0; }
+        td.html li { margin: 1px 0; }
+        td.html p { margin: 0 0 3px; }
 
         /* Czyste łamanie na strony: wiersze nie pękają, nagłówek sekcji trzyma
            się treści, pasek tytułowy nie rozjeżdża się między stronami. */
@@ -114,7 +119,7 @@
         {{-- Dodatkowe informacje --}}
         @if ($offer->public_description)
             <tr class="sec"><td colspan="2">{{ $t['sec_extra'] }}</td></tr>
-            <tr><td class="full" colspan="2">{{ $offer->public_description }}</td></tr>
+            <tr><td class="html" colspan="2">{!! strip_tags($offer->public_description, '<b><strong><i><em><u><ul><ol><li><p><br><span>') !!}</td></tr>
         @endif
     </table>
 

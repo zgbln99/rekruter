@@ -127,7 +127,7 @@ function toggleCheck(i: number) {
 const copied = ref(false)
 async function copyDescription() {
   if (!offer.value?.public_description) return
-  await navigator.clipboard.writeText(offer.value.public_description)
+  await navigator.clipboard.writeText(htmlToText(offer.value.public_description))
   copied.value = true
   setTimeout(() => (copied.value = false), 2000)
 }
@@ -307,7 +307,7 @@ async function saveQuick() {
     <!-- Notatka rekruterki (wewnętrzna) -->
     <div v-if="offer.recruiter_notes" class="rounded-lg border border-amber-200 bg-amber-50 p-4">
       <p class="mb-1 text-[13px] font-medium text-amber-800">Notatka dla rekruterki (wewnętrzna)</p>
-      <p class="whitespace-pre-line text-sm text-amber-900">{{ offer.recruiter_notes }}</p>
+      <UiRichText :text="offer.recruiter_notes" size="sm" />
     </div>
     </div>
 

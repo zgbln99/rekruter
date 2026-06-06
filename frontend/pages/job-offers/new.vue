@@ -214,7 +214,7 @@ async function submit() {
 
       <div>
         <label class="field-label">Opis stanowiska (wewnętrzny)</label>
-        <textarea v-model="form.description" rows="3" class="input-field !h-auto py-2.5" placeholder="Szczegóły oferty, warunki, dodatkowe informacje…" />
+        <UiEditor v-model="form.description" placeholder="Szczegóły oferty, warunki, dodatkowe informacje…" />
       </div>
 
       <div>
@@ -239,13 +239,13 @@ async function submit() {
             <AppIcon name="check" :size="15" /> {{ aiLoading ? 'Generuję…' : 'Generuj opis (AI)' }}
           </button>
         </div>
-        <textarea v-model="form.public_description" rows="6" class="input-field !h-auto py-2.5" placeholder="Treść na FB / OLX / Jooble… lub kliknij „Generuj opis (AI)”" />
+        <UiEditor v-model="form.public_description" placeholder="Treść na FB / OLX / Jooble… lub kliknij „Generuj opis (AI)”" />
         <p v-if="aiError" class="mt-1 text-sm text-red-600">{{ aiError }}</p>
       </div>
 
       <div>
         <label class="field-label">Notatka dla rekruterki (wewnętrzna)</label>
-        <textarea v-model="form.recruiter_notes" rows="2" class="input-field !h-auto py-2.5" placeholder="np. klient nie chce kandydatów bez chłodni" />
+        <UiEditor v-model="form.recruiter_notes" placeholder="np. klient nie chce kandydatów bez chłodni" />
       </div>
 
       <p v-if="error" class="text-sm text-red-600">{{ error }}</p>

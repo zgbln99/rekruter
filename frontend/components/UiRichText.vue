@@ -1,8 +1,10 @@
 <script setup lang="ts">
-// Renderuje tekst „inteligentnie": linie zaczynające się od -, •, * lub – stają
-// się punktorami (grupowane w listę), a pozostałe linie to zwykłe akapity.
-// Dzięki temu nie punktujemy każdej linii, tylko faktyczne wypunktowania.
+// Renderuje tekst: jeśli to HTML z edytora — pokazuje sformatowany (sanityzowany).
+// Jeśli zwykły tekst — linie z -, •, * stają się punktorami, reszta to akapity.
 const props = defineProps<{ text?: string | null; size?: 'sm' | 'base' }>()
+
+const isHtml = computed(() => looksLikeHtml(props.text))
+const safeHtml = computed(() => (isHtml.value ? sanitizeHtml(props.text || '') : ''))
 
 interface Block { type: 'ul' | 'p'; items: string[] }
 
@@ -30,7 +32,11 @@ const textClass = computed(() =>
 </script>
 
 <template>
-  <div class="space-y-2">
+  <!-- Sformatowany HTML z edytora -->
+  <div v-if="isHtml" class="rich-html" :class="textClass" v-html="safeHtml" />
+
+  <!-- Zwykły tekst — auto-punktory -->
+  <div v-else class="space-y-2">
     <template v-for="(b, i) in blocks" :key="i">
       <ul v-if="b.type === 'ul'" class="space-y-1.5">
         <li v-for="(it, j) in b.items" :key="j" class="flex gap-2.5" :class="textClass">
