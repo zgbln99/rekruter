@@ -8,44 +8,44 @@
         body {
             font-family: 'Helvetica Neue', 'Segoe UI', Arial, sans-serif;
             color: #0f172a;
-            font-size: 11.5px;
-            line-height: 1.55;
+            font-size: 9.5px;
+            line-height: 1.32;
         }
-        .page { padding: 46px 52px 60px; }
+        .page { padding: 28px 40px 38px; }
 
         /* Nagłówek */
         .header { display: flex; justify-content: space-between; align-items: flex-start; }
-        .h-left { padding-right: 24px; }
-        .name { font-size: 30px; font-weight: 700; letter-spacing: -0.6px; color: #0f172a; line-height: 1.05; }
-        .role { margin-top: 6px; font-size: 11px; font-weight: 600; letter-spacing: 2px;
+        .h-left { padding-right: 20px; }
+        .name { font-size: 23px; font-weight: 700; letter-spacing: -0.5px; color: #0f172a; line-height: 1.05; }
+        .role { margin-top: 4px; font-size: 9.5px; font-weight: 600; letter-spacing: 1.6px;
             text-transform: uppercase; color: #64748b; }
-        .cats { margin-top: 12px; }
+        .cats { margin-top: 8px; }
         .cats span {
             display: inline-block; border: 1px solid #cbd5e1; color: #334155;
-            border-radius: 5px; padding: 2px 9px; font-size: 11px; font-weight: 600; margin: 0 4px 4px 0;
+            border-radius: 4px; padding: 1px 7px; font-size: 9.5px; font-weight: 600; margin: 0 4px 3px 0;
         }
-        .photo { width: 104px; height: 124px; object-fit: cover; border-radius: 8px; border: 1px solid #e2e8f0; }
+        .photo { width: 84px; height: 100px; object-fit: cover; border-radius: 7px; border: 1px solid #e2e8f0; }
         .photo-ph {
-            width: 104px; height: 124px; border-radius: 8px; background: #f1f5f9; color: #94a3b8;
-            text-align: center; line-height: 124px; font-size: 44px; font-weight: 700;
+            width: 84px; height: 100px; border-radius: 7px; background: #f1f5f9; color: #94a3b8;
+            text-align: center; line-height: 100px; font-size: 36px; font-weight: 700;
         }
 
-        .rule { height: 2px; background: #0f172a; margin: 18px 0 0; }
-        .rule-accent { height: 2px; width: 64px; background: #dc2626; }
+        .rule { height: 2px; background: #0f172a; margin: 12px 0 0; }
+        .rule-accent { height: 2px; width: 56px; background: #dc2626; }
 
         /* Pasek kontaktu */
-        .contact { display: flex; flex-wrap: wrap; gap: 6px 22px; margin: 16px 0 6px; }
-        .contact .item { font-size: 11px; color: #475569; }
+        .contact { display: flex; flex-wrap: wrap; gap: 4px 18px; margin: 10px 0 4px; }
+        .contact .item { font-size: 9.5px; color: #475569; }
         .contact .item b { color: #0f172a; font-weight: 600; }
 
         /* Sekcje */
-        .section { margin-top: 24px; }
-        .s-head { font-size: 11px; font-weight: 700; letter-spacing: 1.6px; text-transform: uppercase;
-            color: #0f172a; padding-bottom: 7px; border-bottom: 1px solid #e2e8f0; margin-bottom: 12px; }
+        .section { margin-top: 14px; }
+        .s-head { font-size: 9.5px; font-weight: 700; letter-spacing: 1.4px; text-transform: uppercase;
+            color: #0f172a; padding-bottom: 4px; border-bottom: 1px solid #e2e8f0; margin-bottom: 7px; }
 
         .grid { width: 100%; border-collapse: collapse; }
-        .grid td { padding: 5px 0; font-size: 11.5px; vertical-align: top; }
-        .grid .k { color: #64748b; width: 200px; }
+        .grid td { padding: 2.5px 0; font-size: 9.5px; vertical-align: top; }
+        .grid .k { color: #64748b; width: 180px; }
         .grid .v { color: #0f172a; font-weight: 600; }
         .ok { color: #b91c1c; font-weight: 700; }
         .no { color: #94a3b8; }
@@ -53,25 +53,25 @@
 
         .tags span {
             display: inline-block; background: #f1f5f9; color: #334155; border-radius: 999px;
-            padding: 3px 12px; font-size: 11px; font-weight: 600; margin: 0 5px 5px 0;
+            padding: 2px 10px; font-size: 9.5px; font-weight: 600; margin: 0 4px 4px 0;
         }
 
-        .job { padding-left: 18px; border-left: 1px solid #e2e8f0; margin-bottom: 15px; position: relative; }
-        .job::before { content: ''; position: absolute; left: -4px; top: 5px; width: 7px; height: 7px;
+        .job { padding-left: 15px; border-left: 1px solid #e2e8f0; margin-bottom: 9px; position: relative; }
+        .job::before { content: ''; position: absolute; left: -4px; top: 4px; width: 6px; height: 6px;
             border-radius: 50%; background: #dc2626; }
-        .job-title { font-weight: 700; color: #0f172a; font-size: 12px; }
-        .job-meta { color: #64748b; font-size: 10.5px; }
-        .job-desc { color: #475569; font-size: 11px; margin-top: 2px; }
+        .job-title { font-weight: 700; color: #0f172a; font-size: 10.5px; }
+        .job-meta { color: #64748b; font-size: 9px; }
+        .job-desc { color: #475569; font-size: 9.5px; margin-top: 1px; }
 
-        .offer { border: 1px solid #e2e8f0; border-radius: 10px; padding: 14px 16px; }
-        .offer-t { font-weight: 700; font-size: 12.5px; color: #0f172a; }
-        .offer-s { color: #64748b; font-size: 11px; margin-top: 1px; }
-        .offer-d { color: #475569; font-size: 11px; margin-top: 8px; white-space: pre-line; }
+        .offer { border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px 13px; }
+        .offer-t { font-weight: 700; font-size: 11px; color: #0f172a; }
+        .offer-s { color: #64748b; font-size: 9.5px; margin-top: 1px; }
+        .offer-d { color: #475569; font-size: 9.5px; margin-top: 6px; white-space: pre-line; }
 
         /* Stopka zawsze na dole strony (drukowana na każdej stronie). */
-        .footer { position: fixed; left: 0; right: 0; bottom: 0; padding: 8px 52px;
+        .footer { position: fixed; left: 0; right: 0; bottom: 0; padding: 6px 40px;
             background: #fff; border-top: 1px solid #e2e8f0;
-            color: #94a3b8; font-size: 10px; display: flex; justify-content: space-between; }
+            color: #94a3b8; font-size: 8.5px; display: flex; justify-content: space-between; }
         .footer b { color: #0f172a; font-weight: 600; }
 
         /* Czyste łamanie na strony — wiersze i wpisy nie pękają w połowie,

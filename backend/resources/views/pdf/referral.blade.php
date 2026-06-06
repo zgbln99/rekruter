@@ -5,30 +5,30 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         html, body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-        body { font-family: 'Helvetica Neue', 'Segoe UI', Arial, sans-serif; color: #0f172a; font-size: 11.5px; line-height: 1.45; }
-        .page { padding: 40px 46px 58px; }
+        body { font-family: 'Helvetica Neue', 'Segoe UI', Arial, sans-serif; color: #0f172a; font-size: 9.5px; line-height: 1.3; }
+        .page { padding: 26px 38px 40px; }
 
         /* Nagłówek */
-        .head { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 14px; }
-        .head .agency { font-size: 18px; font-weight: 800; color: #0f172a; }
+        .head { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 9px; }
+        .head .agency { font-size: 15px; font-weight: 800; color: #0f172a; }
         .head .agency .dot { color: #dc2626; }
-        .head .agency small { display: block; font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase; color: #94a3b8; margin-top: 3px; font-weight: 700; }
-        .head .meta { text-align: right; font-size: 10px; color: #64748b; line-height: 1.7; }
+        .head .agency small { display: block; font-size: 8px; letter-spacing: 1.3px; text-transform: uppercase; color: #94a3b8; margin-top: 2px; font-weight: 700; }
+        .head .meta { text-align: right; font-size: 8.5px; color: #64748b; line-height: 1.6; }
         .head .meta b { color: #0f172a; }
 
-        .title-bar { background: #dc2626; color: #fff; padding: 12px 16px; border-radius: 8px 8px 0 0; }
-        .title-bar .t { font-size: 20px; font-weight: 900; letter-spacing: 0.4px; text-transform: uppercase; }
-        .title-bar .for { font-size: 12px; margin-top: 3px; color: #fde2e2; }
+        .title-bar { background: #dc2626; color: #fff; padding: 8px 14px; border-radius: 7px 7px 0 0; }
+        .title-bar .t { font-size: 16px; font-weight: 900; letter-spacing: 0.4px; text-transform: uppercase; }
+        .title-bar .for { font-size: 10.5px; margin-top: 2px; color: #fde2e2; }
         .title-bar .for b { color: #fff; }
 
         /* Tabela */
         table.doc { width: 100%; border-collapse: collapse; }
-        table.doc td { border: 1px solid #cbd5e1; padding: 8px 13px; vertical-align: top; }
-        tr.sec td { background: #0f172a; color: #fff; font-weight: 800; font-size: 10.5px; letter-spacing: 1.2px; text-transform: uppercase; border-color: #0f172a; padding: 7px 13px; }
-        td.k { width: 34%; background: #f6f8fb; font-size: 10px; letter-spacing: 0.4px; text-transform: uppercase; color: #475569; font-weight: 700; }
-        td.v { font-size: 12px; color: #0f172a; font-weight: 600; white-space: pre-line; }
+        table.doc td { border: 1px solid #cbd5e1; padding: 4px 10px; vertical-align: top; }
+        tr.sec td { background: #0f172a; color: #fff; font-weight: 800; font-size: 9px; letter-spacing: 1px; text-transform: uppercase; border-color: #0f172a; padding: 4px 10px; }
+        td.k { width: 34%; background: #f6f8fb; font-size: 8.5px; letter-spacing: 0.3px; text-transform: uppercase; color: #475569; font-weight: 700; }
+        td.v { font-size: 10px; color: #0f172a; font-weight: 600; white-space: pre-line; }
         td.v .muted { color: #94a3b8; font-weight: 500; }
-        td.v.salary { color: #b91c1c; font-weight: 800; font-size: 14px; }
+        td.v.salary { color: #b91c1c; font-weight: 800; font-size: 12.5px; }
         td.full { white-space: pre-line; font-weight: 500; color: #334155; }
 
         /* Czyste łamanie na strony: wiersze nie pękają, nagłówek sekcji trzyma
@@ -39,8 +39,8 @@
         table.doc { page-break-inside: auto; }
 
         /* Stopka zawsze na dole strony (drukowana na każdej stronie). */
-        .footer { position: fixed; left: 0; right: 0; bottom: 0; padding: 8px 46px;
-            background: #fff; border-top: 1px solid #e2e8f0; color: #94a3b8; font-size: 9.5px;
+        .footer { position: fixed; left: 0; right: 0; bottom: 0; padding: 6px 38px;
+            background: #fff; border-top: 1px solid #e2e8f0; color: #94a3b8; font-size: 8.5px;
             display: flex; justify-content: space-between; }
         .footer b { color: #0f172a; }
     </style>
