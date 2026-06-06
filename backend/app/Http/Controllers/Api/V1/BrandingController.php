@@ -87,10 +87,74 @@ class BrandingController extends Controller
         $disk = Storage::disk(config('rekruter.documents_disk'));
         abort_unless($disk->exists($entry['path']), 404);
 
-        return response($disk->get($entry['path']), 200, [
-            'Content-Type' => $entry['mime'] ?? 'image/png',
+        $bytes = $disk->get($entry['path']);
+        $mime = $entry['mime'] ?? 'image/png';
+
+        // Favicon: zaokrąglamy rogi (przezroczyste) — przeglądarka pokazuje plik
+        // jak jest, więc bez tego rogi byłyby kwadratowe. Ikona na ekran główny
+        // zostaje pełnokwadratowa (telefon sam ją zaokrągla).
+        if ($type === 'favicon' && in_array($mime, ['image/png', 'image/jpeg', 'image/webp'], true)) {
+            $rounded = $this->roundCorners($bytes);
+            if ($rounded !== null) {
+                $bytes = $rounded;
+                $mime = 'image/png';
+            }
+        }
+
+        return response($bytes, 200, [
+            'Content-Type' => $mime,
             'Cache-Control' => 'public, max-age=86400',
         ]);
+    }
+
+    /** Zaokrągla rogi obrazka (przezroczyste narożniki) przez GD. Null przy błędzie. */
+    private function roundCorners(string $bytes): ?string
+    {
+        if (! function_exists('imagecreatefromstring')) {
+            return null;
+        }
+        $src = @imagecreatefromstring($bytes);
+        if (! $src) {
+            return null;
+        }
+
+        $w = imagesx($src);
+        $h = imagesy($src);
+        $r = (int) round(min($w, $h) * 0.22); // promień ~ jak „squircle" iOS
+
+        $dst = imagecreatetruecolor($w, $h);
+        imagealphablending($dst, false);
+        imagesavealpha($dst, true);
+        $transparent = imagecolorallocatealpha($dst, 0, 0, 0, 127);
+        imagefilledrectangle($dst, 0, 0, $w, $h, $transparent);
+        imagecopy($dst, $src, 0, 0, 0, 0, $w, $h);
+
+        // Przezroczyste narożniki poza promieniem.
+        $centers = [
+            [$r, $r, 0, 0],
+            [$w - 1 - $r, $r, $w - $r, 0],
+            [$r, $h - 1 - $r, 0, $h - $r],
+            [$w - 1 - $r, $h - 1 - $r, $w - $r, $h - $r],
+        ];
+        foreach ($centers as [$cx, $cy, $x0, $y0]) {
+            for ($x = $x0; $x < $x0 + $r; $x++) {
+                for ($y = $y0; $y < $y0 + $r; $y++) {
+                    $dx = $x - $cx;
+                    $dy = $y - $cy;
+                    if ($dx * $dx + $dy * $dy > $r * $r) {
+                        imagesetpixel($dst, $x, $y, $transparent);
+                    }
+                }
+            }
+        }
+
+        ob_start();
+        imagepng($dst);
+        $out = ob_get_clean();
+        imagedestroy($src);
+        imagedestroy($dst);
+
+        return $out ?: null;
     }
 
     /**
