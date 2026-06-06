@@ -105,6 +105,14 @@ onBeforeUnmount(() => document.removeEventListener('click', onDocClick))
         </button>
         <p v-if="pushMsg" class="mt-1 text-xs text-stone">{{ pushMsg }}</p>
       </div>
+
+      <!-- Push niedostępny (np. brak HTTPS) -->
+      <div v-else class="border-t border-hairline px-4 py-2.5">
+        <p class="text-xs text-stone">
+          <AppIcon name="bell" :size="13" class="mr-1 inline text-stone" />
+          Powiadomienia push wymagają HTTPS (kłódki w adresie). Po wejściu przez http nie zadziałają.
+        </p>
+      </div>
     </div>
   </div>
 </template>
