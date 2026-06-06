@@ -1,0 +1,8 @@
+# Reverse-proxy HTTPS dla Rekrutera (Caddy + automatyczny Let's Encrypt).
+# Domena pobierana ze zmiennej DOMAIN (ustaw w ./.env, np. ltslogistik.duckdns.org).
+# Caddy przekierowuje cały ruch (SPA + /api) do kontenera web (nginx) po sieci wewnętrznej.
+
+{$DOMAIN} {
+    encode zstd gzip
+    reverse_proxy web:80
+}

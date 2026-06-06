@@ -1,0 +1,29 @@
+# Nakładka HTTPS (Caddy + Let's Encrypt). Uruchamiaj RAZEM z głównym plikiem:
+#   docker compose -f docker-compose.prod.yml -f docker-compose.https.yml up -d
+#
+# Wymagania:
+#   - DOMAIN w ./.env (np. DOMAIN=ltslogistik.duckdns.org) wskazująca na IP VPS
+#   - otwarte porty 80 i 443 na serwerze
+#
+# Caddy sam pobierze i odnowi certyfikat. Wtedy aplikacja działa po HTTPS
+# (https://DOMAIN) i powiadomienia push zaczynają działać na telefonie.
+
+services:
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      DOMAIN: ${DOMAIN:?ustaw DOMAIN w pliku .env (np. nazwa.duckdns.org)}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - web
+
+volumes:
+  caddy_data:
+  caddy_config:
