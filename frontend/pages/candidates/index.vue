@@ -79,6 +79,7 @@ function open(c: Candidate) {
             <tr class="border-b border-hairline bg-surface-soft text-left text-xs uppercase tracking-wide text-stone">
               <th class="px-4 py-3 font-semibold">Kandydat</th>
               <th class="px-4 py-3 font-semibold">Telefon</th>
+              <th class="px-4 py-3 font-semibold">Miasto</th>
               <th class="px-4 py-3 font-semibold">Uprawnienia</th>
               <th class="px-4 py-3 font-semibold">Status</th>
               <th class="px-4 py-3 font-semibold">Dodano</th>
@@ -100,6 +101,7 @@ function open(c: Candidate) {
                 </div>
               </td>
               <td class="px-4 py-3 text-steel">{{ c.phone }}</td>
+              <td class="px-4 py-3 text-steel">{{ c.city || '—' }}</td>
               <td class="px-4 py-3">
                 <div class="flex flex-wrap gap-1">
                   <span v-for="cat in c.license_categories" :key="cat" class="badge badge-neutral">{{ cat }}</span>
