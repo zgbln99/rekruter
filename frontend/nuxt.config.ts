@@ -70,6 +70,8 @@ export default defineNuxtConfig({
     },
     workbox: {
       navigateFallback: '/',
+      // Dołącz handler Web Push do service workera.
+      importScripts: ['/push-sw.js'],
     },
     devOptions: {
       enabled: false,

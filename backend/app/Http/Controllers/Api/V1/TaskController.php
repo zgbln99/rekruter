@@ -54,9 +54,11 @@ class TaskController extends Controller
     {
         $data = $request->validated();
 
+        $assignee = $data['assigned_to'] ?? $request->user()->id;
+
         $task = Task::create([
             'candidate_id' => $data['candidate_id'],
-            'assigned_to' => $data['assigned_to'] ?? $request->user()->id,
+            'assigned_to' => $assignee,
             'created_by' => $request->user()->id,
             'type' => $data['type'] ?? 'follow_up',
             'status' => 'open',
@@ -64,6 +66,15 @@ class TaskController extends Controller
             'description' => $data['description'] ?? null,
             'due_at' => $data['due_at'] ?? null,
         ]);
+
+        // Push do osoby przypisanej (jeśli to ktoś inny niż twórca).
+        if ($assignee !== $request->user()->id) {
+            $target = \App\Models\User::find($assignee);
+            if ($target) {
+                app(\App\Support\Push\WebPushService::class)
+                    ->sendToUser($target, 'Nowe zadanie', $task->title, $task->candidate_id ? '/candidates/'.$task->candidate_id : '/');
+            }
+        }
 
         return (new TaskResource($task->load('candidate')))->response()->setStatusCode(201);
     }

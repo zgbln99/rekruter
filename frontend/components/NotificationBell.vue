@@ -5,8 +5,20 @@ withDefaults(defineProps<{ dark?: boolean; up?: boolean }>(), { dark: false, up:
 
 const { data } = useNotificationsQuery()
 const router = useRouter()
+const push = usePush()
+const pushMsg = ref('')
 const open = ref(false)
 const root = ref<HTMLElement | null>(null)
+
+async function togglePush() {
+  pushMsg.value = ''
+  if (push.enabled.value) {
+    await push.disable()
+  } else {
+    const err = await push.enable()
+    if (err) pushMsg.value = err
+  }
+}
 
 const count = computed(() => data.value?.count ?? 0)
 const items = computed(() => data.value?.items ?? [])
@@ -66,6 +78,24 @@ onBeforeUnmount(() => document.removeEventListener('click', onDocClick))
           </span>
           <span v-if="n.when" class="shrink-0 text-[11px] text-stone">{{ whenLabel(n.when) }}</span>
         </button>
+      </div>
+
+      <!-- Powiadomienia push (na telefon/komputer) -->
+      <div v-if="push.supported.value" class="border-t border-hairline px-4 py-2.5">
+        <button
+          class="flex w-full items-center justify-between text-left"
+          :disabled="push.busy.value"
+          @click="togglePush"
+        >
+          <span class="flex items-center gap-2 text-sm text-ink">
+            <AppIcon name="bell" :size="15" :class="push.enabled.value ? 'text-brand-deep' : 'text-stone'" />
+            Powiadomienia push
+          </span>
+          <span class="text-xs font-semibold" :class="push.enabled.value ? 'text-brand-deep' : 'text-stone'">
+            {{ push.busy.value ? '…' : push.enabled.value ? 'Włączone' : 'Włącz' }}
+          </span>
+        </button>
+        <p v-if="pushMsg" class="mt-1 text-xs text-red-600">{{ pushMsg }}</p>
       </div>
     </div>
   </div>

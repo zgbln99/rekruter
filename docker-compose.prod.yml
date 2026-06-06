@@ -82,6 +82,9 @@ services:
       MEGA_S4_BUCKET: ${MEGA_S4_BUCKET:-driver-ddd-files}
       MEGA_S4_ENDPOINT: ${MEGA_S4_ENDPOINT:-https://s3.eu-luxembourg.megas4.com}
       MEGA_S4_REGION: ${MEGA_S4_REGION:-eu-amsterdam}
+      VAPID_PUBLIC_KEY: ${VAPID_PUBLIC_KEY:-}
+      VAPID_PRIVATE_KEY: ${VAPID_PRIVATE_KEY:-}
+      VAPID_SUBJECT: ${VAPID_SUBJECT:-}
     depends_on:
       postgres:
         condition: service_healthy
@@ -105,6 +108,9 @@ services:
       MEGA_S4_BUCKET: ${MEGA_S4_BUCKET:-driver-ddd-files}
       MEGA_S4_ENDPOINT: ${MEGA_S4_ENDPOINT:-https://s3.eu-luxembourg.megas4.com}
       MEGA_S4_REGION: ${MEGA_S4_REGION:-eu-amsterdam}
+      VAPID_PUBLIC_KEY: ${VAPID_PUBLIC_KEY:-}
+      VAPID_PRIVATE_KEY: ${VAPID_PRIVATE_KEY:-}
+      VAPID_SUBJECT: ${VAPID_SUBJECT:-}
     depends_on:
       postgres:
         condition: service_healthy

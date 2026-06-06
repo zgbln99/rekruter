@@ -18,6 +18,7 @@ use App\Http\Controllers\Api\V1\PipelineController;
 use App\Http\Controllers\Api\V1\PipelineStageController;
 use App\Http\Controllers\Api\V1\PlacementController;
 use App\Http\Controllers\Api\V1\PlacementInstallmentController;
+use App\Http\Controllers\Api\V1\PushController;
 use App\Http\Controllers\Api\V1\ProfileController;
 use App\Http\Controllers\Api\V1\RodoController;
 use App\Http\Controllers\Api\V1\SearchController;
@@ -47,6 +48,11 @@ Route::prefix('v1')->group(function () {
 
         // Powiadomienia „na żywo" (zaległe zadania, przyjazdy, raty, wygasające uprawnienia).
         Route::get('notifications', NotificationController::class)->name('notifications');
+
+        // Web Push (VAPID) — subskrypcje urządzeń.
+        Route::get('push/public-key', [PushController::class, 'publicKey'])->name('push.public-key');
+        Route::post('push/subscribe', [PushController::class, 'subscribe'])->name('push.subscribe');
+        Route::delete('push/unsubscribe', [PushController::class, 'unsubscribe'])->name('push.unsubscribe');
 
         // --- Faza 1: rdzeń KPI ---
 
