@@ -24,6 +24,7 @@ const searchOpen = useState('global-search-open', () => false)
           <button class="rounded-full p-2 text-steel active:bg-surface" aria-label="Szukaj" @click="searchOpen = true">
             <AppIcon name="search" :size="20" />
           </button>
+          <NotificationBell />
           <button v-if="auth.user" class="rounded-full p-2 text-steel active:bg-surface" @click="auth.logout()">
             <AppIcon name="logout" :size="20" />
           </button>

@@ -65,6 +65,7 @@ const items = computed(() =>
             <p class="truncate text-sm font-medium text-white">{{ auth.user?.name }}</p>
             <p class="truncate text-xs text-white/50">{{ auth.user?.role_label }}</p>
           </div>
+          <NotificationBell dark up />
           <button class="rounded-lg p-1.5 text-white/50 transition hover:bg-white/10 hover:text-white" title="Wyloguj" @click="auth.logout()">
             <AppIcon name="logout" :size="18" />
           </button>

@@ -12,6 +12,7 @@ use App\Http\Controllers\Api\V1\DashboardController;
 use App\Http\Controllers\Api\V1\DocumentController;
 use App\Http\Controllers\Api\V1\JobPostingController;
 use App\Http\Controllers\Api\V1\MatchController;
+use App\Http\Controllers\Api\V1\NotificationController;
 use App\Http\Controllers\Api\V1\CalendarController;
 use App\Http\Controllers\Api\V1\PipelineController;
 use App\Http\Controllers\Api\V1\PipelineStageController;
@@ -43,6 +44,9 @@ Route::prefix('v1')->group(function () {
         Route::get('search', SearchController::class)
             ->middleware('throttle:120,1')
             ->name('search');
+
+        // Powiadomienia „na żywo" (zaległe zadania, przyjazdy, raty, wygasające uprawnienia).
+        Route::get('notifications', NotificationController::class)->name('notifications');
 
         // --- Faza 1: rdzeń KPI ---
 

@@ -402,6 +402,20 @@ export interface MessageTemplate {
   body: string
 }
 
+export interface NotificationItem {
+  type: 'task' | 'arrival' | 'installment' | 'expiry'
+  title: string
+  subtitle: string
+  to: string
+  when: string | null
+  color: string
+}
+
+export interface NotificationsResponse {
+  count: number
+  items: NotificationItem[]
+}
+
 export interface SearchResults {
   candidates: { id: string; full_name: string; phone: string; status_label: string | null }[]
   offers: { id: string; title: string; company: string | null }[]

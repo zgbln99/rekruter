@@ -25,11 +25,6 @@ async function duplicate() {
   }
 }
 
-// Rozbicie opisu na punktory (linie).
-function toLines(text?: string | null): string[] {
-  return (text || '').split(/\r?\n/).map((s) => s.trim()).filter(Boolean)
-}
-
 // Aktywuj / wstrzymaj ogłoszenie.
 async function toggleActive() {
   const next = offer.value?.status === 'open' ? 'paused' : 'open'
@@ -256,11 +251,7 @@ async function saveQuick() {
     <!-- Opis stanowiska -->
     <div v-if="offer.description" class="card p-4">
       <p class="mb-2.5 text-[13px] font-medium text-steel">Opis stanowiska</p>
-      <ul class="space-y-2">
-        <li v-for="(line, i) in toLines(offer.description)" :key="i" class="flex gap-2.5 text-[15px] leading-relaxed text-charcoal">
-          <span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-brand" />{{ line }}
-        </li>
-      </ul>
+      <UiRichText :text="offer.description" />
     </div>
 
     <!-- Wymagania -->
@@ -298,11 +289,7 @@ async function saveQuick() {
           <AppIcon name="document" :size="15" /> {{ copied ? 'Skopiowano' : 'Kopiuj opis' }}
         </button>
       </div>
-      <ul class="space-y-2">
-        <li v-for="(line, i) in toLines(offer.public_description)" :key="i" class="flex gap-2.5 text-[15px] leading-relaxed text-charcoal">
-          <span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-brand" />{{ line }}
-        </li>
-      </ul>
+      <UiRichText :text="offer.public_description" />
     </div>
 
     <!-- FAQ dla rekruterki -->
