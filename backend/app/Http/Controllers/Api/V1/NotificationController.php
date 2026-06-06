@@ -25,13 +25,14 @@ class NotificationController extends Controller
         $user = $request->user();
         $items = [];
 
-        // Zaległe zadania (przypisane do mnie).
+        // Zaległe zadania (przypisane do mnie) — tylko z istniejącym kandydatem.
         $tasks = Task::query()
             ->with('candidate')
             ->where('assigned_to', $user->id)
             ->where('status', TaskStatus::Open->value)
             ->whereNotNull('due_at')
             ->where('due_at', '<', now()->startOfDay())
+            ->where(fn ($q) => $q->whereNull('candidate_id')->orWhereHas('candidate'))
             ->orderBy('due_at')
             ->limit(20)
             ->get();
@@ -49,6 +50,7 @@ class NotificationController extends Controller
         // Dzisiejsze przyjazdy do weryfikacji.
         $arrivals = Placement::query()
             ->with('candidate')
+            ->whereHas('candidate')
             ->where('arrival_status', ArrivalStatus::Pending->value)
             ->whereBetween('arrival_at', [now()->startOfDay(), now()->endOfDay()])
             ->get();
@@ -67,6 +69,7 @@ class NotificationController extends Controller
         if ($user->isAdmin()) {
             $installments = PlacementInstallment::query()
                 ->with('placement.candidate')
+                ->whereHas('placement.candidate')
                 ->where('status', InstallmentStatus::Pending->value)
                 ->whereBetween('due_date', [now()->startOfDay()->toDateString(), now()->addDays(2)->toDateString()])
                 ->get();

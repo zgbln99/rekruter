@@ -61,8 +61,8 @@ onBeforeUnmount(() => document.removeEventListener('click', onDocClick))
 
     <div
       v-if="open"
-      class="absolute right-0 z-50 max-h-[70vh] w-80 overflow-hidden rounded-2xl border border-hairline bg-canvas shadow-xl"
-      :class="up ? 'bottom-full mb-2' : 'mt-2'"
+      class="absolute z-50 max-h-[70vh] w-[min(20rem,calc(100vw-2rem))] overflow-hidden rounded-2xl border border-hairline bg-canvas shadow-xl"
+      :class="up ? 'bottom-full left-0 mb-2' : 'right-0 mt-2'"
     >
       <div class="flex items-center justify-between border-b border-hairline px-4 py-3">
         <p class="text-sm font-semibold text-ink">Powiadomienia</p>

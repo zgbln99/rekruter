@@ -71,6 +71,7 @@ class DashboardStatsAction
     {
         $arrivals = \App\Models\Placement::query()
             ->with(['candidate', 'jobPosting'])
+            ->whereHas('candidate')
             ->where('arrival_status', \App\Enums\ArrivalStatus::Pending->value)
             ->whereBetween('arrival_at', [now()->startOfDay(), now()->endOfDay()])
             ->orderBy('arrival_at')
@@ -88,6 +89,7 @@ class DashboardStatsAction
         if ($user->isAdmin()) {
             $installments = \App\Models\PlacementInstallment::query()
                 ->with(['placement.candidate'])
+                ->whereHas('placement.candidate')
                 ->where('status', \App\Enums\InstallmentStatus::Pending->value)
                 ->whereBetween('due_date', [now()->startOfDay()->toDateString(), now()->addDays(2)->toDateString()])
                 ->orderBy('due_date')
