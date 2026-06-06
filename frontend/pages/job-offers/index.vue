@@ -110,16 +110,41 @@ function open(o: JobPosting) {
       <!-- Karty (mobile) -->
       <ul class="grid gap-3 sm:grid-cols-2 lg:hidden">
         <li v-for="o in offers" :key="o.id">
-          <NuxtLink :to="`/job-offers/${o.id}`" class="card-tile flex h-full items-start gap-3 p-4">
-            <div class="min-w-0 flex-1">
-              <p class="truncate font-semibold text-ink">{{ o.title }}</p>
-              <p class="truncate text-sm text-stone">{{ o.company?.name }}<span v-if="o.country"> · {{ o.country }}</span></p>
-              <div class="mt-1.5 flex flex-wrap gap-1">
-                <span v-for="cat in o.required_categories" :key="cat" class="badge badge-neutral">{{ cat }}</span>
-                <span class="badge" :class="statusTone[o.status] || 'badge-neutral'">{{ o.status_label }}</span>
-              </div>
+          <NuxtLink :to="`/job-offers/${o.id}`" class="card-tile flex h-full flex-col p-4">
+            <!-- Tytuł + status -->
+            <div class="flex items-start justify-between gap-3">
+              <p class="min-w-0 flex-1 font-semibold leading-snug text-ink">{{ o.title }}</p>
+              <span class="badge shrink-0" :class="statusTone[o.status] || 'badge-neutral'">{{ o.status_label }}</span>
             </div>
-            <span class="badge badge-neutral shrink-0">{{ o.applications_count ?? 0 }} kand.</span>
+
+            <!-- Firma -->
+            <p v-if="o.company?.name" class="mt-1 flex items-center gap-1.5 truncate text-sm text-stone">
+              <AppIcon name="building" :size="14" class="shrink-0 text-muted" />
+              {{ o.company.name }}
+            </p>
+
+            <!-- Lokalizacja + wynagrodzenie -->
+            <div class="mt-2.5 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-sm text-steel">
+              <span class="flex items-center gap-1.5">
+                <AppIcon name="truck" :size="15" class="shrink-0 text-muted" />
+                {{ location(o) }}
+              </span>
+              <span v-if="o.salary_amount" class="flex items-center gap-1.5 font-medium text-ink">
+                <AppIcon name="cash" :size="15" class="shrink-0 text-muted" />
+                {{ salary(o) }}
+              </span>
+            </div>
+
+            <!-- Kategorie -->
+            <div v-if="o.required_categories?.length" class="mt-2.5 flex flex-wrap gap-1">
+              <span v-for="cat in o.required_categories" :key="cat" class="badge badge-neutral">{{ cat }}</span>
+            </div>
+
+            <!-- Stopka: liczba kandydatów -->
+            <div class="mt-3 flex items-center gap-1.5 border-t border-hairline-soft pt-3 text-sm text-stone">
+              <AppIcon name="users" :size="15" class="shrink-0 text-muted" />
+              <span class="font-semibold text-ink">{{ o.applications_count ?? 0 }}</span> kandydatów
+            </div>
           </NuxtLink>
         </li>
       </ul>
