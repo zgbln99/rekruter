@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\V1\ActivityController;
 use App\Http\Controllers\Api\V1\ApplicationController;
 use App\Http\Controllers\Api\V1\AuthController;
+use App\Http\Controllers\Api\V1\BrandingController;
 use App\Http\Controllers\Api\V1\CandidateController;
 use App\Http\Controllers\Api\V1\CandidateInsightController;
 use App\Http\Controllers\Api\V1\CandidateLookupController;
@@ -32,6 +33,9 @@ Route::prefix('v1')->group(function () {
     Route::post('auth/login', [AuthController::class, 'login'])
         ->middleware('throttle:10,1')
         ->name('auth.login');
+
+    // Branding (logo/ikona/favicon) — publicznie, bo ładuje je przeglądarka.
+    Route::get('branding/{type}', [BrandingController::class, 'show'])->name('branding.show');
 
     // Chronione (Sanctum + kontekst tenanta)
     Route::middleware(['auth:sanctum', 'tenant'])->group(function () {
@@ -202,5 +206,9 @@ Route::prefix('v1')->group(function () {
         // Ustawienia organizacji (nazwa agencji itp.).
         Route::get('settings', [SettingsController::class, 'show'])->name('settings.show');
         Route::put('settings', [SettingsController::class, 'update'])->name('settings.update');
+
+        // Branding — upload/usuwanie (administrator).
+        Route::post('settings/branding', [BrandingController::class, 'upload'])->name('settings.branding.upload');
+        Route::delete('settings/branding/{type}', [BrandingController::class, 'destroy'])->name('settings.branding.destroy');
     });
 });

@@ -2,6 +2,16 @@
 const auth = useAuthStore()
 const online = useOnline()
 const searchOpen = useState('global-search-open', () => false)
+
+// Własny favicon (jeśli wgrany w panelu) nadpisuje domyślny.
+const branding = useBranding()
+useHead({
+  link: computed(() =>
+    branding.faviconUrl.value
+      ? [{ rel: 'icon', href: branding.faviconUrl.value, key: 'favicon' }]
+      : [],
+  ),
+})
 </script>
 
 <template>
@@ -14,11 +24,8 @@ const searchOpen = useState('global-search-open', () => false)
       <header
         class="sticky top-0 z-30 flex h-14 items-center justify-between border-b border-hairline bg-canvas/90 px-4 pt-safe-top backdrop-blur lg:hidden"
       >
-        <NuxtLink to="/" class="flex items-center gap-2">
-          <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-ink text-xs font-bold text-brand">
-            {{ (auth.user?.agency_name || 'R').charAt(0) }}
-          </span>
-          <span class="truncate text-[17px] font-bold tracking-tight text-ink">{{ auth.user?.agency_name || 'Rekruter' }}</span>
+        <NuxtLink to="/" class="min-w-0">
+          <AppLogo :size="30" />
         </NuxtLink>
         <div class="flex items-center gap-1">
           <button class="rounded-full p-2 text-steel active:bg-surface" aria-label="Szukaj" @click="searchOpen = true">

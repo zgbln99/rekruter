@@ -9,6 +9,26 @@ export function useSettingsQuery() {
   })
 }
 
+export function useUploadBranding() {
+  const api = useApi()
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (form: FormData) =>
+      api<Settings>('/settings/branding', { method: 'POST', body: form }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['settings'] }),
+  })
+}
+
+export function useDeleteBranding() {
+  const api = useApi()
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (type: 'logo' | 'icon' | 'favicon') =>
+      api(`/settings/branding/${type}`, { method: 'DELETE' }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['settings'] }),
+  })
+}
+
 export function useUpdateSettings() {
   const api = useApi()
   const queryClient = useQueryClient()

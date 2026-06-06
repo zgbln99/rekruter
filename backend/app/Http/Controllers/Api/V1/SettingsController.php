@@ -73,6 +73,8 @@ class SettingsController extends Controller
             'openai_configured' => ! empty($s['openai_api_key']),
             // Szablony wiadomości (dla wszystkich — używa ich rekruterka).
             'message_templates' => $tenant->messageTemplates(),
+            // Branding (co jest ustawione + wersja do cache-bustingu).
+            'branding' => \App\Http\Controllers\Api\V1\BrandingController::payload($tenant),
         ];
 
         // Dane finansowe (stała kwota rozliczenia) — tylko dla administratora.

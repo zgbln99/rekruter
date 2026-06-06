@@ -39,6 +39,43 @@ function removeTemplate(i: number) {
   templates.value.splice(i, 1)
 }
 
+// --- Branding (logo / ikona / favicon) ---
+const branding = useBranding()
+const uploadBranding = useUploadBranding()
+const deleteBranding = useDeleteBranding()
+const brandingError = ref('')
+const BRANDING = [
+  { type: 'logo' as const, label: 'Logo (nagłówek)', hint: 'PNG/SVG, najlepiej poziome, na jasnym tle.' },
+  { type: 'icon' as const, label: 'Ikona (kwadrat)', hint: 'PNG/SVG kwadratowe — znak bez napisu.' },
+  { type: 'favicon' as const, label: 'Favicon (karta przeglądarki)', hint: 'PNG/SVG/ICO, kwadrat 32–512 px.' },
+]
+async function onBrandingFile(type: 'logo' | 'icon' | 'favicon', e: Event) {
+  brandingError.value = ''
+  const file = (e.target as HTMLInputElement).files?.[0]
+  ;(e.target as HTMLInputElement).value = ''
+  if (!file) return
+  const form = new FormData()
+  form.append(type, file)
+  try {
+    await uploadBranding.mutateAsync(form)
+  } catch (err: any) {
+    brandingError.value = err?.response?.status === 403
+      ? 'Tylko administrator może zmieniać branding.'
+      : 'Nie udało się wgrać pliku (dozwolone: PNG/JPG/WEBP/SVG, do 2 MB).'
+  }
+}
+async function removeBranding(type: 'logo' | 'icon' | 'favicon') {
+  brandingError.value = ''
+  try {
+    await deleteBranding.mutateAsync(type)
+  } catch {
+    brandingError.value = 'Nie udało się usunąć.'
+  }
+}
+function brandingUrl(type: 'logo' | 'icon' | 'favicon') {
+  return type === 'logo' ? branding.logoUrl.value : type === 'icon' ? branding.iconUrl.value : branding.faviconUrl.value
+}
+
 async function save() {
   error.value = ''
   saved.value = false
@@ -84,6 +121,30 @@ async function save() {
           <div><label class="field-label">E-mail</label><input v-model="form.agency_email" type="email" class="input-field" :disabled="!auth.isAdmin" /></div>
           <div class="sm:col-span-2"><label class="field-label">Strona WWW</label><input v-model="form.agency_website" class="input-field" :disabled="!auth.isAdmin" /></div>
         </div>
+      </div>
+
+      <!-- Branding -->
+      <div class="card space-y-4 p-5">
+        <p class="text-[13px] font-semibold text-ink">Logo i ikony aplikacji</p>
+        <p class="text-xs text-stone">Wgraj własne logo, ikonę i favicon — pojawią się w aplikacji i na karcie przeglądarki.</p>
+        <div class="space-y-3">
+          <div v-for="b in BRANDING" :key="b.type" class="flex items-center gap-3 rounded-xl border border-hairline p-3">
+            <div class="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-hairline bg-surface-soft">
+              <img v-if="brandingUrl(b.type)" :src="brandingUrl(b.type)!" alt="" class="max-h-full max-w-full object-contain" />
+              <AppIcon v-else name="camera" :size="18" class="text-stone" />
+            </div>
+            <div class="min-w-0 flex-1">
+              <p class="text-sm font-medium text-ink">{{ b.label }}</p>
+              <p class="text-xs text-stone">{{ b.hint }}</p>
+            </div>
+            <label v-if="auth.isAdmin" class="btn-sm cursor-pointer shrink-0">
+              Wgraj
+              <input type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml,image/x-icon" class="hidden" @change="(e) => onBrandingFile(b.type, e)" />
+            </label>
+            <button v-if="auth.isAdmin && brandingUrl(b.type)" type="button" class="shrink-0 text-sm text-red-600" @click="removeBranding(b.type)">Usuń</button>
+          </div>
+        </div>
+        <p v-if="brandingError" class="text-sm text-red-600">{{ brandingError }}</p>
       </div>
 
       <!-- Integracja AI -->

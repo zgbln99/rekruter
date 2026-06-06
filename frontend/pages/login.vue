@@ -25,13 +25,9 @@ async function submit() {
   <div class="flex min-h-screen flex-col justify-center px-6 py-12">
     <div class="mx-auto w-full max-w-sm">
       <div class="mb-8 text-center">
-        <div
-          class="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-ink"
-        >
-          <span class="h-3 w-3 rounded-full bg-brand" />
-        </div>
-        <h1 class="text-2xl font-bold tracking-tight text-ink">Rekruter</h1>
-        <p class="mt-1 text-sm text-stone">Recruitment Operating System</p>
+        <img src="/logo.svg" alt="edge recruiting" class="mx-auto mb-4 h-14 w-14 rounded-2xl" />
+        <h1 class="text-2xl font-bold tracking-tight text-ink">edge recruiting</h1>
+        <p class="mt-1 text-sm text-stone">System rekrutacji kierowców</p>
       </div>
 
       <div class="card p-6">

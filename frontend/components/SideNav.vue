@@ -12,12 +12,9 @@ const items = computed(() =>
   <aside class="hidden w-64 shrink-0 lg:block">
     <div class="sticky top-0 flex h-screen flex-col bg-ink text-white">
       <!-- Logo -->
-      <div class="flex h-16 items-center gap-2.5 px-6">
-        <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-brand text-sm font-bold text-ink">
-          {{ (auth.user?.agency_name || 'R').charAt(0) }}
-        </span>
-        <span class="truncate text-[16px] font-bold tracking-tight">{{ auth.user?.agency_name || 'Rekruter' }}</span>
-      </div>
+      <NuxtLink to="/" class="flex h-16 items-center px-6">
+        <AppLogo dark :size="32" />
+      </NuxtLink>
 
       <!-- Główna akcja -->
       <div class="px-4 pb-2 pt-2">

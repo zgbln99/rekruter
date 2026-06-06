@@ -66,6 +66,16 @@ class Tenant extends Model
     }
 
     /**
+     * Branding (logo / ikona / favicon). Każdy wpis: ['path' => ..., 'mime' => ...].
+     *
+     * @return array<string, mixed>
+     */
+    public function branding(): array
+    {
+        return $this->settings['branding'] ?? [];
+    }
+
+    /**
      * Szablony wiadomości (WhatsApp/SMS). Placeholdery: {imie} {nazwisko}
      * {telefon} {agencja}. Zwraca skonfigurowane lub domyślne.
      *

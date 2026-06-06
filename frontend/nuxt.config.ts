@@ -26,7 +26,7 @@ export default defineNuxtConfig({
     layoutTransition: { name: 'page', mode: 'out-in' },
     head: {
       htmlAttrs: { lang: 'pl' },
-      title: 'Rekruter',
+      title: 'edge recruiting',
       meta: [
         { charset: 'utf-8' },
         {
@@ -34,9 +34,12 @@ export default defineNuxtConfig({
           content:
             'width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1',
         },
-        { name: 'theme-color', content: '#18181b' },
+        { name: 'theme-color', content: '#dc2626' },
       ],
       link: [
+        { rel: 'icon', type: 'image/png', sizes: '32x32', href: '/favicon-32x32.png' },
+        { rel: 'icon', type: 'image/png', sizes: '16x16', href: '/favicon-16x16.png' },
+        { rel: 'apple-touch-icon', sizes: '180x180', href: '/apple-touch-icon.png' },
         { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
         {
           rel: 'preconnect',
@@ -55,17 +58,18 @@ export default defineNuxtConfig({
   pwa: {
     registerType: 'autoUpdate',
     manifest: {
-      name: 'Rekruter',
-      short_name: 'Rekruter',
-      description: 'Recruitment Operating System dla kierowców zawodowych',
+      name: 'edge recruiting',
+      short_name: 'edge',
+      description: 'edge recruiting — system rekrutacji kierowców zawodowych',
       lang: 'pl',
       display: 'standalone',
       orientation: 'portrait',
       background_color: '#ffffff',
-      theme_color: '#18181b',
+      theme_color: '#dc2626',
       icons: [
         { src: 'pwa-192x192.png', sizes: '192x192', type: 'image/png' },
         { src: 'pwa-512x512.png', sizes: '512x512', type: 'image/png' },
+        { src: 'pwa-maskable-512x512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
       ],
     },
     workbox: {

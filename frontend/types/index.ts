@@ -27,6 +27,8 @@ export interface Settings {
   placement_currency?: string | null
   // Szablony wiadomości (WhatsApp/SMS):
   message_templates?: MessageTemplate[]
+  // Branding (co jest ustawione + wersja do cache-bustingu):
+  branding?: { logo: boolean; icon: boolean; favicon: boolean; v: number }
 }
 
 export interface LoginResponse {
