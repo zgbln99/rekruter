@@ -71,6 +71,13 @@
         .footer { margin-top: 30px; padding-top: 12px; border-top: 1px solid #e2e8f0;
             color: #94a3b8; font-size: 10px; display: flex; justify-content: space-between; }
         .footer b { color: #0f172a; font-weight: 600; }
+
+        /* Czyste łamanie na strony — wiersze i wpisy nie pękają w połowie,
+           nagłówek sekcji nie zostaje sam na końcu strony. */
+        .s-head { break-after: avoid; page-break-after: avoid; }
+        .header { break-inside: avoid; page-break-inside: avoid; }
+        .grid tr { break-inside: avoid; page-break-inside: avoid; }
+        .job, .offer { break-inside: avoid; page-break-inside: avoid; }
     </style>
 </head>
 <body>

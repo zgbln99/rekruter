@@ -31,6 +31,13 @@
         td.v.salary { color: #b91c1c; font-weight: 800; font-size: 14px; }
         td.full { white-space: pre-line; font-weight: 500; color: #334155; }
 
+        /* Czyste łamanie na strony: wiersze nie pękają, nagłówek sekcji trzyma
+           się treści, pasek tytułowy nie rozjeżdża się między stronami. */
+        tr { break-inside: avoid; page-break-inside: avoid; }
+        tr.sec { break-after: avoid; page-break-after: avoid; }
+        .title-bar { break-inside: avoid; page-break-inside: avoid; break-after: avoid; page-break-after: avoid; }
+        table.doc { page-break-inside: auto; }
+
         .footer { margin-top: 18px; color: #94a3b8; font-size: 9.5px; display: flex; justify-content: space-between; }
         .footer b { color: #0f172a; }
     </style>
