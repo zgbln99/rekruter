@@ -99,7 +99,7 @@ async function submit() {
 </script>
 
 <template>
-  <section class="mx-auto max-w-5xl pb-8">
+  <section class="mx-auto max-w-6xl pb-8">
     <div class="mb-5 flex items-center justify-between">
       <h1 class="text-[26px] font-bold tracking-tight text-ink">Nowe ogłoszenie</h1>
       <NuxtLink to="/job-offers" class="text-sm text-stone">Anuluj</NuxtLink>

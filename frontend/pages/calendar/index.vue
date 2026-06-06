@@ -92,7 +92,7 @@ async function markInstallment(ev: CalendarEvent, status: 'invoiced' | 'paid' | 
 </script>
 
 <template>
-  <section class="mx-auto max-w-6xl pb-10">
+  <section class="mx-auto max-w-7xl pb-10">
     <UiPageHeader title="Kalendarz" subtitle="Przyjazdy kierowców i terminy rozliczeń" />
 
     <!-- Pasek nawigacji -->
