@@ -6,7 +6,7 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         html, body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
         body { font-family: 'Helvetica Neue', 'Segoe UI', Arial, sans-serif; color: #0f172a; font-size: 11.5px; line-height: 1.45; }
-        .page { padding: 40px 46px; }
+        .page { padding: 40px 46px 58px; }
 
         /* Nagłówek */
         .head { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 14px; }
@@ -38,7 +38,10 @@
         .title-bar { break-inside: avoid; page-break-inside: avoid; break-after: avoid; page-break-after: avoid; }
         table.doc { page-break-inside: auto; }
 
-        .footer { margin-top: 18px; color: #94a3b8; font-size: 9.5px; display: flex; justify-content: space-between; }
+        /* Stopka zawsze na dole strony (drukowana na każdej stronie). */
+        .footer { position: fixed; left: 0; right: 0; bottom: 0; padding: 8px 46px;
+            background: #fff; border-top: 1px solid #e2e8f0; color: #94a3b8; font-size: 9.5px;
+            display: flex; justify-content: space-between; }
         .footer b { color: #0f172a; }
     </style>
 </head>

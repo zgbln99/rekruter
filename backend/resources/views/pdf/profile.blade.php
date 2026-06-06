@@ -11,7 +11,7 @@
             font-size: 11.5px;
             line-height: 1.55;
         }
-        .page { padding: 46px 52px; }
+        .page { padding: 46px 52px 60px; }
 
         /* Nagłówek */
         .header { display: flex; justify-content: space-between; align-items: flex-start; }
@@ -68,7 +68,9 @@
         .offer-s { color: #64748b; font-size: 11px; margin-top: 1px; }
         .offer-d { color: #475569; font-size: 11px; margin-top: 8px; white-space: pre-line; }
 
-        .footer { margin-top: 30px; padding-top: 12px; border-top: 1px solid #e2e8f0;
+        /* Stopka zawsze na dole strony (drukowana na każdej stronie). */
+        .footer { position: fixed; left: 0; right: 0; bottom: 0; padding: 8px 52px;
+            background: #fff; border-top: 1px solid #e2e8f0;
             color: #94a3b8; font-size: 10px; display: flex; justify-content: space-between; }
         .footer b { color: #0f172a; font-weight: 600; }
 

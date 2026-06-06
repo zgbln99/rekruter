@@ -5,7 +5,9 @@ import type { Task } from '~/types'
 // Pulpit — metryki, zadania na dziś, pipeline, ostatnia aktywność.
 const auth = useAuthStore()
 const { data: stats } = useDashboardQuery()
-const { data: tasks, isLoading: tasksLoading } = useTasksQuery('today')
+// „open" = wszystkie moje otwarte zadania (dziś, zaległe i nadchodzące),
+// żeby przypisane follow-upy z przyszłą datą też były widoczne.
+const { data: tasks, isLoading: tasksLoading } = useTasksQuery('open')
 const updateTask = useUpdateTask()
 
 function complete(task: Task) {
@@ -138,7 +140,7 @@ const metrics = computed(() => {
     <div class="grid gap-6 lg:grid-cols-3 lg:items-start">
       <!-- Zadania na dziś -->
       <div class="space-y-3 lg:col-span-2">
-        <h2 class="text-lg font-semibold text-ink">Zadania na dziś</h2>
+        <h2 class="text-lg font-semibold text-ink">Twoje zadania</h2>
 
         <p v-if="tasksLoading" class="py-6 text-center text-muted">Ładowanie…</p>
         <div v-else-if="!tasks?.length" class="card flex items-center gap-3 p-5">
@@ -147,7 +149,7 @@ const metrics = computed(() => {
           </span>
           <div>
             <p class="font-semibold text-ink">Wszystko ogarnięte</p>
-            <p class="text-sm text-stone">Brak zadań na dziś.</p>
+            <p class="text-sm text-stone">Brak otwartych zadań.</p>
           </div>
         </div>
 
