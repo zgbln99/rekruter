@@ -98,3 +98,47 @@ Wejdź po **https://**, dzwonek → **„Włącz"** → zgoda → **„Wyślij t
 > odnawiać przez proxy — napisz, dodam wariant Caddy z modułem Cloudflare (DNS-01,
 > działa nawet przy pomarańczowej chmurce i ukrywa serwer).
 
+---
+
+# Wariant: masz JUŻ inną stronę na nginx (port 80/443 zajęty)
+
+Wtedy **NIE używaj Caddy** (nie da się drugi raz zająć portu 80/443).
+Zamiast tego wepnij Rekrutera w istniejący nginx — Twoja obecna strona zostaje
+nietknięta. Rekruter (kontener `web`) słucha na `127.0.0.1:4050`.
+
+## 1. DNS
+
+W Cloudflare dodaj rekord **A**: `panel` → IP VPS, **DNS only (szara chmurka)**.
+
+## 2. Konfiguracja nginx
+
+Skopiuj gotowy plik i podmień domenę:
+```bash
+sudo cp ~/rekruter/deploy/nginx-rekruter.conf /etc/nginx/sites-available/rekruter
+sudo nano /etc/nginx/sites-available/rekruter      # zmień panel.twojadomena.pl
+sudo ln -s /etc/nginx/sites-available/rekruter /etc/nginx/sites-enabled/
+sudo nginx -t && sudo systemctl reload nginx
+```
+
+## 3. Certyfikat HTTPS (Let's Encrypt)
+
+```bash
+sudo apt install -y certbot python3-certbot-nginx     # jeśli nie ma
+sudo certbot --nginx -d panel.twojadomena.pl
+```
+Certbot sam dopisze blok `443` + przekierowanie http→https i będzie odnawiał cert.
+
+## 4. Push
+
+Otwórz **https://panel.twojadomena.pl**, dzwonek → **„Włącz"** → zgoda →
+**„Wyślij testowe"**. (Wcześniej ustaw klucze VAPID — patrz wyżej, pkt 5.)
+
+> Jeśli używasz w Cloudflare pomarańczowej chmurki, daj certbotowi przejść przy
+> szarej, a potem włącz proxy i ustaw **SSL/TLS → Full (strict)**.
+
+<!-- (poniższy fragment to wariant Caddy — pomiń, jeśli masz już nginx) -->
+> Gdy NIE masz innej strony i wolisz Caddy — patrz sekcja „pomarańczowa chmurka" (ukrycie IP, ochrona Cloudflare):
+> w Cloudflare ustaw **SSL/TLS → Full (strict)**. Jeśli certyfikat przestanie się
+> odnawiać przez proxy — napisz, dodam wariant Caddy z modułem Cloudflare (DNS-01,
+> działa nawet przy pomarańczowej chmurce i ukrywa serwer).
+
