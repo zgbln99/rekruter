@@ -37,9 +37,9 @@ export default defineNuxtConfig({
         { name: 'theme-color', content: '#dc2626' },
       ],
       link: [
-        { rel: 'icon', type: 'image/png', sizes: '32x32', href: '/favicon-32x32.png' },
-        { rel: 'icon', type: 'image/png', sizes: '16x16', href: '/favicon-16x16.png' },
-        { rel: 'apple-touch-icon', sizes: '180x180', href: '/apple-touch-icon.png' },
+        // Favicon i ikona iOS — z wgranego brandingu (404 = brak, bez domyślnej czerwieni).
+        { rel: 'icon', href: '/api/v1/branding/favicon', key: 'favicon' },
+        { rel: 'apple-touch-icon', href: '/api/v1/branding/icon', key: 'apple-touch' },
         { rel: 'manifest', href: '/api/v1/manifest.webmanifest' },
         { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
         {

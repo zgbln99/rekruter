@@ -3,14 +3,15 @@ const auth = useAuthStore()
 const online = useOnline()
 const searchOpen = useState('global-search-open', () => false)
 
-// Własny favicon (jeśli wgrany w panelu) nadpisuje domyślny.
+// Własny favicon / ikona iOS (z wgranego brandingu, z wersją do cache-bustingu).
 const branding = useBranding()
 useHead({
-  link: computed(() =>
-    branding.faviconUrl.value
-      ? [{ rel: 'icon', href: branding.faviconUrl.value, key: 'favicon' }]
-      : [],
-  ),
+  link: computed(() => {
+    const out: { rel: string; href: string; key: string }[] = []
+    if (branding.faviconUrl.value) out.push({ rel: 'icon', href: branding.faviconUrl.value, key: 'favicon' })
+    if (branding.iconUrl.value) out.push({ rel: 'apple-touch-icon', href: branding.iconUrl.value, key: 'apple-touch' })
+    return out
+  }),
 })
 </script>
 
