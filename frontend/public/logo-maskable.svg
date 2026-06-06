@@ -6,13 +6,4 @@
     </linearGradient>
   </defs>
   <rect width="512" height="512" fill="url(#bg)"/>
-  <g transform="translate(256 256) scale(0.74) translate(-256 -256)">
-    <g fill="#ffffff">
-      <rect x="140" y="130" width="56" height="252" rx="16"/>
-      <rect x="140" y="130" width="188" height="56" rx="16"/>
-      <rect x="140" y="228" width="150" height="56" rx="16"/>
-      <rect x="140" y="326" width="188" height="56" rx="16"/>
-    </g>
-    <path d="M356 198 l60 58 -60 58" fill="none" stroke="#ffffff" stroke-width="36" stroke-linecap="round" stroke-linejoin="round"/>
-  </g>
 </svg>

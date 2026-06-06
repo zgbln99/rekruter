@@ -12,8 +12,8 @@ const items = computed(() =>
   <aside class="hidden w-64 shrink-0 lg:block">
     <div class="sticky top-0 flex h-screen flex-col bg-ink text-white">
       <!-- Logo -->
-      <NuxtLink to="/" class="flex h-16 items-center px-6">
-        <AppLogo dark :size="32" />
+      <NuxtLink to="/" class="flex h-20 items-center justify-center px-4">
+        <AppLogo dark :size="44" />
       </NuxtLink>
 
       <!-- Główna akcja -->

@@ -40,6 +40,7 @@ export default defineNuxtConfig({
         { rel: 'icon', type: 'image/png', sizes: '32x32', href: '/favicon-32x32.png' },
         { rel: 'icon', type: 'image/png', sizes: '16x16', href: '/favicon-16x16.png' },
         { rel: 'apple-touch-icon', sizes: '180x180', href: '/apple-touch-icon.png' },
+        { rel: 'manifest', href: '/api/v1/manifest.webmanifest' },
         { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
         {
           rel: 'preconnect',
@@ -54,24 +55,11 @@ export default defineNuxtConfig({
     },
   },
 
-  // PWA — instalowalna, mobile-first. Pełna strategia offline: Faza 4.
+  // PWA — instalowalna. Manifest serwowany dynamicznie przez backend
+  // (/api/v1/manifest.webmanifest), żeby instalka brała wgraną ikonę agencji.
   pwa: {
     registerType: 'autoUpdate',
-    manifest: {
-      name: 'edge recruiting',
-      short_name: 'edge',
-      description: 'edge recruiting — system rekrutacji kierowców zawodowych',
-      lang: 'pl',
-      display: 'standalone',
-      orientation: 'portrait',
-      background_color: '#ffffff',
-      theme_color: '#dc2626',
-      icons: [
-        { src: 'pwa-192x192.png', sizes: '192x192', type: 'image/png' },
-        { src: 'pwa-512x512.png', sizes: '512x512', type: 'image/png' },
-        { src: 'pwa-maskable-512x512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
-      ],
-    },
+    manifest: false,
     workbox: {
       navigateFallback: '/',
       // Dołącz handler Web Push do service workera.

@@ -45,4 +45,14 @@ class BrandingTest extends TestCase
         Tenant::factory()->create();
         $this->get('/api/v1/branding/favicon')->assertNotFound();
     }
+
+    public function test_dynamic_manifest_is_public_and_has_icons(): void
+    {
+        Tenant::factory()->create(['settings' => ['agency_name' => 'LTS Logistik']]);
+
+        $this->get('/api/v1/manifest.webmanifest')
+            ->assertOk()
+            ->assertJsonPath('name', 'LTS Logistik')
+            ->assertJsonStructure(['name', 'short_name', 'icons']);
+    }
 }

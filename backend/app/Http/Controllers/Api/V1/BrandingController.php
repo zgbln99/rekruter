@@ -94,6 +94,53 @@ class BrandingController extends Controller
     }
 
     /**
+     * Dynamiczny manifest PWA — używa wgranej ikony (jeśli jest), inaczej domyślnej.
+     * Dzięki temu zainstalowana aplikacja na telefonie ma ikonę agencji.
+     */
+    public function manifest(): Response
+    {
+        $tenant = Tenant::query()->withoutGlobalScopes()->first();
+        $b = $tenant?->branding() ?? [];
+        $name = $tenant?->agencyName() ?: 'edge recruiting';
+        $v = $b['v'] ?? 0;
+
+        if (! empty($b['icon']['path'])) {
+            $mime = $b['icon']['mime'] ?? 'image/png';
+            $src = "/api/v1/branding/icon?v={$v}";
+            $icons = [
+                ['src' => $src, 'sizes' => '512x512', 'type' => $mime],
+                ['src' => $src, 'sizes' => 'any', 'type' => $mime],
+                ['src' => $src, 'sizes' => '512x512', 'type' => $mime, 'purpose' => 'maskable'],
+            ];
+        } else {
+            $icons = [
+                ['src' => '/pwa-192x192.png', 'sizes' => '192x192', 'type' => 'image/png'],
+                ['src' => '/pwa-512x512.png', 'sizes' => '512x512', 'type' => 'image/png'],
+                ['src' => '/pwa-maskable-512x512.png', 'sizes' => '512x512', 'type' => 'image/png', 'purpose' => 'maskable'],
+            ];
+        }
+
+        $manifest = [
+            'name' => $name,
+            'short_name' => mb_substr($name, 0, 12),
+            'description' => 'System rekrutacji kierowców zawodowych',
+            'lang' => 'pl',
+            'display' => 'standalone',
+            'orientation' => 'portrait',
+            'background_color' => '#ffffff',
+            'theme_color' => '#dc2626',
+            'start_url' => '/',
+            'scope' => '/',
+            'icons' => $icons,
+        ];
+
+        return response(json_encode($manifest, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE), 200, [
+            'Content-Type' => 'application/manifest+json',
+            'Cache-Control' => 'no-cache',
+        ]);
+    }
+
+    /**
      * Info o brandingu do ustawień (co jest ustawione + wersja do cache-bustingu).
      *
      * @return array<string, mixed>

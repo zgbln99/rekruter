@@ -36,6 +36,8 @@ Route::prefix('v1')->group(function () {
 
     // Branding (logo/ikona/favicon) — publicznie, bo ładuje je przeglądarka.
     Route::get('branding/{type}', [BrandingController::class, 'show'])->name('branding.show');
+    // Dynamiczny manifest PWA (z wgraną ikoną).
+    Route::get('manifest.webmanifest', [BrandingController::class, 'manifest'])->name('manifest');
 
     // Chronione (Sanctum + kontekst tenanta)
     Route::middleware(['auth:sanctum', 'tenant'])->group(function () {
