@@ -38,6 +38,7 @@ class NotificationController extends Controller
             ->get();
         foreach ($tasks as $t) {
             $items[] = [
+                'id' => 'task:'.$t->id,
                 'type' => 'task',
                 'title' => $t->title,
                 'subtitle' => 'Zaległe zadanie'.($t->candidate ? ' · '.$t->candidate->fullName() : ''),
@@ -56,6 +57,7 @@ class NotificationController extends Controller
             ->get();
         foreach ($arrivals as $p) {
             $items[] = [
+                'id' => 'arrival:'.$p->id,
                 'type' => 'arrival',
                 'title' => $p->candidate?->fullName() ?? 'Kierowca',
                 'subtitle' => 'Dziś przyjazd — zweryfikuj, czy dotarł',
@@ -75,6 +77,7 @@ class NotificationController extends Controller
                 ->get();
             foreach ($installments as $i) {
                 $items[] = [
+                    'id' => 'installment:'.$i->id,
                     'type' => 'installment',
                     'title' => 'Rozliczenie '.$i->sequence.'/2',
                     'subtitle' => ($i->placement?->candidate?->fullName() ?? 'kierowca').' — wystaw fakturę',
@@ -121,6 +124,7 @@ class NotificationController extends Controller
 
             foreach ($candidates as $c) {
                 $items[] = [
+                    'id' => 'expiry:'.$c->id.':'.$field,
                     'type' => 'expiry',
                     'title' => $c->fullName(),
                     'subtitle' => $label.' wygasa '.$c->{$field}->format('d.m.Y'),

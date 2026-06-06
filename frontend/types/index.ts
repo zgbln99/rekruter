@@ -403,6 +403,7 @@ export interface MessageTemplate {
 }
 
 export interface NotificationItem {
+  id: string
   type: 'task' | 'arrival' | 'installment' | 'expiry'
   title: string
   subtitle: string

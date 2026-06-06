@@ -25,8 +25,38 @@ async function testPush() {
   pushMsg.value = err || 'Wysłano testowe powiadomienie — sprawdź telefon.'
 }
 
-const count = computed(() => data.value?.count ?? 0)
-const items = computed(() => data.value?.items ?? [])
+// Odrzucone powiadomienia (trwale ukryte na tym urządzeniu).
+const DISMISS_KEY = 'rekruter-dismissed-notifications'
+const dismissed = ref<string[]>([])
+onMounted(() => {
+  try {
+    dismissed.value = JSON.parse(localStorage.getItem(DISMISS_KEY) || '[]')
+  } catch {
+    dismissed.value = []
+  }
+})
+function persistDismissed() {
+  try {
+    localStorage.setItem(DISMISS_KEY, JSON.stringify(dismissed.value))
+  } catch {}
+}
+
+const items = computed(() =>
+  (data.value?.items ?? []).filter((n) => !dismissed.value.includes(n.id)),
+)
+const count = computed(() => items.value.length)
+
+function dismiss(id: string) {
+  if (!dismissed.value.includes(id)) {
+    dismissed.value = [...dismissed.value, id]
+    persistDismissed()
+  }
+}
+function clearAll() {
+  const ids = items.value.map((n) => n.id)
+  dismissed.value = Array.from(new Set([...dismissed.value, ...ids]))
+  persistDismissed()
+}
 
 function go(to: string) {
   open.value = false
@@ -66,23 +96,31 @@ onBeforeUnmount(() => document.removeEventListener('click', onDocClick))
     >
       <div class="flex items-center justify-between border-b border-hairline px-4 py-3">
         <p class="text-sm font-semibold text-ink">Powiadomienia</p>
-        <span v-if="count" class="badge badge-neutral">{{ count }}</span>
+        <button v-if="count" class="text-xs font-medium text-brand-deep" @click="clearAll">Wyczyść</button>
       </div>
       <div class="max-h-[60vh] overflow-y-auto">
         <p v-if="!items.length" class="px-4 py-8 text-center text-sm text-muted">Brak nowych powiadomień.</p>
-        <button
-          v-for="(n, i) in items"
-          :key="i"
-          class="flex w-full items-start gap-3 px-4 py-2.5 text-left transition hover:bg-surface"
-          @click="go(n.to)"
+        <div
+          v-for="n in items"
+          :key="n.id"
+          class="group flex items-start gap-2 px-2 py-1.5 transition hover:bg-surface"
         >
-          <span class="mt-1.5 h-2 w-2 shrink-0 rounded-full" :style="{ backgroundColor: n.color }" />
-          <span class="min-w-0 flex-1">
-            <span class="block truncate text-sm font-medium text-ink">{{ n.title }}</span>
-            <span class="block truncate text-xs text-stone">{{ n.subtitle }}</span>
-          </span>
-          <span v-if="n.when" class="shrink-0 text-[11px] text-stone">{{ whenLabel(n.when) }}</span>
-        </button>
+          <button class="flex min-w-0 flex-1 items-start gap-3 py-1 pl-2 text-left" @click="go(n.to)">
+            <span class="mt-1.5 h-2 w-2 shrink-0 rounded-full" :style="{ backgroundColor: n.color }" />
+            <span class="min-w-0 flex-1">
+              <span class="block truncate text-sm font-medium text-ink">{{ n.title }}</span>
+              <span class="block truncate text-xs text-stone">{{ n.subtitle }}</span>
+            </span>
+            <span v-if="n.when" class="shrink-0 text-[11px] text-stone">{{ whenLabel(n.when) }}</span>
+          </button>
+          <button
+            class="mt-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-stone transition hover:bg-hairline hover:text-ink"
+            title="Odrzuć"
+            @click.stop="dismiss(n.id)"
+          >
+            <AppIcon name="x" :size="15" />
+          </button>
+        </div>
       </div>
 
       <!-- Powiadomienia push (na telefon/komputer) -->
