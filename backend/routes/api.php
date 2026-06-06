@@ -136,6 +136,8 @@ Route::prefix('v1')->group(function () {
         Route::delete('job-offers/{jobPosting}', [JobPostingController::class, 'destroy'])->name('job-offers.destroy');
         Route::post('job-offers/{jobPosting}/create-candidate', [JobPostingController::class, 'createCandidate'])
             ->name('job-offers.create-candidate');
+        Route::post('job-offers/{jobPosting}/duplicate', [JobPostingController::class, 'duplicate'])
+            ->name('job-offers.duplicate');
         Route::get('job-offers/{jobPosting}/pipeline', [PipelineController::class, 'board'])
             ->name('job-offers.pipeline');
         Route::get('job-offers/{jobPosting}/referral-pdf', [JobPostingController::class, 'referralPdf'])

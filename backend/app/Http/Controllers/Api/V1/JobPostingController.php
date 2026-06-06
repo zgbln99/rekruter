@@ -52,6 +52,21 @@ class JobPostingController extends Controller
         return new JobPostingResource($jobPosting->refresh()->load('company'));
     }
 
+    /**
+     * Duplikuje ogłoszenie (kopia wszystkich pól, nowy rekord).
+     * Tytuł z dopiskiem „(kopia)", status wstrzymany, własne tło plakatu.
+     */
+    public function duplicate(JobPosting $jobPosting): JsonResponse
+    {
+        $copy = $jobPosting->replicate(['poster_bg_path']);
+        $copy->title = trim($jobPosting->title.' (kopia)');
+        $copy->status = 'paused';
+        $copy->poster_bg_path = null;
+        $copy->save();
+
+        return (new JobPostingResource($copy->load('company')))->response()->setStatusCode(201);
+    }
+
     public function destroy(JobPosting $jobPosting): JsonResponse
     {
         $this->authorize('delete', $jobPosting);

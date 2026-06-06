@@ -59,6 +59,20 @@ export async function generateOfferDescription(
   return res.description
 }
 
+/** Duplikuje ogłoszenie — zwraca nowy rekord (kopia). */
+export function useDuplicateJobOffer() {
+  const api = useApi()
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (id: string) =>
+      api<JobPosting>(`/job-offers/${id}/duplicate`, { method: 'POST' }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['job-offers'] })
+      queryClient.invalidateQueries({ queryKey: ['company'] })
+    },
+  })
+}
+
 export function useDeleteJobOffer() {
   const api = useApi()
   const queryClient = useQueryClient()

@@ -91,4 +91,21 @@ class JobOfferTest extends TestCase
 
         $this->assertDatabaseCount('candidates', 1);
     }
+
+    public function test_can_duplicate_offer(): void
+    {
+        $company = Company::factory()->for($this->tenant)->create();
+        $offer = JobPosting::factory()->for($this->tenant)->for($company)->create([
+            'title' => 'Kierowca C+E',
+            'required_categories' => ['C+E'],
+        ]);
+
+        $this->postJson("/api/v1/job-offers/{$offer->id}/duplicate")
+            ->assertCreated()
+            ->assertJsonPath('title', 'Kierowca C+E (kopia)')
+            ->assertJsonPath('status', 'paused')
+            ->assertJsonPath('required_categories.0', 'C+E');
+
+        $this->assertDatabaseCount('job_postings', 2);
+    }
 }

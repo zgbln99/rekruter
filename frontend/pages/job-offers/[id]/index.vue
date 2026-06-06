@@ -10,7 +10,25 @@ const { data: offer, isLoading } = useJobOfferQuery(id)
 const createCandidate = useCreateCandidateFromOffer(id)
 const updateOffer = useUpdateJobOffer(id)
 const deleteOffer = useDeleteJobOffer()
+const duplicateOffer = useDuplicateJobOffer()
 const auth = useAuthStore()
+
+// Duplikacja ogłoszenia → otwórz edycję kopii.
+const duplicating = ref(false)
+async function duplicate() {
+  duplicating.value = true
+  try {
+    const copy = await duplicateOffer.mutateAsync(id.value)
+    await router.push(`/job-offers/${copy.id}/edit`)
+  } finally {
+    duplicating.value = false
+  }
+}
+
+// Rozbicie opisu na punktory (linie).
+function toLines(text?: string | null): string[] {
+  return (text || '').split(/\r?\n/).map((s) => s.trim()).filter(Boolean)
+}
 
 // Aktywuj / wstrzymaj ogłoszenie.
 async function toggleActive() {
@@ -166,6 +184,9 @@ async function saveQuick() {
         <NuxtLink :to="`/job-offers/${id}/edit`" class="inline-flex h-9 items-center gap-1.5 rounded-full border border-hairline px-3.5 text-sm font-medium text-ink transition hover:bg-surface">
           Edytuj
         </NuxtLink>
+        <button class="inline-flex h-9 items-center gap-1.5 rounded-full border border-hairline px-3.5 text-sm font-medium text-ink transition hover:bg-surface disabled:opacity-50" :disabled="duplicating" @click="duplicate">
+          <AppIcon name="document" :size="16" /> {{ duplicating ? 'Duplikuję…' : 'Duplikuj' }}
+        </button>
         <button class="inline-flex h-9 items-center gap-1.5 rounded-full border border-hairline px-3.5 text-sm font-medium text-ink transition hover:bg-surface" @click="toggleActive">
           {{ offer.status === 'open' ? 'Wstrzymaj' : 'Aktywuj' }}
         </button>
@@ -234,8 +255,12 @@ async function saveQuick() {
 
     <!-- Opis stanowiska -->
     <div v-if="offer.description" class="card p-4">
-      <p class="mb-2 text-[13px] font-medium text-steel">Opis stanowiska</p>
-      <p class="whitespace-pre-line text-sm text-charcoal">{{ offer.description }}</p>
+      <p class="mb-2.5 text-[13px] font-medium text-steel">Opis stanowiska</p>
+      <ul class="space-y-2">
+        <li v-for="(line, i) in toLines(offer.description)" :key="i" class="flex gap-2.5 text-[15px] leading-relaxed text-charcoal">
+          <span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-brand" />{{ line }}
+        </li>
+      </ul>
     </div>
 
     <!-- Wymagania -->
@@ -273,7 +298,11 @@ async function saveQuick() {
           <AppIcon name="document" :size="15" /> {{ copied ? 'Skopiowano' : 'Kopiuj opis' }}
         </button>
       </div>
-      <p class="whitespace-pre-line text-sm text-charcoal">{{ offer.public_description }}</p>
+      <ul class="space-y-2">
+        <li v-for="(line, i) in toLines(offer.public_description)" :key="i" class="flex gap-2.5 text-[15px] leading-relaxed text-charcoal">
+          <span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-brand" />{{ line }}
+        </li>
+      </ul>
     </div>
 
     <!-- FAQ dla rekruterki -->
