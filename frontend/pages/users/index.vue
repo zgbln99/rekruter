@@ -111,7 +111,7 @@ function remove(u: User) {
           {{ u.role_label }}
         </span>
         <button
-          class="shrink-0 rounded-full border border-hairline px-3 py-1.5 text-sm font-medium text-ink transition hover:bg-surface"
+          class="shrink-0 rounded-lg border border-hairline px-3 py-1.5 text-sm font-medium text-ink transition hover:bg-surface"
           @click="openEdit(u)"
         >
           Edytuj

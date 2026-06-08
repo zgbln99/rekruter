@@ -98,15 +98,15 @@ async function markInstallment(ev: CalendarEvent, status: 'invoiced' | 'paid' | 
     <!-- Pasek nawigacji -->
     <div class="mb-4 flex flex-wrap items-center gap-2">
       <div class="flex items-center gap-1">
-        <button class="flex h-9 w-9 items-center justify-center rounded-full border border-hairline text-ink transition hover:bg-surface" @click="prevMonth">
+        <button class="flex h-9 w-9 items-center justify-center rounded-lg border border-hairline text-ink transition hover:bg-surface" @click="prevMonth">
           <AppIcon name="chevron" :size="18" class="rotate-180" />
         </button>
-        <button class="flex h-9 w-9 items-center justify-center rounded-full border border-hairline text-ink transition hover:bg-surface" @click="nextMonth">
+        <button class="flex h-9 w-9 items-center justify-center rounded-lg border border-hairline text-ink transition hover:bg-surface" @click="nextMonth">
           <AppIcon name="chevron" :size="18" />
         </button>
       </div>
       <h2 class="text-lg font-bold capitalize text-ink">{{ monthLabel }}</h2>
-      <button class="ml-1 rounded-full border border-hairline px-3 py-1.5 text-sm font-medium text-ink transition hover:bg-surface" @click="goToday">
+      <button class="ml-1 rounded-lg border border-hairline px-3 py-1.5 text-sm font-medium text-ink transition hover:bg-surface" @click="goToday">
         Dziś
       </button>
 
@@ -203,7 +203,7 @@ async function markInstallment(ev: CalendarEvent, status: 'invoiced' | 'paid' | 
               <button class="inline-flex h-8 items-center gap-1 rounded-full bg-red-50 px-3 text-xs font-semibold text-red-600 transition hover:bg-red-100" @click="markArrival(ev, 'no_show')">
                 <AppIcon name="x" :size="14" /> Nie dotarł
               </button>
-              <NuxtLink v-if="ev.candidate_id" :to="`/candidates/${ev.candidate_id}`" class="ml-auto inline-flex h-8 items-center rounded-full border border-hairline px-3 text-xs font-medium text-ink transition hover:bg-surface">
+              <NuxtLink v-if="ev.candidate_id" :to="`/candidates/${ev.candidate_id}`" class="ml-auto inline-flex h-8 items-center rounded-lg border border-hairline px-3 text-xs font-medium text-ink transition hover:bg-surface">
                 Karta kierowcy
               </NuxtLink>
             </div>

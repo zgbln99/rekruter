@@ -324,7 +324,7 @@ async function doSend() {
           <!-- WhatsApp + szablony -->
           <div class="relative">
             <button
-              class="inline-flex h-8 items-center gap-1.5 rounded-full bg-emerald-600 px-3 text-xs font-semibold text-white transition hover:bg-emerald-700"
+              class="inline-flex h-8 items-center gap-1.5 rounded-xl bg-emerald-600 px-3 text-xs font-semibold text-white transition hover:bg-emerald-700"
               @click="showWa = !showWa"
             >
               <AppIcon name="chat" :size="15" /> WhatsApp
@@ -353,7 +353,7 @@ async function doSend() {
       <span class="badge badge-neutral shrink-0">{{ candidate.status_label }}</span>
       <NuxtLink
         :to="`/candidates/${id}/edit`"
-        class="inline-flex h-9 items-center gap-1.5 rounded-full border border-hairline px-3.5 text-sm font-medium text-ink transition hover:bg-surface"
+        class="inline-flex h-9 items-center gap-1.5 rounded-xl border border-hairline px-3.5 text-sm font-medium text-ink transition hover:bg-surface"
       >
         Edytuj
       </NuxtLink>
@@ -414,10 +414,10 @@ async function doSend() {
 
         <!-- Profil PDF / wysyłka -->
         <div class="flex gap-2.5">
-          <button class="inline-flex h-11 flex-1 items-center justify-center gap-1.5 rounded-full bg-ink text-sm font-semibold text-white transition active:scale-[0.98] disabled:opacity-50" :disabled="pdfLoading" @click="generatePdf">
+          <button class="inline-flex h-11 flex-1 items-center justify-center gap-1.5 rounded-xl bg-ink text-sm font-semibold text-white transition active:scale-[0.98] disabled:opacity-50" :disabled="pdfLoading" @click="generatePdf">
             <AppIcon name="pdf" :size="18" /> {{ pdfLoading ? 'Generowanie…' : 'Generuj PDF' }}
           </button>
-          <button class="inline-flex h-11 flex-1 items-center justify-center gap-1.5 rounded-full border border-hairline bg-canvas text-sm font-semibold text-ink transition active:bg-surface" @click="showSend = !showSend">
+          <button class="inline-flex h-11 flex-1 items-center justify-center gap-1.5 rounded-xl border border-hairline bg-canvas text-sm font-semibold text-ink transition active:bg-surface" @click="showSend = !showSend">
             <AppIcon name="mail" :size="18" /> Wyślij profil
           </button>
         </div>
@@ -533,7 +533,7 @@ async function doSend() {
                   <AppIcon name="x" :size="14" /> Nie dotarł
                 </button>
                 <button
-                  class="ml-auto inline-flex h-8 items-center gap-1 rounded-full border border-hairline px-3 text-xs font-medium text-ink transition hover:bg-surface"
+                  class="ml-auto inline-flex h-8 items-center gap-1 rounded-lg border border-hairline px-3 text-xs font-medium text-ink transition hover:bg-surface"
                   @click="downloadReferral(pl.id)"
                 >
                   <AppIcon name="download" :size="14" /> PDF
@@ -600,7 +600,7 @@ async function doSend() {
                 <AppIcon name="plus" :size="16" /> Plik
               </button>
               <button
-                class="inline-flex h-9 items-center justify-center gap-1 rounded-full border border-hairline px-3 text-sm font-medium text-ink"
+                class="inline-flex h-9 items-center justify-center gap-1 rounded-xl border border-hairline px-3 text-sm font-medium text-ink"
                 @click="pickDocumentCamera"
               >
                 <AppIcon name="camera" :size="16" /> Aparat
@@ -742,18 +742,18 @@ async function doSend() {
             <AppIcon name="shield" :size="15" /> RODO
           </p>
           <div class="flex flex-wrap gap-2">
-            <button class="inline-flex items-center gap-1.5 rounded-full border border-hairline px-3.5 py-2 text-sm font-medium text-ink transition hover:bg-surface" @click="exportData">
+            <button class="inline-flex items-center gap-1.5 rounded-xl border border-hairline px-3.5 py-2 text-sm font-medium text-ink transition hover:bg-surface" @click="exportData">
               <AppIcon name="download" :size="16" /> Eksport
             </button>
             <button
-              class="inline-flex items-center gap-1.5 rounded-full border border-red-200 px-3.5 py-2 text-sm font-medium text-red-600 transition hover:bg-red-50"
+              class="inline-flex items-center gap-1.5 rounded-xl border border-red-200 px-3.5 py-2 text-sm font-medium text-red-600 transition hover:bg-red-50"
               @click="removeCandidate"
             >
               <AppIcon name="x" :size="16" /> Usuń kandydata
             </button>
             <button
               v-if="auth.isAdmin"
-              class="inline-flex items-center gap-1.5 rounded-full border border-red-300 px-3.5 py-2 text-sm font-medium text-red-700 transition hover:bg-red-50"
+              class="inline-flex items-center gap-1.5 rounded-xl border border-red-300 px-3.5 py-2 text-sm font-medium text-red-700 transition hover:bg-red-50"
               @click="forget"
             >
               Usuń trwale (RODO)

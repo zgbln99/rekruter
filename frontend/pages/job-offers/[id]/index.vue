@@ -164,28 +164,28 @@ async function saveQuick() {
         </p>
       </div>
       <div class="flex flex-wrap gap-2">
-        <button class="inline-flex h-9 items-center gap-1.5 rounded-full bg-ink px-3.5 text-sm font-semibold text-white transition hover:bg-charcoal disabled:opacity-50" :disabled="referralLoading" @click="openReferral">
+        <button class="inline-flex h-9 items-center gap-1.5 rounded-xl bg-ink px-3.5 text-sm font-semibold text-white transition hover:bg-charcoal disabled:opacity-50" :disabled="referralLoading" @click="openReferral">
           <AppIcon name="pdf" :size="16" /> Skierowanie PDF
         </button>
-        <button class="inline-flex h-9 items-center gap-1.5 rounded-full border border-hairline px-3.5 text-sm font-medium text-ink transition hover:bg-surface disabled:opacity-50" :disabled="!!posterLoading" @click="generatePoster('feed')">
+        <button class="inline-flex h-9 items-center gap-1.5 rounded-xl border border-hairline px-3.5 text-sm font-medium text-ink transition hover:bg-surface disabled:opacity-50" :disabled="!!posterLoading" @click="generatePoster('feed')">
           <AppIcon name="camera" :size="16" /> {{ posterLoading === 'feed' ? 'Generuję…' : 'Grafika (post)' }}
         </button>
-        <button class="inline-flex h-9 items-center gap-1.5 rounded-full border border-hairline px-3.5 text-sm font-medium text-ink transition hover:bg-surface disabled:opacity-50" :disabled="!!posterLoading" @click="generatePoster('reels')">
+        <button class="inline-flex h-9 items-center gap-1.5 rounded-xl border border-hairline px-3.5 text-sm font-medium text-ink transition hover:bg-surface disabled:opacity-50" :disabled="!!posterLoading" @click="generatePoster('reels')">
           {{ posterLoading === 'reels' ? 'Generuję…' : 'Grafika (reels)' }}
         </button>
-        <button class="inline-flex h-9 items-center gap-1.5 rounded-full border border-hairline px-3.5 text-sm font-medium text-ink transition hover:bg-surface disabled:opacity-50" :disabled="!!posterLoading" title="Wygeneruj nowe tło przez AI" @click="generatePoster('feed', true)">
+        <button class="inline-flex h-9 items-center gap-1.5 rounded-xl border border-hairline px-3.5 text-sm font-medium text-ink transition hover:bg-surface disabled:opacity-50" :disabled="!!posterLoading" title="Wygeneruj nowe tło przez AI" @click="generatePoster('feed', true)">
           {{ posterLoading === 'refresh' ? 'Odświeżam tło…' : 'Odśwież tło (AI)' }}
         </button>
-        <NuxtLink :to="`/job-offers/${id}/edit`" class="inline-flex h-9 items-center gap-1.5 rounded-full border border-hairline px-3.5 text-sm font-medium text-ink transition hover:bg-surface">
+        <NuxtLink :to="`/job-offers/${id}/edit`" class="inline-flex h-9 items-center gap-1.5 rounded-xl border border-hairline px-3.5 text-sm font-medium text-ink transition hover:bg-surface">
           Edytuj
         </NuxtLink>
-        <button class="inline-flex h-9 items-center gap-1.5 rounded-full border border-hairline px-3.5 text-sm font-medium text-ink transition hover:bg-surface disabled:opacity-50" :disabled="duplicating" @click="duplicate">
+        <button class="inline-flex h-9 items-center gap-1.5 rounded-xl border border-hairline px-3.5 text-sm font-medium text-ink transition hover:bg-surface disabled:opacity-50" :disabled="duplicating" @click="duplicate">
           <AppIcon name="document" :size="16" /> {{ duplicating ? 'Duplikuję…' : 'Duplikuj' }}
         </button>
-        <button class="inline-flex h-9 items-center gap-1.5 rounded-full border border-hairline px-3.5 text-sm font-medium text-ink transition hover:bg-surface" @click="toggleActive">
+        <button class="inline-flex h-9 items-center gap-1.5 rounded-xl border border-hairline px-3.5 text-sm font-medium text-ink transition hover:bg-surface" @click="toggleActive">
           {{ offer.status === 'open' ? 'Wstrzymaj' : 'Aktywuj' }}
         </button>
-        <button v-if="auth.isAdmin" class="inline-flex h-9 items-center gap-1.5 rounded-full border border-red-200 px-3.5 text-sm font-medium text-red-600 transition hover:bg-red-50" @click="removeOffer">
+        <button v-if="auth.isAdmin" class="inline-flex h-9 items-center gap-1.5 rounded-xl border border-red-200 px-3.5 text-sm font-medium text-red-600 transition hover:bg-red-50" @click="removeOffer">
           Usuń
         </button>
       </div>
@@ -363,7 +363,7 @@ async function saveQuick() {
         </div>
 
         <div class="flex items-center justify-end gap-2 border-t border-hairline px-5 py-3.5">
-          <button class="rounded-full border border-hairline px-4 py-2 text-sm font-medium text-ink hover:bg-surface" @click="showReferral = false">Anuluj</button>
+          <button class="rounded-xl border border-hairline px-4 py-2 text-sm font-medium text-ink hover:bg-surface" @click="showReferral = false">Anuluj</button>
           <button class="btn-primary !w-auto" :disabled="referralLoading" @click="generateReferral">
             <AppIcon name="pdf" :size="18" /> {{ referralLoading ? 'Generowanie…' : 'Generuj PDF' }}
           </button>

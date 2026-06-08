@@ -57,21 +57,31 @@ const metrics = computed(() => {
 
 <template>
   <section class="space-y-6">
-    <!-- Nagłówek + szybkie akcje -->
-    <header class="flex flex-wrap items-center justify-between gap-3">
-      <div>
-        <h1 class="text-[26px] font-bold tracking-tight text-ink">
-          Cześć, {{ auth.user?.name?.split(' ')[0] }}
-        </h1>
-        <p class="text-sm capitalize text-stone">{{ today }}</p>
-      </div>
-      <div class="flex gap-2">
-        <NuxtLink to="/candidates/new" class="btn-sm">
-          <AppIcon name="plus" :size="16" /> Kandydat
-        </NuxtLink>
-        <NuxtLink to="/job-offers/new" class="inline-flex h-9 items-center gap-1.5 rounded-full border border-hairline px-4 text-sm font-medium text-ink transition hover:bg-surface">
-          <AppIcon name="plus" :size="16" /> Ogłoszenie
-        </NuxtLink>
+    <!-- Powitalny hero (styl ekranu logowania) -->
+    <header class="relative overflow-hidden rounded-2xl bg-ink px-6 py-7 text-white sm:px-8">
+      <!-- Cienki akcent marki u góry (jak na karcie logowania) -->
+      <div class="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-brand to-brand-deep" />
+      <!-- Subtelna siatka (jak tło logowania) -->
+      <div
+        class="pointer-events-none absolute inset-0 opacity-[0.07]"
+        style="background-image: radial-gradient(#fff 1px, transparent 1px); background-size: 22px 22px; mask-image: radial-gradient(ellipse 80% 120% at 100% 0%, #000 30%, transparent 70%);"
+      />
+
+      <div class="relative flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <p class="text-[13px] capitalize text-white/55">{{ today }}</p>
+          <h1 class="mt-1 text-[28px] font-bold tracking-tight">
+            Cześć, {{ auth.user?.name?.split(' ')[0] }}
+          </h1>
+        </div>
+        <div class="flex gap-2">
+          <NuxtLink to="/candidates/new" class="inline-flex h-10 items-center gap-1.5 rounded-xl bg-white px-4 text-sm font-semibold text-ink transition hover:bg-white/90 active:scale-[0.98]">
+            <AppIcon name="plus" :size="16" /> Kandydat
+          </NuxtLink>
+          <NuxtLink to="/job-offers/new" class="inline-flex h-10 items-center gap-1.5 rounded-xl border border-white/20 px-4 text-sm font-medium text-white transition hover:bg-white/10 active:scale-[0.98]">
+            <AppIcon name="plus" :size="16" /> Ogłoszenie
+          </NuxtLink>
+        </div>
       </div>
     </header>
 
@@ -166,10 +176,10 @@ const metrics = computed(() => {
               <span v-if="task.due_at" class="badge badge-neutral shrink-0">{{ timeLabel(task.due_at) }}</span>
             </div>
             <div class="mt-3 flex gap-2">
-              <button class="inline-flex h-10 flex-1 items-center justify-center gap-1.5 rounded-full bg-ink text-sm font-medium text-white transition active:scale-[0.98]" @click="complete(task)">
+              <button class="inline-flex h-10 flex-1 items-center justify-center gap-1.5 rounded-xl bg-ink text-sm font-medium text-white transition active:scale-[0.98]" @click="complete(task)">
                 <AppIcon name="check" :size="17" /> Gotowe
               </button>
-              <button class="inline-flex h-10 flex-1 items-center justify-center gap-1.5 rounded-full border border-hairline text-sm font-medium text-steel transition hover:bg-surface" @click="snooze(task)">
+              <button class="inline-flex h-10 flex-1 items-center justify-center gap-1.5 rounded-xl border border-hairline text-sm font-medium text-steel transition hover:bg-surface" @click="snooze(task)">
                 <AppIcon name="clock" :size="17" /> Jutro
               </button>
             </div>
