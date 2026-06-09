@@ -41,6 +41,14 @@ class Tenant extends Model
             ?? config('app.name', 'Rekruter');
     }
 
+    /** Telefon kontaktowy agencji (na grafiki / materiały) — z ustawień. */
+    public function agencyPhone(): ?string
+    {
+        $phone = trim((string) ($this->settings['agency_phone'] ?? ''));
+
+        return $phone !== '' ? $phone : null;
+    }
+
     /** Klucz API OpenAI (ChatGPT) — z ustawień organizacji. */
     public function openaiApiKey(): ?string
     {

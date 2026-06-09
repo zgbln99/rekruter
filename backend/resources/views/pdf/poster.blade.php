@@ -85,7 +85,12 @@
         }
         .apply-button .arrow { font-size: 38px; line-height: 1; }
 
-        .agency { margin-top: 24px; font-size: 28px; font-weight: 700; color: var(--label); display: flex; align-items: center; gap: 12px; }
+        .phone { display: flex; align-items: center; gap: 18px; margin-top: 26px; }
+        .phone-icon { width: 60px; height: 60px; border-radius: 15px; background: var(--navy); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .phone-icon svg { width: 34px; height: 34px; color: #fff; }
+        .phone-num { font-size: 50px; font-weight: 900; color: var(--navy); letter-spacing: -1px; }
+
+        .agency { margin-top: 22px; font-size: 28px; font-weight: 700; color: var(--label); display: flex; align-items: center; gap: 12px; }
         .agency .dot { width: 14px; height: 14px; border-radius: 50%; background: var(--red); }
 
         /* ---- Wariant reels (1080x1920) ---- */
@@ -100,6 +105,10 @@
         body.reels .salary-value { font-size: 82px; }
         body.reels .salary-value .suffix { font-size: 36px; }
         body.reels .apply-button { height: 96px; font-size: 48px; }
+        body.reels .phone { margin-top: 32px; gap: 22px; }
+        body.reels .phone-icon { width: 72px; height: 72px; border-radius: 18px; }
+        body.reels .phone-icon svg { width: 40px; height: 40px; }
+        body.reels .phone-num { font-size: 60px; }
         body.reels .agency { font-size: 34px; }
     </style>
 </head>
@@ -166,6 +175,17 @@
             @endif
 
             <div class="apply-button">Aplikuj teraz <span class="arrow">→</span></div>
+
+            @if (! empty($agencyPhone))
+                <div class="phone">
+                    <span class="phone-icon">
+                        <svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M6.6 10.8c1.4 2.8 3.8 5.2 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1C10.6 21 3 13.4 3 4c0-.6.4-1 1-1h3.4c.6 0 1 .4 1 1 0 1.2.2 2.4.6 3.6.1.4 0 .8-.3 1l-2.1 2.2z"/>
+                        </svg>
+                    </span>
+                    <span class="phone-num">{{ $agencyPhone }}</span>
+                </div>
+            @endif
 
             <div class="agency"><span class="dot"></span> {{ $agencyName }}</div>
         </section>

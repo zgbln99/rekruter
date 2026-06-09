@@ -47,6 +47,7 @@ class GeneratePosterAction
             'salarySuffix' => 'na rękę',
             'headlineFontSize' => $this->valueMainFontSize($headline, $format),
             'agencyName' => $tenant?->agencyName() ?? config('app.name'),
+            'agencyPhone' => $tenant?->agencyPhone(),
         ])->render();
 
         $png = GotenbergClient::make()->htmlToImage($html, $w, $h, 'png');
