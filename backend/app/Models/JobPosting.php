@@ -115,9 +115,14 @@ class JobPosting extends Model
         return '/kariera/'.$this->publicSlug().'/'.$this->id;
     }
 
-    /** Pełny publiczny URL ogłoszenia. */
+    /**
+     * Pełny publiczny URL ogłoszenia — bazuje na adresie strony kariery
+     * (domena główna), bo panel API żyje pod inną subdomeną.
+     */
     public function publicUrl(): string
     {
-        return url($this->publicPath());
+        $base = config('rekruter.careers_url');
+
+        return $base ? $base.$this->publicPath() : url($this->publicPath());
     }
 }

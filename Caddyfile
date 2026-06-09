@@ -1,8 +1,19 @@
-# Reverse-proxy HTTPS dla Rekrutera (Caddy + automatyczny Let's Encrypt).
-# Domena pobierana ze zmiennej DOMAIN (ustaw w ./.env, np. ltslogistik.duckdns.org).
-# Caddy przekierowuje cały ruch (SPA + /api) do kontenera web (nginx) po sieci wewnętrznej.
+# Reverse-proxy HTTPS (Caddy + automatyczny Let's Encrypt).
+# Domena pobierana ze zmiennej DOMAIN (ustaw w ./.env, np. ltslogistik.pl).
+#
+#   - DOMAIN            → publiczna strona z ogłoszeniami (Laravel, kontener careers-web)
+#   - panel.DOMAIN      → panel rekrutera (PWA + /api, kontener web)
+#
+# Wymaga rekordów DNS A: DOMAIN oraz panel.DOMAIN → IP serwera.
 
+# Strona główna: oferty pracy (publiczna, indeksowana).
 {$DOMAIN} {
+    encode zstd gzip
+    reverse_proxy careers-web:80
+}
+
+# Panel rekrutera pod subdomeną.
+panel.{$DOMAIN} {
     encode zstd gzip
     reverse_proxy web:80
 }

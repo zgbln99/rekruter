@@ -16,6 +16,11 @@ return Application::configure(basePath: dirname(__DIR__))
             'tenant' => \App\Http\Middleware\IdentifyTenant::class,
         ]);
 
+        // Za reverse-proxy (Caddy / nginx) — ufamy nagłówkom X-Forwarded-*,
+        // żeby Laravel widział poprawny host i schemat https (kanoniczne URL-e,
+        // OG, dane strukturalne na stronie kariery).
+        $middleware->trustProxies(at: '*');
+
         // Nagłówki bezpieczeństwa na wszystkich odpowiedziach API.
         $middleware->api(append: [
             \App\Http\Middleware\SecurityHeaders::class,

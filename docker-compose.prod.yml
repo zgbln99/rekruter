@@ -117,7 +117,7 @@ services:
       redis:
         condition: service_healthy
 
-  # Frontend (PWA) + reverse proxy /api — jedyny port publiczny.
+  # Panel rekrutera (PWA) + reverse proxy /api. Trafia tu subdomena panel.*
   web:
     build:
       context: ./frontend
@@ -127,6 +127,18 @@ services:
     restart: unless-stopped
     ports:
       - "4050:80"
+    depends_on:
+      - app
+
+  # Publiczna strona kariery (oferty) — domena główna. Serwuje Laravela.
+  careers-web:
+    image: nginx:alpine
+    restart: unless-stopped
+    volumes:
+      - ./infra/nginx/careers.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./backend/public:/var/www/html/public:ro
+    ports:
+      - "4060:80"
     depends_on:
       - app
 
