@@ -268,6 +268,7 @@ export interface JobPosting {
   status: 'open' | 'paused' | 'closed'
   status_label: string
   is_public?: boolean
+  is_featured?: boolean
   public_url?: string | null
   cover_image_url?: string | null
   applications_count?: number

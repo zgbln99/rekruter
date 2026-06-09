@@ -52,6 +52,7 @@ class JobPosting extends Model
         'salary_range',
         'status',
         'is_public',
+        'is_featured',
         'published_at',
         'cover_image_url',
         'external_ref',
@@ -67,6 +68,7 @@ class JobPosting extends Model
             'start_date' => 'date',
             'published_at' => 'datetime',
             'is_public' => 'boolean',
+            'is_featured' => 'boolean',
             'status' => JobPostingStatus::class,
         ];
     }

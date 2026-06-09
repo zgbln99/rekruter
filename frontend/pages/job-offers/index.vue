@@ -16,6 +16,16 @@ const offers = computed(() =>
   status.value ? allOffers.value.filter((o) => o.status === status.value) : allOffers.value,
 )
 
+// Paginacja (po stronie klienta).
+const PER_PAGE = 20
+const page = ref(1)
+const totalPages = computed(() => Math.max(1, Math.ceil(offers.value.length / PER_PAGE)))
+const pagedOffers = computed(() => offers.value.slice((page.value - 1) * PER_PAGE, page.value * PER_PAGE))
+watch([status, () => offers.value.length], () => {
+  if (page.value > totalPages.value) page.value = totalPages.value
+})
+watch(status, () => (page.value = 1))
+
 const statusTone: Record<string, string> = {
   open: 'bg-emerald-50 text-emerald-700',
   paused: 'bg-amber-50 text-amber-700',
@@ -83,12 +93,17 @@ function open(o: JobPosting) {
           </thead>
           <tbody>
             <tr
-              v-for="o in offers"
+              v-for="o in pagedOffers"
               :key="o.id"
               class="cursor-pointer border-b border-hairline-soft transition last:border-0 hover:bg-surface-soft"
               @click="open(o)"
             >
-              <td class="px-4 py-3 font-medium text-ink">{{ o.title }}</td>
+              <td class="px-4 py-3 font-medium text-ink">
+                <span class="inline-flex items-center gap-1.5">
+                  <svg v-if="o.is_featured" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" class="shrink-0 text-amber-500" title="Promowana"><path d="M12 2l2.9 6 6.6.6-5 4.3 1.5 6.5L12 16.9 5.9 19.4 7.4 12.9 2.4 8.6 9 8z"/></svg>
+                  {{ o.title }}
+                </span>
+              </td>
               <td class="px-4 py-3 text-steel">{{ o.company?.name || '—' }}</td>
               <td class="px-4 py-3 text-steel">{{ location(o) }}</td>
               <td class="px-4 py-3">
@@ -115,11 +130,14 @@ function open(o: JobPosting) {
 
       <!-- Karty (mobile) -->
       <ul class="grid gap-3 sm:grid-cols-2 lg:hidden">
-        <li v-for="o in offers" :key="o.id">
+        <li v-for="o in pagedOffers" :key="o.id">
           <NuxtLink :to="`/job-offers/${o.id}`" class="card-tile flex h-full flex-col p-4">
             <!-- Tytuł + status + widoczność -->
             <div class="flex items-start justify-between gap-3">
-              <p class="min-w-0 flex-1 font-semibold leading-snug text-ink">{{ o.title }}</p>
+              <p class="min-w-0 flex-1 font-semibold leading-snug text-ink">
+                <svg v-if="o.is_featured" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" class="mr-1 inline shrink-0 text-amber-500"><path d="M12 2l2.9 6 6.6.6-5 4.3 1.5 6.5L12 16.9 5.9 19.4 7.4 12.9 2.4 8.6 9 8z"/></svg>
+                {{ o.title }}
+              </p>
               <div class="flex shrink-0 flex-col items-end gap-1">
                 <span class="badge" :class="statusTone[o.status] || 'badge-neutral'">{{ o.status_label }}</span>
                 <span class="badge inline-flex items-center gap-1" :class="o.is_public ? 'bg-blue-50 text-blue-700' : 'bg-surface text-muted'">
@@ -160,6 +178,25 @@ function open(o: JobPosting) {
           </NuxtLink>
         </li>
       </ul>
+
+      <!-- Paginacja -->
+      <div v-if="totalPages > 1" class="mt-4 flex items-center justify-center gap-2">
+        <button
+          class="inline-flex h-9 items-center gap-1.5 rounded-xl border border-hairline px-3.5 text-sm font-medium text-ink transition hover:bg-surface disabled:opacity-40"
+          :disabled="page <= 1"
+          @click="page--"
+        >
+          <AppIcon name="chevron" :size="15" class="rotate-180" /> Poprzednia
+        </button>
+        <span class="px-2 text-sm text-stone">{{ page }} / {{ totalPages }}</span>
+        <button
+          class="inline-flex h-9 items-center gap-1.5 rounded-xl border border-hairline px-3.5 text-sm font-medium text-ink transition hover:bg-surface disabled:opacity-40"
+          :disabled="page >= totalPages"
+          @click="page++"
+        >
+          Następna <AppIcon name="chevron" :size="15" />
+        </button>
+      </div>
     </template>
   </section>
 </template>

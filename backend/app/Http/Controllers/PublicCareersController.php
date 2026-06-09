@@ -63,7 +63,7 @@ class PublicCareersController extends Controller
             $query->whereJsonContains('required_categories', $category);
         }
 
-        $offers = $query->orderByDesc('published_at')->orderByDesc('created_at')
+        $offers = $query->orderByDesc('is_featured')->orderByDesc('published_at')->orderByDesc('created_at')
             ->paginate(12)->withQueryString();
 
         // Opcje filtrów z aktualnie opublikowanych ofert.

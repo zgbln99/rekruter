@@ -41,6 +41,16 @@ async function togglePublic() {
   }
 }
 
+const featuring = ref(false)
+async function toggleFeatured() {
+  featuring.value = true
+  try {
+    await updateOffer.mutateAsync({ is_featured: !offer.value?.is_featured } as any)
+  } finally {
+    featuring.value = false
+  }
+}
+
 // Zdjęcie okładkowe (europejska ciężarówka z Unsplash).
 const fetchCover = useFetchOfferCover(id)
 const coverLoading = ref(false)
@@ -269,6 +279,29 @@ async function saveQuick() {
           <span class="inline-block h-5 w-5 transform rounded-full bg-white shadow transition" :class="offer.is_public ? 'translate-x-6' : 'translate-x-1'" />
         </button>
       </div>
+    </div>
+
+    <!-- Promowanie (oferta wyżej na stronie głównej; bez etykiety publicznie) -->
+    <div class="card flex flex-wrap items-center gap-3 p-4">
+      <span
+        class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl"
+        :class="offer.is_featured ? 'bg-amber-50 text-amber-500' : 'bg-surface text-stone'"
+      >
+        <svg width="20" height="20" viewBox="0 0 24 24" :fill="offer.is_featured ? 'currentColor' : 'none'" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M12 2l2.9 6 6.6.6-5 4.3 1.5 6.5L12 16.9 5.9 19.4 7.4 12.9 2.4 8.6 9 8z"/></svg>
+      </span>
+      <div class="min-w-0 flex-1">
+        <p class="text-sm font-semibold text-ink">{{ offer.is_featured ? 'Oferta promowana' : 'Oferta zwykła' }}</p>
+        <p class="text-xs text-stone">Promowane oferty wyświetlają się wyżej na stronie głównej (bez żadnej etykiety dla kierowców).</p>
+      </div>
+      <button
+        class="relative inline-flex h-7 w-12 shrink-0 items-center rounded-full transition disabled:opacity-50"
+        :class="offer.is_featured ? 'bg-amber-500' : 'bg-hairline'"
+        :disabled="featuring"
+        :title="offer.is_featured ? 'Wyłącz promowanie' : 'Promuj ofertę'"
+        @click="toggleFeatured"
+      >
+        <span class="inline-block h-5 w-5 transform rounded-full bg-white shadow transition" :class="offer.is_featured ? 'translate-x-6' : 'translate-x-1'" />
+      </button>
     </div>
 
     <!-- Zdjęcie ogłoszenia (okładka na stronie kariery) -->
