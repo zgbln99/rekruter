@@ -42,6 +42,7 @@ return [
 
     'hero_image' => env('CAREERS_HERO_IMAGE', 'https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?auto=format&fit=crop&w=1920&q=70'),
 
+    // Pula domyślnych okładek (gdy oferta nie ma własnego zdjęcia).
     'stock_images' => [
         'https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?auto=format&fit=crop&w=900&q=70',
         'https://images.unsplash.com/photo-1586191582151-f73872dfd183?auto=format&fit=crop&w=900&q=70',
@@ -49,6 +50,29 @@ return [
         'https://images.unsplash.com/photo-1558981403-c5f9899a28bc?auto=format&fit=crop&w=900&q=70',
         'https://images.unsplash.com/photo-1591768793355-74d04bb6608f?auto=format&fit=crop&w=900&q=70',
         'https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?auto=format&fit=crop&w=900&q=70',
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Unsplash — pobieranie zdjęć ciężarówek w panelu
+    |--------------------------------------------------------------------------
+    |
+    | Klucz dostępu (Access Key) z https://unsplash.com/developers. Bez klucza
+    | przycisk „Losuj zdjęcie" użyje puli domyślnej powyżej. Zapytania celują
+    | w europejskie marki/ciężarówki (Scania, Volvo, DAF, MAN, Mercedes Actros).
+    |
+    */
+    'unsplash_key' => env('UNSPLASH_ACCESS_KEY'),
+
+    'truck_queries' => [
+        'scania truck highway',
+        'volvo truck europe',
+        'daf truck',
+        'man truck lorry',
+        'mercedes actros truck',
+        'european lorry motorway',
+        'iveco truck',
+        'renault truck europe',
     ],
 
 ];

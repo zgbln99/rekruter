@@ -3,6 +3,9 @@
 @php
     $loc = collect([$offer->region_base, $offer->country])->filter()->implode(', ') ?: ($offer->location ?: null);
     $salary = trim((string) $offer->salary_amount) !== '' ? trim($offer->salary_amount) : null;
+    // Dane dla pływającego paska — liczone z góry (pętla „Podobne oferty" nadpisuje $offer).
+    $barSalary = $salary ? trim($salary.' '.$offer->currency) : null;
+    $barTitle = $offer->title;
     $cats = is_array($offer->required_categories) ? $offer->required_categories : [];
     $eyebrow = count($cats) ? 'Kat. '.implode(' / ', $cats) : 'Praca dla kierowcy';
     $desc = \App\Support\Html\SafeHtml::clean($offer->public_description);
@@ -56,6 +59,12 @@
             <div class="d-sub">
                 @if ($offer->company?->name)<span class="m">{{ $offer->company->name }}</span>@endif
                 @if ($loc)<span class="m"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7-5.3-7-11a7 7 0 1 1 14 0c0 5.7-7 11-7 11Z"/><circle cx="12" cy="10" r="2.4"/></svg>{{ $loc }}</span>@endif
+            </div>
+            <div class="cta">
+                <a href="#aplikuj" class="btn btn-light">Aplikuj na tę ofertę</a>
+                @if ($agencyPhone)
+                    <a href="tel:{{ preg_replace('/\s+/', '', $agencyPhone) }}" class="btn btn-glass">Zadzwoń: {{ $agencyPhone }}</a>
+                @endif
             </div>
         </div>
     </section>
@@ -171,4 +180,18 @@
             @endif
         </div>
     </section>
+
+    {{-- Pływający pasek aplikowania (mobile/tablet) --}}
+    @unless (session('applied'))
+        <div class="apply-bar">
+            <div class="ab-info">
+                @if ($barSalary)
+                    <b>{{ $barSalary }}</b><span>na rękę / miesiąc</span>
+                @else
+                    <b>{{ \Illuminate\Support\Str::limit($barTitle, 24) }}</b><span>{{ $loc }}</span>
+                @endif
+            </div>
+            <a href="#aplikuj" class="btn btn-accent">Aplikuj teraz</a>
+        </div>
+    @endunless
 @endsection

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Actions\Ai\GenerateOfferDescriptionAction;
 use App\Actions\Candidates\CreateCandidateFromOfferAction;
+use App\Actions\Offers\FetchTruckPhotoAction;
 use App\Actions\Profiles\GeneratePosterAction;
 use App\Actions\Profiles\GenerateReferralPdfAction;
 use App\Http\Controllers\Controller;
@@ -55,6 +56,17 @@ class JobPostingController extends Controller
         }
 
         $jobPosting->update($data);
+
+        return new JobPostingResource($jobPosting->refresh()->load('company'));
+    }
+
+    /** Pobiera i ustawia zdjęcie okładkowe (europejska ciężarówka z Unsplash). */
+    public function fetchCover(JobPosting $jobPosting, FetchTruckPhotoAction $action): JobPostingResource
+    {
+        $url = $action();
+        abort_if($url === '', 422, 'Nie udało się pobrać zdjęcia.');
+
+        $jobPosting->update(['cover_image_url' => $url]);
 
         return new JobPostingResource($jobPosting->refresh()->load('company'));
     }

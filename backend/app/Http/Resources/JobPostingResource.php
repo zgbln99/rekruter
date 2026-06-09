@@ -54,6 +54,7 @@ class JobPostingResource extends JsonResource
             'status_label' => $this->status->label(),
             'is_public' => (bool) $this->is_public,
             'public_url' => $this->isPublished() ? $this->publicUrl() : null,
+            'cover_image_url' => $this->cover_image_url,
             'applications_count' => $this->whenCounted('applications'),
             'created_at' => $this->created_at?->toIso8601String(),
         ];

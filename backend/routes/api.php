@@ -163,6 +163,8 @@ Route::prefix('v1')->group(function () {
             ->name('job-offers.create-candidate');
         Route::post('job-offers/{jobPosting}/duplicate', [JobPostingController::class, 'duplicate'])
             ->name('job-offers.duplicate');
+        Route::post('job-offers/{jobPosting}/fetch-cover', [JobPostingController::class, 'fetchCover'])
+            ->name('job-offers.fetch-cover');
         Route::get('job-offers/{jobPosting}/pipeline', [PipelineController::class, 'board'])
             ->name('job-offers.pipeline');
         Route::get('job-offers/{jobPosting}/referral-pdf', [JobPostingController::class, 'referralPdf'])

@@ -59,6 +59,7 @@ class UpdateJobPostingRequest extends FormRequest
             'salary_range' => ['nullable', 'string', 'max:120'],
             'status' => ['sometimes', new Enum(JobPostingStatus::class)],
             'is_public' => ['sometimes', 'boolean'],
+            'cover_image_url' => ['nullable', 'string', 'max:1024'],
         ];
     }
 }

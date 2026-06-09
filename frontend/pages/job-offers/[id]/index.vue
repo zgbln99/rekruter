@@ -40,6 +40,26 @@ async function togglePublic() {
     publishing.value = false
   }
 }
+
+// Zdjęcie okładkowe (europejska ciężarówka z Unsplash).
+const fetchCover = useFetchOfferCover(id)
+const coverLoading = ref(false)
+async function randomCover() {
+  coverLoading.value = true
+  try {
+    await fetchCover.mutateAsync()
+  } finally {
+    coverLoading.value = false
+  }
+}
+async function removeCover() {
+  coverLoading.value = true
+  try {
+    await updateOffer.mutateAsync({ cover_image_url: null } as any)
+  } finally {
+    coverLoading.value = false
+  }
+}
 function copyPublicUrl() {
   if (offer.value?.public_url) navigator.clipboard?.writeText(offer.value.public_url)
 }
@@ -248,6 +268,44 @@ async function saveQuick() {
         >
           <span class="inline-block h-5 w-5 transform rounded-full bg-white shadow transition" :class="offer.is_public ? 'translate-x-6' : 'translate-x-1'" />
         </button>
+      </div>
+    </div>
+
+    <!-- Zdjęcie ogłoszenia (okładka na stronie kariery) -->
+    <div class="card overflow-hidden">
+      <div
+        class="relative h-40 bg-gradient-to-br from-slate-800 to-ink"
+        :style="offer.cover_image_url ? `background-image:url('${offer.cover_image_url}');background-size:cover;background-position:center` : ''"
+      >
+        <div v-if="!offer.cover_image_url" class="flex h-full items-center justify-center text-white/60">
+          <div class="text-center">
+            <AppIcon name="truck" :size="28" class="mx-auto" />
+            <p class="mt-1.5 text-xs">Brak zdjęcia — użyte zostanie domyślne</p>
+          </div>
+        </div>
+      </div>
+      <div class="flex flex-wrap items-center justify-between gap-2 p-4">
+        <div class="min-w-0">
+          <p class="text-sm font-semibold text-ink">Zdjęcie ogłoszenia</p>
+          <p class="text-xs text-stone">Europejska ciężarówka z Unsplash — pokazywana na stronie kariery.</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <button
+            class="inline-flex h-9 items-center gap-1.5 rounded-xl bg-ink px-3.5 text-sm font-semibold text-white transition hover:bg-charcoal disabled:opacity-50"
+            :disabled="coverLoading"
+            @click="randomCover"
+          >
+            <AppIcon name="camera" :size="16" /> {{ coverLoading ? 'Pobieram…' : (offer.cover_image_url ? 'Zmień zdjęcie' : 'Pobierz zdjęcie') }}
+          </button>
+          <button
+            v-if="offer.cover_image_url"
+            class="inline-flex h-9 items-center gap-1.5 rounded-xl border border-hairline px-3.5 text-sm font-medium text-ink transition hover:bg-surface disabled:opacity-50"
+            :disabled="coverLoading"
+            @click="removeCover"
+          >
+            Usuń
+          </button>
+        </div>
       </div>
     </div>
 

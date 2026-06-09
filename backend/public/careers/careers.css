@@ -215,6 +215,20 @@ img { max-width: 100%; display: block; }
 .flash-ok .ic { width: 28px; height: 28px; border-radius: 50%; background: #2e9e4d; color: #fff; display: inline-flex; align-items: center; justify-content: center; flex: 0 0 auto; }
 .err-box { background: #fdf1f0; border: 1px solid #f6c9c5; color: var(--accent-deep); border-radius: 11px; padding: 12px 14px; font-size: 13.5px; }
 
+/* ---------- Pływający pasek aplikowania ---------- */
+.apply-bar {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 45;
+  background: rgba(255,255,255,.92); backdrop-filter: saturate(180%) blur(12px);
+  border-top: 1px solid var(--line); box-shadow: 0 -12px 30px -16px rgba(13,15,20,.28);
+  padding: 12px 20px; padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+  display: flex; align-items: center; justify-content: space-between; gap: 14px;
+}
+.apply-bar .ab-info { min-width: 0; }
+.apply-bar .ab-info b { display: block; font-size: 16px; font-weight: 700; color: var(--ink); letter-spacing: -.02em; white-space: nowrap; }
+.apply-bar .ab-info span { font-size: 12px; color: var(--muted); }
+.apply-bar .btn { flex: 0 0 auto; height: 48px; padding: 0 22px; }
+@media (max-width: 899px) { .detail-body { padding-bottom: 104px; } }
+
 /* ---------- Footer ---------- */
 .site-footer { background: var(--ink); color: rgba(255,255,255,.6); padding: 64px 0 40px; margin-top: auto; }
 .site-footer .cols { display: flex; justify-content: space-between; gap: 40px; flex-wrap: wrap; }
@@ -234,10 +248,15 @@ img { max-width: 100%; display: block; }
   .values { grid-template-columns: repeat(3, 1fr); }
   .searchbar form { grid-template-columns: 1fr 200px 180px auto; align-items: center; }
 }
+/* Oferta 2-kolumnowa już na laptopach + ukrycie pływającego paska. */
+@media (min-width: 900px) {
+  .detail-grid { grid-template-columns: minmax(0, 1fr) 360px; gap: 48px; }
+  .aside { position: sticky; top: 32px; }
+  .apply-bar { display: none; }
+}
 @media (min-width: 981px) {
   .offers-grid { grid-template-columns: repeat(2, 1fr); }
-  .detail-grid { grid-template-columns: minmax(0, 1fr) 380px; gap: 56px; }
-  .aside { position: sticky; top: 32px; }
+  .detail-grid { gap: 56px; grid-template-columns: minmax(0, 1fr) 380px; }
   .hero .wrap { padding: 172px 28px 80px; }
   .detail-hero .wrap { padding: 160px 28px 56px; }
 }

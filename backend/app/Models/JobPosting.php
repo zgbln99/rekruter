@@ -53,6 +53,7 @@ class JobPosting extends Model
         'status',
         'is_public',
         'published_at',
+        'cover_image_url',
         'external_ref',
     ];
 
@@ -103,9 +104,16 @@ class JobPosting extends Model
         return (bool) $this->is_public && $this->status === JobPostingStatus::Open;
     }
 
-    /** Deterministyczne zdjęcie okładkowe oferty (stock, z puli configu). */
+    /**
+     * Zdjęcie okładkowe oferty: najpierw ustawione ręcznie (np. z Unsplash),
+     * inaczej deterministyczne z puli europejskich ciężarówek (config).
+     */
     public function coverImage(): string
     {
+        if (! empty($this->cover_image_url)) {
+            return $this->cover_image_url;
+        }
+
         $imgs = config('rekruter.stock_images', []);
         if (empty($imgs)) {
             return '';

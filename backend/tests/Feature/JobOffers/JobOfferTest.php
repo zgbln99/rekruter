@@ -75,6 +75,19 @@ class JobOfferTest extends TestCase
         ]);
     }
 
+    public function test_fetch_cover_sets_image_from_pool_without_api_key(): void
+    {
+        config(['rekruter.unsplash_key' => null]);
+        $offer = JobPosting::factory()->for($this->tenant)->create(['cover_image_url' => null]);
+
+        $this->postJson("/api/v1/job-offers/{$offer->id}/fetch-cover")
+            ->assertOk()
+            ->assertJsonPath('id', $offer->id);
+
+        $this->assertNotNull($offer->refresh()->cover_image_url);
+        $this->assertStringContainsString('http', $offer->cover_image_url);
+    }
+
     public function test_create_candidate_from_offer_reuses_existing_by_phone(): void
     {
         $company = Company::factory()->for($this->tenant)->create();

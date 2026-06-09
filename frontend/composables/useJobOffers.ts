@@ -47,6 +47,20 @@ export function useUpdateJobOffer(id: MaybeRefOrGetter<string>) {
   })
 }
 
+/** Pobiera zdjęcie europejskiej ciężarówki (Unsplash) i ustawia jako okładkę. */
+export function useFetchOfferCover(id: MaybeRefOrGetter<string>) {
+  const api = useApi()
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: () =>
+      api<JobPosting>(`/job-offers/${toValue(id)}/fetch-cover`, { method: 'POST' }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['job-offer', toValue(id)] })
+      queryClient.invalidateQueries({ queryKey: ['job-offers'] })
+    },
+  })
+}
+
 /** AI (ChatGPT): generuje opis ogłoszenia na podstawie danych formularza. */
 export async function generateOfferDescription(
   payload: Record<string, unknown>,

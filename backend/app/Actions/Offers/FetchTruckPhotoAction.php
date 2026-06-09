@@ -1,0 +1,71 @@
+<?php
+
+namespace App\Actions\Offers;
+
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
+
+/**
+ * Zwraca adres zdjęcia europejskiej ciężarówki.
+ *
+ * Preferuje Unsplash API (losowe zdjęcie wg zapytania o europejskie marki).
+ * Bez klucza API albo przy błędzie — losuje z konfiguracyjnej puli domyślnej.
+ */
+class FetchTruckPhotoAction
+{
+    public function __invoke(): string
+    {
+        $key = config('rekruter.unsplash_key');
+        $queries = config('rekruter.truck_queries', ['european truck']);
+        $query = $queries[array_rand($queries)];
+
+        if ($key) {
+            $url = $this->fromUnsplash($key, $query);
+            if ($url !== null) {
+                return $url;
+            }
+        }
+
+        return $this->fromPool();
+    }
+
+    private function fromUnsplash(string $key, string $query): ?string
+    {
+        try {
+            $res = Http::timeout(12)->get('https://api.unsplash.com/photos/random', [
+                'query' => $query,
+                'orientation' => 'landscape',
+                'content_filter' => 'high',
+                'client_id' => $key,
+            ]);
+
+            if (! $res->successful()) {
+                return null;
+            }
+
+            $raw = $res->json('urls.raw') ?? $res->json('urls.regular');
+            if (! $raw) {
+                return null;
+            }
+
+            // Dokładamy parametry kadrowania/jakości (Imgix Unsplasha).
+            $sep = str_contains($raw, '?') ? '&' : '?';
+
+            return $raw.$sep.'auto=format&fit=crop&w=1200&q=72';
+        } catch (\Throwable $e) {
+            Log::warning('Unsplash: nie pobrano zdjęcia ciężarówki: '.$e->getMessage());
+
+            return null;
+        }
+    }
+
+    private function fromPool(): string
+    {
+        $pool = config('rekruter.stock_images', []);
+        if (empty($pool)) {
+            return '';
+        }
+
+        return $pool[array_rand($pool)];
+    }
+}
