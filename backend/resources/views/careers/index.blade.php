@@ -7,20 +7,44 @@
     {{-- Hero --}}
     <section class="hero">
         <div class="wrap">
-            <span class="kicker"><span class="mk">●</span>&nbsp;&nbsp;Agencja pracy dla kierowców</span>
-            <h1>Praca za kierownicą<br>w Niemczech <span class="accent">i Polsce.</span></h1>
-            <p class="lead">Sprawdzone oferty u solidnych pracodawców. Bezpośrednie zatrudnienie, jasne warunki, kontakt w ciągu 24 godzin — bez pośredników i bez opłat dla kierowcy.</p>
-            <div class="cta">
-                <a href="#oferty" class="btn btn-dark">Zobacz oferty</a>
-                @if ($tenant?->agencyPhone())
-                    <a href="tel:{{ preg_replace('/\s+/', '', $tenant->agencyPhone()) }}" class="btn btn-ghost">Zadzwoń</a>
+            <div class="hero-grid">
+                <div class="hero-left">
+                    <span class="kicker"><span class="mk">●</span>&nbsp;&nbsp;Agencja pracy dla kierowców</span>
+                    <h1>Praca za kierownicą<br>w Niemczech <span class="accent">i Polsce.</span></h1>
+                    <p class="lead">Sprawdzone oferty u solidnych pracodawców. Bezpośrednie zatrudnienie, jasne warunki, kontakt w ciągu 24 godzin — bez pośredników i bez opłat dla kierowcy.</p>
+                    <div class="cta">
+                        <a href="#oferty" class="btn btn-dark">Zobacz oferty</a>
+                        @if ($tenant?->agencyPhone())
+                            <a href="tel:{{ preg_replace('/\s+/', '', $tenant->agencyPhone()) }}" class="btn btn-ghost">Zadzwoń</a>
+                        @endif
+                    </div>
+                    <div class="hero-meta">
+                        <span class="hm"><span class="d"></span> <b>{{ $total }}</b>&nbsp;aktywnych ofert</span>
+                        <span class="hm">Bezpośrednie zatrudnienie</span>
+                        <span class="hm">Kontakt w 24h</span>
+                    </div>
+                </div>
+
+                @if ($featured)
+                    @php
+                        $fLoc = collect([$featured->region_base, $featured->country])->filter()->implode(', ');
+                        $fCats = is_array($featured->required_categories) ? $featured->required_categories : [];
+                        $fSalary = trim((string) $featured->salary_amount) !== '' ? trim($featured->salary_amount.' '.$featured->currency) : null;
+                    @endphp
+                    <a class="featured" href="{{ $featured->publicPath() }}">
+                        <span class="f-kicker"><span class="d"></span> Wyróżniona oferta</span>
+                        <div class="f-cat">{{ count($fCats) ? 'Kat. '.implode(' / ', $fCats) : 'Kierowca' }}</div>
+                        <h3>{{ \Illuminate\Support\Str::limit($featured->title, 64) }}</h3>
+                        <div class="f-meta">
+                            @if ($fLoc)<span class="m">{{ $fLoc }}</span>@endif
+                            @if ($featured->work_system)<span class="m">System {{ $featured->work_system }}</span>@endif
+                        </div>
+                        <div class="f-foot">
+                            @if ($fSalary)<div class="f-salary"><b>{{ $fSalary }}</b><span>na rękę</span></div>@endif
+                            <span class="f-go"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+                        </div>
+                    </a>
                 @endif
-            </div>
-            <div class="hero-meta">
-                <span class="hm"><span class="d"></span> <b>{{ $total }}</b>&nbsp;aktywnych ofert</span>
-                <span class="hm">Bezpośrednie zatrudnienie</span>
-                <span class="hm">Kontakt w 24h</span>
-                <span class="hm">0 zł dla kierowcy</span>
             </div>
         </div>
     </section>

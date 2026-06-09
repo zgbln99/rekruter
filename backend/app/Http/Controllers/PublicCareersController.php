@@ -76,6 +76,8 @@ class PublicCareersController extends Controller
         return view('careers.index', [
             'tenant' => $tenant,
             'offers' => $offers,
+            'featured' => JobPosting::query()->published()->with('company')
+                ->orderByDesc('published_at')->orderByDesc('created_at')->first(),
             'countries' => $countries,
             'systems' => $systems,
             'categories' => $categories,
