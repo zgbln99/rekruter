@@ -13,7 +13,7 @@ const pick = (...routes: string[]) =>
 // Sekcje — porządkują nawigację bez zmiany płaskiej listy współdzielonej z mobile.
 const groups = computed(() => [
   { label: '', items: pick('/') },
-  { label: 'Rekrutacja', items: pick('/job-offers', '/candidates', '/pipeline', '/calendar') },
+  { label: 'Rekrutacja', items: pick('/job-offers', '/candidates', '/pipeline', '/calendar', '/notes') },
   { label: 'Organizacja', items: pick('/companies', '/users', '/settings') },
 ].filter((g) => g.items.length))
 

@@ -24,6 +24,7 @@ use App\Http\Controllers\Api\V1\ProfileController;
 use App\Http\Controllers\Api\V1\RodoController;
 use App\Http\Controllers\Api\V1\SearchController;
 use App\Http\Controllers\Api\V1\SettingsController;
+use App\Http\Controllers\Api\V1\NoteController;
 use App\Http\Controllers\Api\V1\TaskController;
 use App\Http\Controllers\Api\V1\UserController;
 use Illuminate\Support\Facades\Route;
@@ -84,6 +85,12 @@ Route::prefix('v1')->group(function () {
         Route::get('tasks', [TaskController::class, 'index'])->name('tasks.index');
         Route::post('tasks', [TaskController::class, 'store'])->name('tasks.store');
         Route::patch('tasks/{task}', [TaskController::class, 'update'])->name('tasks.update');
+
+        // Osobisty notatnik rekrutera (prywatne notatki).
+        Route::get('notes', [NoteController::class, 'index'])->name('notes.index');
+        Route::post('notes', [NoteController::class, 'store'])->name('notes.store');
+        Route::patch('notes/{note}', [NoteController::class, 'update'])->name('notes.update');
+        Route::delete('notes/{note}', [NoteController::class, 'destroy'])->name('notes.destroy');
 
         // --- Faza 2: Dokumenty + Profil ---
 

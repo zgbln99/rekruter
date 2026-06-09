@@ -116,6 +116,16 @@ export interface ContactLog {
   user?: User
 }
 
+export interface Note {
+  id: string
+  title: string | null
+  body: string | null
+  pinned: boolean
+  color: string | null
+  updated_at: string | null
+  created_at: string | null
+}
+
 export interface Task {
   id: string
   candidate_id: string | null
