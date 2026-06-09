@@ -29,8 +29,8 @@
     @if ($faviconUrl)<link rel="icon" href="{{ $faviconUrl }}">@endif
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
-    <link rel="stylesheet" href="{{ asset('careers/careers.css') }}?v=2">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap">
+    <link rel="stylesheet" href="{{ asset('careers/careers.css') }}?v=3">
     @stack('head')
 </head>
 <body>

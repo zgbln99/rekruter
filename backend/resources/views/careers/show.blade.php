@@ -1,16 +1,35 @@
 @extends('careers.layout')
 
 @php
-    $loc = collect([$offer->country, $offer->region_base])->filter()->implode(' · ') ?: ($offer->location ?: null);
-    $salary = trim((string) $offer->salary_amount) !== '' ? trim($offer->salary_amount.' '.$offer->currency) : null;
+    $loc = collect([$offer->region_base, $offer->country])->filter()->implode(', ') ?: ($offer->location ?: null);
+    $salary = trim((string) $offer->salary_amount) !== '' ? trim($offer->salary_amount) : null;
     $cats = is_array($offer->required_categories) ? $offer->required_categories : [];
     $desc = \App\Support\Html\SafeHtml::clean($offer->public_description);
     $faq = is_array($offer->faq) ? array_filter($offer->faq, fn ($f) => ! empty($f['q'])) : [];
     $agencyPhone = $tenant?->agencyPhone();
     $waPhone = $agencyPhone ? preg_replace('/\D+/', '', $agencyPhone) : null;
     $metaDesc = \Illuminate\Support\Str::limit(trim(strip_tags($desc)) ?: $offer->title.($loc ? ' — '.$loc : ''), 155);
-    $reqLabels = ['adr' => 'ADR', 'code_95' => 'Kod 95', 'experience' => 'Doświadczenie', 'tacho' => 'Karta kierowcy'];
-    $reqs = is_array($offer->requirements) ? array_keys(array_filter($offer->requirements)) : [];
+
+    // Ikony do faktów.
+    $ic = [
+        'lic' => '<path d="M3 5h18v14H3zM7 9h4M7 13h6"/><circle cx="17" cy="10" r="2"/>',
+        'pin' => '<path d="M12 21s-7-5.3-7-11a7 7 0 1 1 14 0c0 5.7-7 11-7 11Z"/><circle cx="12" cy="10" r="2.5"/>',
+        'truck' => '<path d="M10 17h4V5H2v12h3M20 17h2v-3.3a4 4 0 0 0-1.2-2.9L19 9h-5v8h1"/><circle cx="7.5" cy="17.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/>',
+        'route' => '<circle cx="6" cy="19" r="2"/><circle cx="18" cy="5" r="2"/><path d="M8 19h7a3 3 0 0 0 0-6H9a3 3 0 0 1 0-6h7"/>',
+        'clock' => '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+        'home' => '<path d="M3 11l9-8 9 8M5 10v10h14V10"/>',
+        'doc' => '<path d="M14 3H6v18h12V7l-4-4Z"/><path d="M14 3v4h4"/>',
+        'globe' => '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.5 2.5 15 0 18M12 3c-2.5 2.5-2.5 15 0 18"/>',
+    ];
+    $facts = [];
+    if (count($cats)) $facts[] = ['Prawo jazdy', implode(', ', $cats), $ic['lic']];
+    if ($loc) $facts[] = ['Lokalizacja', $loc, $ic['pin']];
+    if ($offer->trailer_type || $offer->vehicle_type) $facts[] = ['Zestaw', $offer->trailer_type ?: $offer->vehicle_type, $ic['truck']];
+    if ($offer->routes_info) $facts[] = ['Trasa', \Illuminate\Support\Str::limit($offer->routes_info, 40), $ic['route']];
+    if ($offer->work_system) $facts[] = ['System pracy', $offer->work_system, $ic['clock']];
+    if ($offer->accommodation) $facts[] = ['Zakwaterowanie', \Illuminate\Support\Str::limit($offer->accommodation, 40), $ic['home']];
+    if ($offer->contract_type) $facts[] = ['Typ umowy', $offer->contract_type, $ic['doc']];
+    if ($offer->required_language) $facts[] = ['Język obcy', $offer->required_language, $ic['globe']];
 @endphp
 
 @section('title', $offer->title.($loc ? ' — '.$loc : '').' | Praca dla kierowców')
@@ -32,59 +51,44 @@
             <div class="detail-grid">
                 {{-- Lewa kolumna --}}
                 <div>
-                    <h1>{{ $offer->title }}</h1>
-                    <div class="sub">
-                        @if ($offer->company?->name)
-                            <span class="row"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18M5 21V7l8-4v18M19 21V11l-6-3"/></svg>{{ $offer->company->name }}</span>
-                        @endif
-                        @if ($loc)
-                            <span class="row"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7-5.3-7-11a7 7 0 1 1 14 0c0 5.7-7 11-7 11Z"/><circle cx="12" cy="10" r="2.5"/></svg>{{ $loc }}</span>
-                        @endif
+                    <div class="offer-hero">
+                        <div class="thumb">
+                            <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">{!! $ic['truck'] !!}</svg>
+                        </div>
+                        <div style="min-width:0">
+                            <span class="badge-pilne"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="6"/></svg> Aktywny nabór</span>
+                            <h1>{{ $offer->title }}</h1>
+                        </div>
                     </div>
 
-                    <div class="facts">
-                        @if ($salary)
-                            <div class="fact salary"><div class="k">Wynagrodzenie</div><div class="v">{{ $salary }}</div></div>
-                        @endif
-                        @if ($offer->work_system)
-                            <div class="fact"><div class="k">System pracy</div><div class="v">{{ $offer->work_system }}</div></div>
-                        @endif
-                        @if (count($cats))
-                            <div class="fact"><div class="k">Kategorie</div><div class="v">{{ implode(', ', $cats) }}</div></div>
-                        @endif
-                        @if ($offer->start_date)
-                            <div class="fact"><div class="k">Start</div><div class="v">{{ $offer->start_date->format('d.m.Y') }}</div></div>
-                        @endif
-                    </div>
+                    @if (count($facts))
+                        <div class="facts">
+                            @foreach ($facts as [$k, $v, $icon])
+                                <div class="fact">
+                                    <span class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">{!! $icon !!}</svg></span>
+                                    <span><span class="k">{{ $k }}</span><br><span class="v">{{ $v }}</span></span>
+                                </div>
+                            @endforeach
+                        </div>
+                    @endif
+
+                    @if ($salary)
+                        <div class="salary-box">
+                            <span class="amt">{{ $salary }} {{ $offer->currency }}</span>
+                            <span class="suf">na rękę</span>
+                        </div>
+                    @endif
 
                     @if ($desc)
                         <div class="block-title">Opis stanowiska</div>
                         <div class="prose">{!! $desc !!}</div>
                     @endif
 
-                    @if (count($reqs))
-                        <div class="block-title">Wymagania</div>
-                        <div class="req-list">
-                            @foreach ($reqs as $r)
-                                <div class="item">
-                                    <span class="tick"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6 9 17l-5-5"/></svg></span>
-                                    {{ $reqLabels[$r] ?? \Illuminate\Support\Str::headline($r) }}
-                                </div>
-                            @endforeach
-                            @foreach ($cats as $c)
-                                <div class="item"><span class="tick"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6 9 17l-5-5"/></svg></span>Prawo jazdy kat. {{ $c }}</div>
-                            @endforeach
-                        </div>
-                    @endif
-
                     @if (count($faq))
                         <div class="block-title">Najczęstsze pytania</div>
                         <div class="faq">
                             @foreach ($faq as $f)
-                                <details>
-                                    <summary>{{ $f['q'] }}</summary>
-                                    <p>{{ $f['a'] ?? '' }}</p>
-                                </details>
+                                <details><summary>{{ $f['q'] }}</summary><p>{{ $f['a'] ?? '' }}</p></details>
                             @endforeach
                         </div>
                     @endif
@@ -94,13 +98,13 @@
                 <aside class="aside" id="aplikuj">
                     <div class="apply-card">
                         <div class="ac-head">
-                            <h3>Aplikuj na to stanowisko</h3>
+                            <h3>Aplikuj na tę ofertę</h3>
                             <p>Wypełnij formularz albo skontaktuj się od razu.</p>
                         </div>
                         <div class="ac-body">
                             @if ($agencyPhone)
                                 <div class="contact-row">
-                                    <a href="tel:{{ preg_replace('/\s+/', '', $agencyPhone) }}" class="btn btn-primary btn-block">
+                                    <a href="tel:{{ preg_replace('/\s+/', '', $agencyPhone) }}" class="btn btn-brand btn-block">
                                         <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M6.6 10.8c1.4 2.8 3.8 5.2 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1C10.6 21 3 13.4 3 4c0-.6.4-1 1-1h3.4c.6 0 1 .4 1 1 0 1.2.2 2.4.6 3.6.1.4 0 .8-.3 1l-2.1 2.2z"/></svg>
                                         Zadzwoń: {{ $agencyPhone }}
                                     </a>
@@ -120,9 +124,7 @@
                                 </div>
                             @else
                                 @if ($errors->any())
-                                    <div class="err-box">
-                                        @foreach ($errors->all() as $e)<div>{{ $e }}</div>@endforeach
-                                    </div>
+                                    <div class="err-box">@foreach ($errors->all() as $e)<div>{{ $e }}</div>@endforeach</div>
                                 @endif
                                 <form method="POST" action="{{ route('careers.apply', ['jobPosting' => $offer->id]) }}" enctype="multipart/form-data">
                                     @csrf
@@ -142,10 +144,7 @@
                                             </div>
                                         </div>
                                         <div class="form-field full"><label>Wiadomość / doświadczenie</label><textarea name="message" rows="3" placeholder="Krótko o sobie, dyspozycyjność…">{{ old('message') }}</textarea></div>
-                                        <div class="form-field full">
-                                            <label>CV (opcjonalnie)</label>
-                                            <input type="file" name="cv" class="file-input" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">
-                                        </div>
+                                        <div class="form-field full"><label>CV (opcjonalnie)</label><input type="file" name="cv" class="file-input" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"></div>
                                         <div class="form-field full">
                                             <label class="consent">
                                                 <input type="checkbox" name="consent" value="1" required>
@@ -153,7 +152,7 @@
                                             </label>
                                         </div>
                                     </div>
-                                    <button type="submit" class="btn btn-brand btn-block" style="margin-top:14px">Wyślij aplikację</button>
+                                    <button type="submit" class="btn btn-brand btn-block" style="margin-top:14px">Aplikuj teraz</button>
                                 </form>
                             @endif
                         </div>
@@ -162,10 +161,8 @@
             </div>
 
             @if ($related->count())
-                <div class="section-head" style="margin-top:54px">
-                    <h2>Podobne oferty</h2>
-                </div>
-                <div class="grid">
+                <div class="section-head" style="margin-top:48px"><h2>Podobne oferty</h2></div>
+                <div class="offers">
                     @foreach ($related as $offer)
                         @include('careers.partials.offer-card', ['offer' => $offer])
                     @endforeach
