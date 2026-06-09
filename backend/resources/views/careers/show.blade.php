@@ -4,32 +4,22 @@
     $loc = collect([$offer->region_base, $offer->country])->filter()->implode(', ') ?: ($offer->location ?: null);
     $salary = trim((string) $offer->salary_amount) !== '' ? trim($offer->salary_amount) : null;
     $cats = is_array($offer->required_categories) ? $offer->required_categories : [];
+    $eyebrow = count($cats) ? 'Kat. '.implode(' / ', $cats) : 'Praca dla kierowcy';
     $desc = \App\Support\Html\SafeHtml::clean($offer->public_description);
     $faq = is_array($offer->faq) ? array_filter($offer->faq, fn ($f) => ! empty($f['q'])) : [];
     $agencyPhone = $tenant?->agencyPhone();
     $waPhone = $agencyPhone ? preg_replace('/\D+/', '', $agencyPhone) : null;
     $metaDesc = \Illuminate\Support\Str::limit(trim(strip_tags($desc)) ?: $offer->title.($loc ? ' — '.$loc : ''), 155);
 
-    // Ikony do faktów.
-    $ic = [
-        'lic' => '<path d="M3 5h18v14H3zM7 9h4M7 13h6"/><circle cx="17" cy="10" r="2"/>',
-        'pin' => '<path d="M12 21s-7-5.3-7-11a7 7 0 1 1 14 0c0 5.7-7 11-7 11Z"/><circle cx="12" cy="10" r="2.5"/>',
-        'truck' => '<path d="M10 17h4V5H2v12h3M20 17h2v-3.3a4 4 0 0 0-1.2-2.9L19 9h-5v8h1"/><circle cx="7.5" cy="17.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/>',
-        'route' => '<circle cx="6" cy="19" r="2"/><circle cx="18" cy="5" r="2"/><path d="M8 19h7a3 3 0 0 0 0-6H9a3 3 0 0 1 0-6h7"/>',
-        'clock' => '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
-        'home' => '<path d="M3 11l9-8 9 8M5 10v10h14V10"/>',
-        'doc' => '<path d="M14 3H6v18h12V7l-4-4Z"/><path d="M14 3v4h4"/>',
-        'globe' => '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.5 2.5 15 0 18M12 3c-2.5 2.5-2.5 15 0 18"/>',
-    ];
     $facts = [];
-    if (count($cats)) $facts[] = ['Prawo jazdy', implode(', ', $cats), $ic['lic']];
-    if ($loc) $facts[] = ['Lokalizacja', $loc, $ic['pin']];
-    if ($offer->trailer_type || $offer->vehicle_type) $facts[] = ['Zestaw', $offer->trailer_type ?: $offer->vehicle_type, $ic['truck']];
-    if ($offer->routes_info) $facts[] = ['Trasa', \Illuminate\Support\Str::limit($offer->routes_info, 40), $ic['route']];
-    if ($offer->work_system) $facts[] = ['System pracy', $offer->work_system, $ic['clock']];
-    if ($offer->accommodation) $facts[] = ['Zakwaterowanie', \Illuminate\Support\Str::limit($offer->accommodation, 40), $ic['home']];
-    if ($offer->contract_type) $facts[] = ['Typ umowy', $offer->contract_type, $ic['doc']];
-    if ($offer->required_language) $facts[] = ['Język obcy', $offer->required_language, $ic['globe']];
+    if (count($cats)) $facts[] = ['Prawo jazdy', implode(', ', $cats)];
+    if ($loc) $facts[] = ['Lokalizacja', $loc];
+    if ($offer->trailer_type || $offer->vehicle_type) $facts[] = ['Zestaw', $offer->trailer_type ?: $offer->vehicle_type];
+    if ($offer->routes_info) $facts[] = ['Trasa', \Illuminate\Support\Str::limit($offer->routes_info, 44)];
+    if ($offer->work_system) $facts[] = ['System pracy', $offer->work_system];
+    if ($offer->accommodation) $facts[] = ['Zakwaterowanie', \Illuminate\Support\Str::limit($offer->accommodation, 44)];
+    if ($offer->contract_type) $facts[] = ['Typ umowy', $offer->contract_type];
+    if ($offer->required_language) $facts[] = ['Język obcy', $offer->required_language];
 @endphp
 
 @section('title', $offer->title.($loc ? ' — '.$loc : '').' | Praca dla kierowców')
@@ -51,31 +41,27 @@
             <div class="detail-grid">
                 {{-- Lewa kolumna --}}
                 <div>
-                    <div class="offer-hero">
-                        <div class="thumb">
-                            <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">{!! $ic['truck'] !!}</svg>
-                        </div>
-                        <div style="min-width:0">
-                            <span class="badge-pilne"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="6"/></svg> Aktywny nabór</span>
-                            <h1>{{ $offer->title }}</h1>
-                        </div>
-                    </div>
-
-                    @if (count($facts))
-                        <div class="facts">
-                            @foreach ($facts as [$k, $v, $icon])
-                                <div class="fact">
-                                    <span class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">{!! $icon !!}</svg></span>
-                                    <span><span class="k">{{ $k }}</span><br><span class="v">{{ $v }}</span></span>
-                                </div>
-                            @endforeach
+                    <span class="eyebrow"><span class="dot"></span> {{ $eyebrow }}</span>
+                    <h1>{{ $offer->title }}</h1>
+                    @if ($offer->company?->name || $loc)
+                        <div class="d-sub">
+                            @if ($offer->company?->name)<span class="m">{{ $offer->company->name }}</span>@endif
+                            @if ($loc)<span class="m"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7-5.3-7-11a7 7 0 1 1 14 0c0 5.7-7 11-7 11Z"/><circle cx="12" cy="10" r="2.4"/></svg>{{ $loc }}</span>@endif
                         </div>
                     @endif
 
                     @if ($salary)
-                        <div class="salary-box">
+                        <div class="salary-line">
                             <span class="amt">{{ $salary }} {{ $offer->currency }}</span>
-                            <span class="suf">na rękę</span>
+                            <span class="suf">na rękę / miesiąc</span>
+                        </div>
+                    @endif
+
+                    @if (count($facts))
+                        <div class="facts">
+                            @foreach ($facts as [$k, $v])
+                                <div class="fact"><div class="k">{{ $k }}</div><div class="v">{{ $v }}</div></div>
+                            @endforeach
                         </div>
                     @endif
 
@@ -94,7 +80,7 @@
                     @endif
                 </div>
 
-                {{-- Prawa kolumna: kontakt + aplikacja --}}
+                {{-- Prawa kolumna: aplikacja --}}
                 <aside class="aside" id="aplikuj">
                     <div class="apply-card">
                         <div class="ac-head">
@@ -104,14 +90,14 @@
                         <div class="ac-body">
                             @if ($agencyPhone)
                                 <div class="contact-row">
-                                    <a href="tel:{{ preg_replace('/\s+/', '', $agencyPhone) }}" class="btn btn-brand btn-block">
-                                        <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M6.6 10.8c1.4 2.8 3.8 5.2 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1C10.6 21 3 13.4 3 4c0-.6.4-1 1-1h3.4c.6 0 1 .4 1 1 0 1.2.2 2.4.6 3.6.1.4 0 .8-.3 1l-2.1 2.2z"/></svg>
-                                        Zadzwoń: {{ $agencyPhone }}
+                                    <a href="tel:{{ preg_replace('/\s+/', '', $agencyPhone) }}" class="btn btn-dark btn-block">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M6.6 10.8c1.4 2.8 3.8 5.2 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1C10.6 21 3 13.4 3 4c0-.6.4-1 1-1h3.4c.6 0 1 .4 1 1 0 1.2.2 2.4.6 3.6.1.4 0 .8-.3 1l-2.1 2.2z"/></svg>
+                                        {{ $agencyPhone }}
                                     </a>
                                     @if ($waPhone)
                                         <a href="https://wa.me/{{ $waPhone }}?text={{ urlencode('Dzień dobry, piszę w sprawie oferty: '.$offer->title) }}" target="_blank" rel="noopener" class="btn btn-wa btn-block">
-                                            <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15l-1.3 4.7 4.8-1.3A10 10 0 1 0 12 2Zm5.3 14c-.2.6-1.3 1.2-1.8 1.2-.5.1-1 .1-1.7-.1-.4-.1-.9-.3-1.6-.6-2.8-1.2-4.6-4-4.7-4.2-.1-.2-1.1-1.5-1.1-2.8s.7-2 .9-2.2c.2-.2.5-.3.7-.3h.5c.2 0 .4 0 .6.5l.8 2c.1.2.1.3 0 .5l-.4.6c-.2.2-.3.4-.1.7.2.3.8 1.3 1.7 2.1 1.2 1 2.1 1.4 2.4 1.5.2.1.4.1.6-.1l.7-.9c.2-.2.4-.2.6-.1l1.9.9c.3.1.4.2.5.3.1.3.1.7-.1 1.4Z"/></svg>
-                                            WhatsApp
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15l-1.3 4.7 4.8-1.3A10 10 0 1 0 12 2Zm5.3 14c-.2.6-1.3 1.2-1.8 1.2-.5.1-1 .1-1.7-.1-.4-.1-.9-.3-1.6-.6-2.8-1.2-4.6-4-4.7-4.2-.1-.2-1.1-1.5-1.1-2.8s.7-2 .9-2.2c.2-.2.5-.3.7-.3h.5c.2 0 .4 0 .6.5l.8 2c.1.2.1.3 0 .5l-.4.6c-.2.2-.3.4-.1.7.2.3.8 1.3 1.7 2.1 1.2 1 2.1 1.4 2.4 1.5.2.1.4.1.6-.1l.7-.9c.2-.2.4-.2.6-.1l1.9.9c.3.1.4.2.5.3.1.3.1.7-.1 1.4Z"/></svg>
+                                            Napisz na WhatsApp
                                         </a>
                                     @endif
                                 </div>
@@ -119,8 +105,8 @@
 
                             @if (session('applied'))
                                 <div class="flash-ok">
-                                    <span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6 9 17l-5-5"/></svg></span>
-                                    <div><b>Dziękujemy!</b><br>Twoja aplikacja została wysłana. Skontaktujemy się wkrótce.</div>
+                                    <span class="ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6 9 17l-5-5"/></svg></span>
+                                    <div><b>Dziękujemy!</b><br>Twoja aplikacja została wysłana. Odezwiemy się wkrótce.</div>
                                 </div>
                             @else
                                 @if ($errors->any())
@@ -132,9 +118,8 @@
                                     <div class="form-grid">
                                         <div class="form-field"><label>Imię *</label><input name="first_name" value="{{ old('first_name') }}" required></div>
                                         <div class="form-field"><label>Nazwisko *</label><input name="last_name" value="{{ old('last_name') }}" required></div>
-                                        <div class="form-field full"><label>Telefon *</label><input name="phone" type="tel" value="{{ old('phone') }}" required placeholder="np. +48 600 100 200"></div>
+                                        <div class="form-field full"><label>Telefon *</label><input name="phone" type="tel" value="{{ old('phone') }}" required placeholder="+48 600 100 200"></div>
                                         <div class="form-field full"><label>E-mail</label><input name="email" type="email" value="{{ old('email') }}"></div>
-                                        <div class="form-field full"><label>Miasto</label><input name="city" value="{{ old('city') }}"></div>
                                         <div class="form-field full">
                                             <label>Posiadane kategorie</label>
                                             <div class="cat-check">
@@ -152,7 +137,7 @@
                                             </label>
                                         </div>
                                     </div>
-                                    <button type="submit" class="btn btn-brand btn-block" style="margin-top:14px">Aplikuj teraz</button>
+                                    <button type="submit" class="btn btn-accent btn-block" style="margin-top:8px">Wyślij aplikację</button>
                                 </form>
                             @endif
                         </div>
@@ -161,8 +146,8 @@
             </div>
 
             @if ($related->count())
-                <div class="section-head" style="margin-top:48px"><h2>Podobne oferty</h2></div>
-                <div class="offers">
+                <div class="block-title" style="margin-top:64px">Podobne oferty</div>
+                <div class="offers" style="margin-top:0">
                     @foreach ($related as $offer)
                         @include('careers.partials.offer-card', ['offer' => $offer])
                     @endforeach
