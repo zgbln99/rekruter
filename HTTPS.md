@@ -58,13 +58,17 @@ Caddy sam pobierze certyfikat Let's Encrypt (kilkanaście sekund). Od teraz:
 Jeśli masz (lub kupujesz) domenę na **Cloudflare**, jest jeszcze prościej —
 nie trzeba DuckDNS.
 
-## 1. Dodaj rekord DNS
+## 1. Dodaj rekordy DNS
 
-W panelu Cloudflare → **DNS → Add record**:
-- **Type:** A
-- **Name:** `panel` (czyli adres `panel.twojadomena.pl`) — lub `@` dla domeny głównej
-- **IPv4 address:** publiczny IP Twojego VPS (`curl ifconfig.me`)
-- **Proxy status:** **DNS only** (szara chmurka) — WAŻNE, żeby Caddy sam pobrał certyfikat
+Strona główna = oferty pracy, panel pod subdomeną. Dodaj **dwa** rekordy A
+(Cloudflare → **DNS → Add record**), oba na publiczny IP VPS (`curl ifconfig.me`):
+
+| Type | Name    | Treść (adres)           | Proxy            |
+|------|---------|-------------------------|------------------|
+| A    | `@`     | edgejobs.pl (oferty)    | DNS only (szara) |
+| A    | `panel` | panel.edgejobs.pl       | DNS only (szara) |
+
+> **Proxy status: DNS only (szara chmurka)** — WAŻNE, żeby Caddy sam pobrał certyfikat.
 
 > Pomarańczowa chmurka (proxied) też się da, ale wtedy certyfikat trzeba załatwić
 > inaczej (DNS-01 z tokenem API albo Origin Certificate). Na start zostaw **szarą**.
@@ -78,16 +82,21 @@ sudo ufw allow 443
 
 ## 3. Ustaw domenę i uruchom
 
-W `./.env`:
+W `./.env` (podaj **domenę główną** — subdomenę `panel.` Caddy ogarnia z Caddyfile):
 ```
-DOMAIN=panel.twojadomena.pl
+DOMAIN=edgejobs.pl
 ```
 ```bash
 cd ~/rekruter
 docker compose -f docker-compose.prod.yml -f docker-compose.https.yml up -d
 ```
 
-Caddy pobierze certyfikat (kilkanaście sekund) → **https://panel.twojadomena.pl**.
+Caddy pobierze certyfikaty (kilkanaście sekund) dla obu adresów:
+- **https://edgejobs.pl** — publiczne oferty pracy,
+- **https://panel.edgejobs.pl** — panel rekrutera.
+
+> Ustaw też w `backend/.env`: `APP_URL=https://edgejobs.pl` oraz
+> `CAREERS_URL=https://edgejobs.pl` (publiczne linki ofert w panelu).
 
 ## 4. Push
 
@@ -106,31 +115,36 @@ Wtedy **NIE używaj Caddy** (nie da się drugi raz zająć portu 80/443).
 Zamiast tego wepnij Rekrutera w istniejący nginx — Twoja obecna strona zostaje
 nietknięta. Rekruter (kontener `web`) słucha na `127.0.0.1:4050`.
 
+Uruchom też kontener ofert (`careers-web` na `127.0.0.1:4060`) — jest już w
+`docker-compose.prod.yml`, więc `up -d --build` go postawi obok `web` (4050).
+
 ## 1. DNS
 
-W Cloudflare dodaj rekord **A**: `panel` → IP VPS, **DNS only (szara chmurka)**.
+W Cloudflare dodaj **dwa** rekordy **A**, **DNS only (szara chmurka)**:
+- `@` → IP VPS  (edgejobs.pl — oferty)
+- `panel` → IP VPS  (panel.edgejobs.pl — panel)
 
 ## 2. Konfiguracja nginx
 
-Skopiuj gotowy plik i podmień domenę:
+Plik `deploy/nginx-rekruter.conf` ma już oba bloki (główna → 4060, panel → 4050)
+z wpisaną domeną edgejobs.pl:
 ```bash
-sudo cp ~/rekruter/deploy/nginx-rekruter.conf /etc/nginx/sites-available/rekruter
-sudo nano /etc/nginx/sites-available/rekruter      # zmień panel.twojadomena.pl
-sudo ln -s /etc/nginx/sites-available/rekruter /etc/nginx/sites-enabled/
+sudo cp ~/rekruter/deploy/nginx-rekruter.conf /etc/nginx/sites-available/edgejobs
+sudo ln -s /etc/nginx/sites-available/edgejobs /etc/nginx/sites-enabled/
 sudo nginx -t && sudo systemctl reload nginx
 ```
 
-## 3. Certyfikat HTTPS (Let's Encrypt)
+## 3. Certyfikat HTTPS (Let's Encrypt) — obie domeny naraz
 
 ```bash
 sudo apt install -y certbot python3-certbot-nginx     # jeśli nie ma
-sudo certbot --nginx -d panel.twojadomena.pl
+sudo certbot --nginx -d edgejobs.pl -d www.edgejobs.pl -d panel.edgejobs.pl
 ```
-Certbot sam dopisze blok `443` + przekierowanie http→https i będzie odnawiał cert.
+Certbot sam dopisze bloki `443` + przekierowanie http→https i będzie odnawiał certy.
 
 ## 4. Push
 
-Otwórz **https://panel.twojadomena.pl**, dzwonek → **„Włącz"** → zgoda →
+Otwórz **https://panel.edgejobs.pl**, dzwonek → **„Włącz"** → zgoda →
 **„Wyślij testowe"**. (Wcześniej ustaw klucze VAPID — patrz wyżej, pkt 5.)
 
 > Jeśli używasz w Cloudflare pomarańczowej chmurki, daj certbotowi przejść przy
