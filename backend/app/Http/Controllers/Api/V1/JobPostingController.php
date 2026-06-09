@@ -24,6 +24,13 @@ class JobPostingController extends Controller
     {
         $query = JobPosting::query()->with('company')->withCount('applications')->latest();
 
+        // Domyślnie ukrywamy zarchiwizowane; ?archived=1 pokazuje tylko archiwum.
+        if ($request->string('archived')->toString() === '1') {
+            $query->whereNotNull('archived_at');
+        } else {
+            $query->whereNull('archived_at');
+        }
+
         if ($companyId = $request->string('company_id')->toString()) {
             $query->where('company_id', $companyId);
         }
@@ -31,7 +38,7 @@ class JobPostingController extends Controller
             $query->where('status', $status);
         }
 
-        return JobPostingResource::collection($query->paginate($request->integer('per_page', 25)));
+        return JobPostingResource::collection($query->paginate($request->integer('per_page', 100)));
     }
 
     public function store(StoreJobPostingRequest $request, FetchTruckPhotoAction $cover): JsonResponse
@@ -66,6 +73,22 @@ class JobPostingController extends Controller
         }
 
         $jobPosting->update($data);
+
+        return new JobPostingResource($jobPosting->refresh()->load('company'));
+    }
+
+    /** Archiwizuje ofertę (ukrywa z listy i ze strony publicznej). */
+    public function archive(JobPosting $jobPosting): JobPostingResource
+    {
+        $jobPosting->update(['archived_at' => now(), 'is_public' => false]);
+
+        return new JobPostingResource($jobPosting->refresh()->load('company'));
+    }
+
+    /** Przywraca ofertę z archiwum. */
+    public function unarchive(JobPosting $jobPosting): JobPostingResource
+    {
+        $jobPosting->update(['archived_at' => null]);
 
         return new JobPostingResource($jobPosting->refresh()->load('company'));
     }

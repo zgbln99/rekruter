@@ -75,6 +75,23 @@ class JobOfferTest extends TestCase
         ]);
     }
 
+    public function test_archive_hides_offer_and_unarchive_restores(): void
+    {
+        $offer = JobPosting::factory()->for($this->tenant)->create(['status' => 'open', 'is_public' => true]);
+
+        $this->postJson("/api/v1/job-offers/{$offer->id}/archive")
+            ->assertOk()
+            ->assertJsonPath('archived', true)
+            ->assertJsonPath('is_public', false);
+
+        $this->getJson('/api/v1/job-offers')->assertJsonMissing(['id' => $offer->id]);
+        $this->getJson('/api/v1/job-offers?archived=1')->assertJsonPath('data.0.id', $offer->id);
+
+        $this->postJson("/api/v1/job-offers/{$offer->id}/unarchive")
+            ->assertOk()
+            ->assertJsonPath('archived', false);
+    }
+
     public function test_public_url_strips_panel_subdomain(): void
     {
         config(['rekruter.careers_url' => null]);

@@ -2,14 +2,33 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
 import type { MaybeRefOrGetter } from 'vue'
 import type { Candidate, JobPosting, Paginated } from '~/types'
 
-export function useJobOffersQuery(companyId: MaybeRefOrGetter<string> = '') {
+export function useJobOffersQuery(
+  companyId: MaybeRefOrGetter<string> = '',
+  archived: MaybeRefOrGetter<boolean> = false,
+) {
   const api = useApi()
   return useQuery({
-    queryKey: ['job-offers', () => toValue(companyId)] as const,
+    queryKey: ['job-offers', () => toValue(companyId), () => toValue(archived)] as const,
     queryFn: () =>
       api<Paginated<JobPosting>>('/job-offers', {
-        query: { company_id: toValue(companyId) || undefined },
+        query: {
+          company_id: toValue(companyId) || undefined,
+          archived: toValue(archived) ? '1' : undefined,
+        },
       }),
+  })
+}
+
+export function useArchiveJobOffer(id: MaybeRefOrGetter<string>) {
+  const api = useApi()
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (archived: boolean) =>
+      api<JobPosting>(`/job-offers/${toValue(id)}/${archived ? 'archive' : 'unarchive'}`, { method: 'POST' }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['job-offer', toValue(id)] })
+      queryClient.invalidateQueries({ queryKey: ['job-offers'] })
+    },
   })
 }
 

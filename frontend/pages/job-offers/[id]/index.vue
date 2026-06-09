@@ -51,6 +51,19 @@ async function toggleFeatured() {
   }
 }
 
+const archiveOffer = useArchiveJobOffer(id)
+const archiving = ref(false)
+async function toggleArchive() {
+  const isArch = !!offer.value?.archived
+  if (!isArch && !confirm('Zarchiwizować ofertę? Zniknie z listy i ze strony publicznej (można ją przywrócić).')) return
+  archiving.value = true
+  try {
+    await archiveOffer.mutateAsync(!isArch)
+  } finally {
+    archiving.value = false
+  }
+}
+
 // Zdjęcie okładkowe (europejska ciężarówka z Unsplash).
 const fetchCover = useFetchOfferCover(id)
 const coverLoading = ref(false)
@@ -205,6 +218,7 @@ async function saveQuick() {
         <p class="text-sm text-stone">
           {{ offer.company?.name }} ·
           <span :class="offer.status === 'open' ? 'text-brand-deep font-medium' : 'text-amber-600'">{{ offer.status_label }}</span>
+          <span v-if="offer.archived" class="ml-1.5 rounded-md bg-amber-50 px-1.5 py-0.5 text-xs font-medium text-amber-700">Zarchiwizowana</span>
         </p>
       </div>
       <div class="flex flex-wrap gap-2">
@@ -228,6 +242,9 @@ async function saveQuick() {
         </button>
         <button class="inline-flex h-9 items-center gap-1.5 rounded-xl border border-hairline px-3.5 text-sm font-medium text-ink transition hover:bg-surface" @click="toggleActive">
           {{ offer.status === 'open' ? 'Wstrzymaj' : 'Aktywuj' }}
+        </button>
+        <button class="inline-flex h-9 items-center gap-1.5 rounded-xl border border-hairline px-3.5 text-sm font-medium text-ink transition hover:bg-surface disabled:opacity-50" :disabled="archiving" @click="toggleArchive">
+          {{ offer.archived ? 'Przywróć z archiwum' : 'Archiwizuj' }}
         </button>
         <button v-if="auth.isAdmin" class="inline-flex h-9 items-center gap-1.5 rounded-xl border border-red-200 px-3.5 text-sm font-medium text-red-600 transition hover:bg-red-50" @click="removeOffer">
           Usuń

@@ -270,6 +270,8 @@ export interface JobPosting {
   status_label: string
   is_public?: boolean
   is_featured?: boolean
+  archived?: boolean
+  archived_at?: string | null
   internal_ref?: string | null
   public_url?: string | null
   cover_image_url?: string | null

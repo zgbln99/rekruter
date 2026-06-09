@@ -54,6 +54,7 @@ class JobPosting extends Model
         'status',
         'is_public',
         'is_featured',
+        'archived_at',
         'published_at',
         'cover_image_url',
         'internal_ref',
@@ -70,6 +71,7 @@ class JobPosting extends Model
             'faq' => 'array',
             'start_date' => 'date',
             'published_at' => 'datetime',
+            'archived_at' => 'datetime',
             'is_public' => 'boolean',
             'is_featured' => 'boolean',
             'status' => JobPostingStatus::class,
@@ -96,11 +98,17 @@ class JobPosting extends Model
         return $this->hasMany(Application::class);
     }
 
-    /** Ogłoszenia widoczne publicznie: ręcznie opublikowane i otwarte. */
+    /** Ogłoszenia widoczne publicznie: opublikowane, otwarte, niezarchiwizowane. */
     public function scopePublished(\Illuminate\Database\Eloquent\Builder $query): \Illuminate\Database\Eloquent\Builder
     {
         return $query->where('is_public', true)
-            ->where('status', JobPostingStatus::Open->value);
+            ->where('status', JobPostingStatus::Open->value)
+            ->whereNull('archived_at');
+    }
+
+    public function isArchived(): bool
+    {
+        return $this->archived_at !== null;
     }
 
     /** Czy ogłoszenie może być pokazane na publicznej stronie kariery. */

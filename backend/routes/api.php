@@ -165,6 +165,8 @@ Route::prefix('v1')->group(function () {
             ->name('job-offers.duplicate');
         Route::post('job-offers/{jobPosting}/fetch-cover', [JobPostingController::class, 'fetchCover'])
             ->name('job-offers.fetch-cover');
+        Route::post('job-offers/{jobPosting}/archive', [JobPostingController::class, 'archive'])->name('job-offers.archive');
+        Route::post('job-offers/{jobPosting}/unarchive', [JobPostingController::class, 'unarchive'])->name('job-offers.unarchive');
         Route::get('job-offers/{jobPosting}/pipeline', [PipelineController::class, 'board'])
             ->name('job-offers.pipeline');
         Route::get('job-offers/{jobPosting}/referral-pdf', [JobPostingController::class, 'referralPdf'])

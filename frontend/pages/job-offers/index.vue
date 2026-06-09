@@ -3,7 +3,8 @@ import type { JobPosting } from '~/types'
 
 // Lista ogłoszeń — tabela (desktop) + karty (mobile), filtr statusu.
 const router = useRouter()
-const { data, isLoading } = useJobOffersQuery()
+const showArchived = ref(false)
+const { data, isLoading } = useJobOffersQuery('', showArchived)
 const allOffers = computed(() => data.value?.data ?? [])
 
 const status = ref('')
@@ -54,7 +55,7 @@ function open(o: JobPosting) {
     </UiPageHeader>
 
     <!-- Filtr statusu -->
-    <div class="mb-4 flex flex-wrap gap-2">
+    <div class="mb-4 flex flex-wrap items-center gap-2">
       <UiChip :active="status === ''" @click="status = ''">Wszystkie</UiChip>
       <UiChip
         v-for="opt in STATUS_OPTIONS"
@@ -63,6 +64,10 @@ function open(o: JobPosting) {
         @click="status = status === opt.value ? '' : opt.value"
       >
         {{ opt.label }}
+      </UiChip>
+      <span class="mx-1 h-5 w-px bg-hairline" />
+      <UiChip :active="showArchived" @click="showArchived = !showArchived; page = 1">
+        <AppIcon name="document" :size="14" /> Archiwum
       </UiChip>
     </div>
 
