@@ -87,8 +87,11 @@
                     <div class="facts">
                         @foreach ($facts as [$k, $v, $icon])
                             <div class="fact">
-                                <span class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">{!! $icon !!}</svg></span>
-                                <span><span class="k">{{ $k }}</span><span class="v" style="display:block">{{ $v }}</span></span>
+                                <div class="f-top">
+                                    <span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">{!! $icon !!}</svg></span>
+                                    <span class="k">{{ $k }}</span>
+                                </div>
+                                <div class="v">{{ $v }}</div>
                             </div>
                         @endforeach
                     </div>
@@ -190,13 +193,13 @@
     {{-- Pływający pasek aplikowania --}}
     @unless (session('applied'))
         <div class="apply-bar">
-            <div class="ab-info">
-                @if ($barSalary)
-                    <b>{{ $barSalary }}</b><span>na rękę / miesiąc</span>
-                @else
-                    <b>{{ \Illuminate\Support\Str::limit($barTitle, 24) }}</b><span>{{ $loc }}</span>
-                @endif
+            <div class="ab-main">
+                <div class="ab-title">{{ \Illuminate\Support\Str::limit($barTitle, 60) }}</div>
+                <div class="ab-meta">{{ $eyebrow }}@if ($loc) · {{ $loc }}@endif</div>
             </div>
+            @if ($barSalary)
+                <div class="ab-salary"><b>{{ $barSalary }}</b><span>na rękę / miesiąc</span></div>
+            @endif
             <a href="#aplikuj" class="btn btn-accent">Aplikuj teraz</a>
         </div>
     @endunless

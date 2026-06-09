@@ -17,7 +17,7 @@
   --accent-deep: #b91c1c;
   --shadow: 0 10px 30px -12px rgba(13,15,20,.18);
   --shadow-lg: 0 30px 60px -24px rgba(13,15,20,.35);
-  --max: 1200px;
+  --max: 1340px;
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -192,14 +192,25 @@ img { max-width: 100%; display: block; }
 .detail-body { padding: 84px 0 130px; }
 .detail-content { max-width: 100%; }
 
-/* Fakty — rozłożone na całą szerokość (flex rozciąga rzędy, brak pustych rogów) */
-.facts { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 8px; }
-.fact { flex: 1 1 200px; background: #fff; border: 1px solid var(--line); border-radius: 13px; padding: 14px 15px; display: flex; gap: 11px; align-items: flex-start; transition: transform .16s ease, box-shadow .18s ease, border-color .16s ease; }
-.fact:hover { transform: translateY(-3px); box-shadow: 0 12px 26px -14px rgba(13,15,20,.22); border-color: var(--line-2); }
-.fact .ic { width: 36px; height: 36px; border-radius: 10px; background: #fdeceb; color: var(--accent); display: flex; align-items: center; justify-content: center; flex: 0 0 auto; transition: background .16s ease, color .16s ease, transform .16s ease; }
-.fact:hover .ic { background: var(--accent); color: #fff; transform: scale(1.05); }
-.fact .k { font-size: 11px; letter-spacing: .03em; text-transform: uppercase; color: var(--muted); }
-.fact .v { margin-top: 4px; font-size: 14.5px; font-weight: 600; color: var(--ink); letter-spacing: -.01em; line-height: 1.32; }
+/* Fakty — jeden panel z gęstymi komórkami (styl Dungito), rozłożone na całość */
+.facts { display: flex; flex-wrap: wrap; background: #fff; border: 1px solid var(--line); border-radius: 18px; padding: 8px; margin-bottom: 8px; }
+.fact { flex: 1 1 220px; padding: 18px 20px; display: flex; flex-direction: column; }
+.fact .f-top { display: flex; align-items: center; gap: 9px; color: var(--muted); }
+.fact .ic { color: var(--ink); display: flex; flex: 0 0 auto; opacity: .85; }
+.fact .k { font-size: 13px; color: var(--muted); }
+.fact .v { margin-top: 9px; font-size: 16px; font-weight: 600; color: var(--ink); letter-spacing: -.01em; line-height: 1.35; }
+
+/* Pływający pasek — z tytułem/meta + kwotą + przyciskiem (mniej pusto) */
+.apply-bar .ab-main { display: none; flex: 1 1 auto; min-width: 0; }
+.apply-bar .ab-title { font-size: 15px; font-weight: 600; color: var(--ink); letter-spacing: -.01em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.apply-bar .ab-meta { font-size: 12.5px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.apply-bar .ab-salary { flex: 1 1 auto; min-width: 0; }
+.apply-bar .ab-salary b { display: block; font-size: 16px; font-weight: 700; color: var(--ink); letter-spacing: -.02em; white-space: nowrap; }
+.apply-bar .ab-salary span { font-size: 12px; color: var(--muted); }
+@media (min-width: 720px) {
+  .apply-bar .ab-main { display: block; }
+  .apply-bar .ab-salary { flex: 0 0 auto; text-align: right; padding: 0 22px; border-left: 1px solid var(--line); border-right: 1px solid var(--line); }
+}
 
 /* Opis — pełna szerokość strony (jak sekcja aplikacji) */
 .prose-wrap { max-width: 100%; }
