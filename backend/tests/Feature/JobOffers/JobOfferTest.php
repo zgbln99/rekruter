@@ -75,6 +75,20 @@ class JobOfferTest extends TestCase
         ]);
     }
 
+    public function test_public_url_strips_panel_subdomain(): void
+    {
+        config(['rekruter.careers_url' => null]);
+        \Illuminate\Support\Facades\URL::forceRootUrl('https://panel.edgejobs.pl');
+
+        $offer = JobPosting::factory()->for($this->tenant)->create([
+            'status' => 'open', 'is_public' => true, 'title' => 'Kierowca C+E',
+        ]);
+
+        $url = $offer->publicUrl();
+        $this->assertStringContainsString('://edgejobs.pl/kariera/', $url);
+        $this->assertStringNotContainsString('panel.', $url);
+    }
+
     public function test_fetch_cover_sets_image_from_pool_without_api_key(): void
     {
         config(['rekruter.unsplash_key' => null]);

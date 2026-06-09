@@ -141,7 +141,14 @@ class JobPosting extends Model
     public function publicUrl(): string
     {
         $base = config('rekruter.careers_url');
+        if ($base) {
+            return $base.$this->publicPath();
+        }
 
-        return $base ? $base.$this->publicPath() : url($this->publicPath());
+        // Fallback: bieżący host bez prefiksu „panel." — panel żyje pod subdomeną,
+        // a publiczne oferty na domenie głównej (np. panel.edgejobs.pl → edgejobs.pl).
+        $url = url($this->publicPath());
+
+        return preg_replace('#^(https?://)panel\.#i', '$1', $url) ?: $url;
     }
 }
