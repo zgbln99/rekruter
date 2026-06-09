@@ -30,3 +30,16 @@ export function useCreateCompany() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['companies'] }),
   })
 }
+
+export function useUpdateCompany(id: MaybeRefOrGetter<string>) {
+  const api = useApi()
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (payload: Partial<Company>) =>
+      api<Company>(`/companies/${toValue(id)}`, { method: 'PUT', body: payload }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['company', toValue(id)] })
+      queryClient.invalidateQueries({ queryKey: ['companies'] })
+    },
+  })
+}

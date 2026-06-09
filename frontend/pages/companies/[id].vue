@@ -8,6 +8,37 @@ const id = computed(() => route.params.id as string)
 const { data: company, isLoading } = useCompanyQuery(id)
 const createPosting = useCreateJobPosting()
 
+// Edycja danych firmy.
+const updateCompany = useUpdateCompany(id)
+const editing = ref(false)
+const saving = ref(false)
+const form = reactive({
+  name: '', city: '', country: '', nip: '', website: '',
+  contact_person: '', contact_phone: '', contact_email: '',
+  description: '', notes: '', status: 'active' as 'active' | 'inactive',
+})
+function startEdit() {
+  if (!company.value) return
+  const c = company.value
+  Object.assign(form, {
+    name: c.name || '', city: c.city || '', country: c.country || '', nip: c.nip || '',
+    website: c.website || '', contact_person: c.contact_person || '', contact_phone: c.contact_phone || '',
+    contact_email: c.contact_email || '', description: c.description || '', notes: c.notes || '',
+    status: c.status || 'active',
+  })
+  editing.value = true
+}
+async function saveCompany() {
+  if (!form.name.trim()) return
+  saving.value = true
+  try {
+    await updateCompany.mutateAsync({ ...form })
+    editing.value = false
+  } finally {
+    saving.value = false
+  }
+}
+
 const showAdd = ref(false)
 const title = ref('')
 const categories = ref<Set<LicenseCategory>>(new Set())
@@ -42,15 +73,47 @@ async function addPosting() {
       <span class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-surface text-stone">
         <AppIcon name="building" :size="22" />
       </span>
-      <div class="min-w-0">
+      <div class="min-w-0 flex-1">
         <h1 class="truncate text-2xl font-bold tracking-tight text-ink">{{ company.name }}</h1>
-        <p class="text-sm text-stone">{{ company.city || '—' }}</p>
+        <p class="text-sm text-stone">{{ [company.city, company.country].filter(Boolean).join(', ') || '—' }}</p>
+      </div>
+      <button v-if="!editing" class="btn-sm shrink-0" @click="startEdit">
+        <AppIcon name="settings" :size="16" /> Edytuj
+      </button>
+    </div>
+
+    <!-- Formularz edycji firmy -->
+    <div v-if="editing" class="card space-y-3 p-5">
+      <div class="grid gap-3 sm:grid-cols-2">
+        <div class="sm:col-span-2"><label class="field-label">Nazwa firmy</label><input v-model="form.name" class="input-field" /></div>
+        <div><label class="field-label">Miasto</label><input v-model="form.city" class="input-field" /></div>
+        <div><label class="field-label">Kraj</label><input v-model="form.country" class="input-field" /></div>
+        <div><label class="field-label">NIP</label><input v-model="form.nip" class="input-field" /></div>
+        <div><label class="field-label">Strona www</label><input v-model="form.website" class="input-field" /></div>
+        <div><label class="field-label">Osoba kontaktowa</label><input v-model="form.contact_person" class="input-field" /></div>
+        <div><label class="field-label">Telefon</label><input v-model="form.contact_phone" class="input-field" /></div>
+        <div><label class="field-label">E-mail</label><input v-model="form.contact_email" type="email" class="input-field" /></div>
+        <div>
+          <label class="field-label">Status</label>
+          <select v-model="form.status" class="input-field">
+            <option value="active">Aktywna</option>
+            <option value="inactive">Nieaktywna</option>
+          </select>
+        </div>
+        <div class="sm:col-span-2"><label class="field-label">Opis</label><textarea v-model="form.description" rows="2" class="input-field !h-auto py-2.5" /></div>
+        <div class="sm:col-span-2"><label class="field-label">Notatki (wewnętrzne)</label><textarea v-model="form.notes" rows="2" class="input-field !h-auto py-2.5" /></div>
+      </div>
+      <div class="flex gap-2">
+        <button class="btn-primary !w-auto" :disabled="saving || !form.name.trim()" @click="saveCompany">
+          {{ saving ? 'Zapisywanie…' : 'Zapisz zmiany' }}
+        </button>
+        <button class="rounded-xl border border-hairline px-4 py-2 text-sm font-medium text-ink transition hover:bg-surface" @click="editing = false">Anuluj</button>
       </div>
     </div>
 
-    <div v-if="company.contact_person || company.contact_phone" class="card p-4">
+    <div v-else-if="company.contact_person || company.contact_phone || company.contact_email" class="card p-4">
       <p class="mb-1.5 text-[13px] font-medium text-steel">Kontakt</p>
-      <p class="font-medium text-ink">{{ company.contact_person }}</p>
+      <p v-if="company.contact_person" class="font-medium text-ink">{{ company.contact_person }}</p>
       <a v-if="company.contact_phone" :href="`tel:${company.contact_phone}`" class="inline-flex items-center gap-1.5 text-brand-deep">
         <AppIcon name="phone" :size="15" /> {{ company.contact_phone }}
       </a>
