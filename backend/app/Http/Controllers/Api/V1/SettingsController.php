@@ -59,6 +59,11 @@ class SettingsController extends Controller
             $settings['openai_api_key'] = $request->string('openai_api_key')->toString();
         }
 
+        // Klucz Unsplash (Access Key) — tak samo, tylko gdy podano nowy.
+        if ($request->filled('unsplash_key')) {
+            $settings['unsplash_key'] = trim($request->string('unsplash_key')->toString());
+        }
+
         $tenant->settings = $settings;
         $tenant->save();
 
@@ -70,10 +75,11 @@ class SettingsController extends Controller
     {
         abort_unless($request->user()->isAdmin(), 403);
 
-        $url = $action();
+        $tenant = $request->user()->tenant;
+
+        $url = $action($tenant);
         abort_if($url === '', 422, 'Nie udało się pobrać zdjęcia.');
 
-        $tenant = $request->user()->tenant;
         $settings = $tenant->settings ?? [];
         $settings['careers_hero_image'] = $url;
         $tenant->settings = $settings;
@@ -102,6 +108,8 @@ class SettingsController extends Controller
             'openai_model' => $tenant->openaiModel(),
             // Klucza nie zwracamy — tylko informację, czy jest ustawiony.
             'openai_configured' => ! empty($s['openai_api_key']),
+            // Unsplash — czy klucz jest dostępny (z ustawień albo env/configu).
+            'unsplash_configured' => ! empty($tenant->unsplashKey()),
             // Szablony wiadomości (dla wszystkich — używa ich rekruterka).
             'message_templates' => $tenant->messageTemplates(),
             // Branding (co jest ustawione + wersja do cache-bustingu).

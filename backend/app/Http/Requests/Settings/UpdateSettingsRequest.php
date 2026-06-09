@@ -26,6 +26,7 @@ class UpdateSettingsRequest extends FormRequest
             'careers_texts.*' => ['nullable', 'string', 'max:2000'],
             'openai_api_key' => ['nullable', 'string', 'max:255'],
             'openai_model' => ['nullable', 'string', 'max:60'],
+            'unsplash_key' => ['nullable', 'string', 'max:255'],
             'placement_fee' => ['nullable', 'numeric', 'min:0'],
             'placement_currency' => ['nullable', 'string', 'size:3'],
             'message_templates' => ['nullable', 'array'],

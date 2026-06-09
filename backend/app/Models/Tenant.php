@@ -74,6 +74,22 @@ class Tenant extends Model
         return $this->settings['openai_api_key'] ?? null;
     }
 
+    /**
+     * Klucz dostępu Unsplash (Access Key) — z ustawień organizacji.
+     * Fallback do globalnej konfiguracji (env). Pusty → null (pula domyślna).
+     */
+    public function unsplashKey(): ?string
+    {
+        $key = trim((string) ($this->settings['unsplash_key'] ?? ''));
+        if ($key !== '') {
+            return $key;
+        }
+
+        $config = trim((string) config('rekruter.unsplash_key'));
+
+        return $config !== '' ? $config : null;
+    }
+
     public function openaiModel(): string
     {
         return $this->settings['openai_model'] ?? 'gpt-4o-mini';

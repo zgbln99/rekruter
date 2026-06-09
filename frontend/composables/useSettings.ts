@@ -44,7 +44,7 @@ export function useUpdateSettings() {
   const queryClient = useQueryClient()
   const auth = useAuthStore()
   return useMutation({
-    mutationFn: (payload: Partial<Settings> & { openai_api_key?: string }) =>
+    mutationFn: (payload: Partial<Settings> & { openai_api_key?: string; unsplash_key?: string }) =>
       api<Settings>('/settings', { method: 'PUT', body: payload }),
     onSuccess: async () => {
       queryClient.invalidateQueries({ queryKey: ['settings'] })

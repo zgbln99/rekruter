@@ -11,8 +11,10 @@ const form = reactive({
   placement_currency: 'EUR',
 })
 const openaiKey = ref('') // pusty = bez zmian
+const unsplashKey = ref('') // pusty = bez zmian
 const templates = ref<{ name: string; body: string }[]>([])
 const configured = ref(false)
+const unsplashConfigured = ref(false)
 const saved = ref(false)
 const error = ref('')
 const ready = ref(false)
@@ -28,6 +30,7 @@ watch(data, (s) => {
     form.placement_currency = s.placement_currency || 'EUR'
     templates.value = (s.message_templates ?? []).map((t) => ({ name: t.name, body: t.body }))
     configured.value = !!s.openai_configured
+    unsplashConfigured.value = !!s.unsplash_configured
     ready.value = true
   }
 }, { immediate: true })
@@ -130,9 +133,12 @@ async function save() {
     const payload: any = { ...form }
     payload.message_templates = templates.value.filter((t) => t.body.trim())
     if (openaiKey.value.trim()) payload.openai_api_key = openaiKey.value.trim()
+    if (unsplashKey.value.trim()) payload.unsplash_key = unsplashKey.value.trim()
     const res = await updateSettings.mutateAsync(payload)
     configured.value = !!res.openai_configured
+    unsplashConfigured.value = !!res.unsplash_configured
     openaiKey.value = ''
+    unsplashKey.value = ''
     saved.value = true
     setTimeout(() => (saved.value = false), 2500)
   } catch (e: any) {
@@ -188,6 +194,34 @@ async function save() {
           </div>
         </div>
         <p v-if="brandingError" class="text-sm text-red-600">{{ brandingError }}</p>
+      </div>
+
+      <!-- Zdjęcia z Unsplash (klucz API) -->
+      <div class="card space-y-4 p-5">
+        <div class="flex items-center justify-between">
+          <p class="text-[13px] font-semibold text-ink">Zdjęcia ciężarówek (Unsplash)</p>
+          <span class="badge" :class="unsplashConfigured ? 'badge-accent' : 'badge-neutral'">
+            {{ unsplashConfigured ? 'Połączono' : 'Nie skonfigurowano' }}
+          </span>
+        </div>
+        <p class="text-xs text-stone">
+          Bez klucza okładki ofert i zdjęcie hero losowane są z małej, stałej puli (te same kilka zdjęć).
+          Podaj Access Key z
+          <a href="https://unsplash.com/developers" target="_blank" rel="noopener" class="font-medium text-brand-deep underline">unsplash.com/developers</a>,
+          aby pobierać świeże zdjęcia europejskich ciężarówek (Scania, Volvo, DAF, MAN, Actros).
+        </p>
+        <div>
+          <label class="field-label">Access Key (Unsplash)</label>
+          <input
+            v-model="unsplashKey"
+            type="password"
+            class="input-field"
+            :placeholder="unsplashConfigured ? '•••••••••• (ustawiony — wpisz, aby zmienić)' : 'np. AbCdEf123...'"
+            :disabled="!auth.isAdmin"
+            autocomplete="off"
+          />
+          <p class="mt-1 text-xs text-stone">Użyj wyłącznie „Access Key" (nie Secret Key). Klucz jest przechowywany w ustawieniach organizacji i nie jest pokazywany ponownie.</p>
+        </div>
       </div>
 
       <!-- Zdjęcie hero strony kariery -->

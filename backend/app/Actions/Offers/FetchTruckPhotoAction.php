@@ -2,6 +2,8 @@
 
 namespace App\Actions\Offers;
 
+use App\Models\Tenant;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -13,9 +15,9 @@ use Illuminate\Support\Facades\Log;
  */
 class FetchTruckPhotoAction
 {
-    public function __invoke(): string
+    public function __invoke(?Tenant $tenant = null): string
     {
-        $key = config('rekruter.unsplash_key');
+        $key = $this->resolveKey($tenant);
         $queries = config('rekruter.truck_queries', ['european truck']);
         $query = $queries[array_rand($queries)];
 
@@ -27,6 +29,24 @@ class FetchTruckPhotoAction
         }
 
         return $this->fromPool();
+    }
+
+    /**
+     * Klucz Unsplash: najpierw z ustawień organizacji (panel),
+     * potem z globalnej konfiguracji (env). Tenant z argumentu lub z
+     * zalogowanego użytkownika (akcja wywoływana w kontekście żądania API).
+     */
+    private function resolveKey(?Tenant $tenant): ?string
+    {
+        $tenant ??= Auth::user()?->tenant;
+
+        if ($tenant instanceof Tenant) {
+            return $tenant->unsplashKey();
+        }
+
+        $config = trim((string) config('rekruter.unsplash_key'));
+
+        return $config !== '' ? $config : null;
     }
 
     private function fromUnsplash(string $key, string $query): ?string

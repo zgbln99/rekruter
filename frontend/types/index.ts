@@ -25,6 +25,7 @@ export interface Settings {
   careers_texts?: Record<string, { label: string; type: string; value: string }>
   openai_model?: string
   openai_configured?: boolean
+  unsplash_configured?: boolean
   // Tylko dla administratora (dane finansowe):
   placement_fee?: number | null
   placement_currency?: string | null

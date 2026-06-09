@@ -119,6 +119,30 @@ class JobOfferTest extends TestCase
         $this->assertStringContainsString('http', $offer->cover_image_url);
     }
 
+    public function test_fetch_cover_uses_unsplash_key_from_tenant_settings(): void
+    {
+        config(['rekruter.unsplash_key' => null]);
+
+        $this->tenant->settings = ['unsplash_key' => 'tenant-access-key'];
+        $this->tenant->save();
+
+        \Illuminate\Support\Facades\Http::fake([
+            'api.unsplash.com/*' => \Illuminate\Support\Facades\Http::response([
+                'urls' => ['raw' => 'https://images.unsplash.com/photo-from-api'],
+            ]),
+        ]);
+
+        $offer = JobPosting::factory()->for($this->tenant)->create(['cover_image_url' => null]);
+
+        $this->postJson("/api/v1/job-offers/{$offer->id}/fetch-cover")->assertOk();
+
+        $this->assertStringContainsString('photo-from-api', $offer->refresh()->cover_image_url);
+
+        \Illuminate\Support\Facades\Http::assertSent(
+            fn ($request) => str_contains($request->url(), 'client_id=tenant-access-key')
+        );
+    }
+
     public function test_create_candidate_from_offer_reuses_existing_by_phone(): void
     {
         $company = Company::factory()->for($this->tenant)->create();
