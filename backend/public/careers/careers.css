@@ -288,10 +288,12 @@ img { max-width: 100%; display: block; }
 .legal-hero .wrap { padding: 132px 28px 48px; }
 .legal-hero h1 { margin-top: 18px; font-size: clamp(30px, 4.4vw, 46px); font-weight: 700; letter-spacing: -.04em; }
 .legal-hero p { margin-top: 12px; color: rgba(255,255,255,.7); font-size: 16px; }
-.legal-content { max-width: 940px; text-align: justify; -webkit-hyphens: auto; hyphens: auto; }
-.legal-content h2 { font-size: 19px; font-weight: 700; color: var(--ink); letter-spacing: -.02em; margin: 32px 0 10px; text-align: left; }
-.legal-content h2:first-child { margin-top: 0; }
+.legal-content { max-width: 100%; text-align: justify; -webkit-hyphens: auto; hyphens: auto; }
+.lc-item { padding: 16px 0; break-inside: avoid; -webkit-column-break-inside: avoid; }
+.legal-content h2 { font-size: 18px; font-weight: 700; color: var(--ink); letter-spacing: -.02em; margin: 0 0 10px; text-align: left; }
 .legal-content li { text-align: justify; }
+.legal-updated { margin-top: 24px; color: var(--muted); font-size: 14px; }
+@media (min-width: 760px) { .legal-content { columns: 2; column-gap: 72px; } }
 @media (min-width: 981px) { .legal-hero .wrap { padding: 150px 28px 56px; } }
 
 /* ---------- Baner cookies ---------- */

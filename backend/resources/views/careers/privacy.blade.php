@@ -21,41 +21,56 @@
     <section class="section">
         <div class="wrap">
             <div class="legal-content prose">
-                <h2>1. Administrator danych</h2>
-                <p>Administratorem Twoich danych osobowych jest <strong>{{ $agencyName }}</strong>.
-                @if ($phone) Telefon kontaktowy: {{ $phone }}.@endif
-                @if ($email) Adres e-mail: <a href="mailto:{{ $email }}">{{ $email }}</a>.@endif
-                </p>
+                <div class="lc-item">
+                    <h2>1. Administrator danych</h2>
+                    <p>Administratorem Twoich danych osobowych jest <strong>{{ $agencyName }}</strong>.
+                    @if ($phone) Telefon kontaktowy: {{ $phone }}.@endif
+                    @if ($email) Adres e-mail: <a href="mailto:{{ $email }}">{{ $email }}</a>.@endif
+                    </p>
+                </div>
 
-                <h2>2. Jakie dane zbieramy</h2>
-                <p>Przetwarzamy dane, które podajesz w formularzu aplikacyjnym: imię i nazwisko, numer telefonu, adres e-mail, miasto, posiadane kategorie prawa jazdy, treść wiadomości oraz - jeśli je załączysz - dokumenty (np. CV).</p>
+                <div class="lc-item">
+                    <h2>2. Jakie dane zbieramy</h2>
+                    <p>Przetwarzamy dane, które podajesz w formularzu aplikacyjnym: imię i nazwisko, numer telefonu, adres e-mail, miasto, posiadane kategorie prawa jazdy, treść wiadomości oraz - jeśli je załączysz - dokumenty (np. CV).</p>
+                </div>
 
-                <h2>3. Cel i podstawa prawna</h2>
-                <ul>
-                    <li>Przeprowadzenie procesu rekrutacji na wybrane stanowisko - na podstawie Twojej zgody (art. 6 ust. 1 lit. a RODO) oraz podjęcia działań przed zawarciem umowy (art. 6 ust. 1 lit. b RODO).</li>
-                    <li>Kontakt zwrotny w sprawie oferty pracy.</li>
-                </ul>
+                <div class="lc-item">
+                    <h2>3. Cel i podstawa prawna</h2>
+                    <ul>
+                        <li>Przeprowadzenie procesu rekrutacji na wybrane stanowisko - na podstawie Twojej zgody (art. 6 ust. 1 lit. a RODO) oraz podjęcia działań przed zawarciem umowy (art. 6 ust. 1 lit. b RODO).</li>
+                        <li>Kontakt zwrotny w sprawie oferty pracy.</li>
+                    </ul>
+                </div>
 
-                <h2>4. Odbiorcy danych</h2>
-                <p>Twoje dane mogą zostać przekazane pracodawcy (klientowi), do którego prowadzona jest rekrutacja, oraz podmiotom wspierającym nas technicznie (np. hosting), wyłącznie w zakresie niezbędnym do realizacji procesu rekrutacji.</p>
+                <div class="lc-item">
+                    <h2>4. Odbiorcy danych</h2>
+                    <p>Twoje dane mogą zostać przekazane pracodawcy (klientowi), do którego prowadzona jest rekrutacja, oraz podmiotom wspierającym nas technicznie (np. hosting), wyłącznie w zakresie niezbędnym do realizacji procesu rekrutacji.</p>
+                </div>
 
-                <h2>5. Okres przechowywania</h2>
-                <p>Dane przechowujemy przez czas trwania rekrutacji, a po jej zakończeniu - do czasu wycofania zgody lub przez okres uzasadniony prawnie. Możesz w każdej chwili poprosić o ich usunięcie.</p>
+                <div class="lc-item">
+                    <h2>5. Okres przechowywania</h2>
+                    <p>Dane przechowujemy przez czas trwania rekrutacji, a po jej zakończeniu - do czasu wycofania zgody lub przez okres uzasadniony prawnie. Możesz w każdej chwili poprosić o ich usunięcie.</p>
+                </div>
 
-                <h2>6. Twoje prawa</h2>
-                <p>Masz prawo do: dostępu do swoich danych, ich sprostowania, usunięcia, ograniczenia przetwarzania, przenoszenia danych oraz wniesienia sprzeciwu. Masz też prawo wycofać zgodę w dowolnym momencie oraz wnieść skargę do Prezesa Urzędu Ochrony Danych Osobowych.</p>
+                <div class="lc-item">
+                    <h2>6. Twoje prawa</h2>
+                    <p>Masz prawo do: dostępu do swoich danych, ich sprostowania, usunięcia, ograniczenia przetwarzania, przenoszenia danych oraz wniesienia sprzeciwu. Masz też prawo wycofać zgodę w dowolnym momencie oraz wnieść skargę do Prezesa Urzędu Ochrony Danych Osobowych.</p>
+                </div>
 
-                <h2>7. Pliki cookie</h2>
-                <p>Strona korzysta wyłącznie z <strong>niezbędnych plików cookie</strong>, które są konieczne do jej prawidłowego działania (m.in. bezpieczna obsługa formularza aplikacyjnego). Nie używamy cookies marketingowych ani śledzących. Pliki cookie możesz w każdej chwili wyłączyć w ustawieniach swojej przeglądarki - może to jednak ograniczyć działanie niektórych funkcji.</p>
+                <div class="lc-item">
+                    <h2>7. Pliki cookie</h2>
+                    <p>Strona korzysta wyłącznie z <strong>niezbędnych plików cookie</strong>, które są konieczne do jej prawidłowego działania (m.in. bezpieczna obsługa formularza aplikacyjnego). Nie używamy cookies marketingowych ani śledzących. Pliki cookie możesz w każdej chwili wyłączyć w ustawieniach swojej przeglądarki - może to jednak ograniczyć działanie niektórych funkcji.</p>
+                </div>
 
-                <h2>8. Kontakt</h2>
-                <p>W sprawach dotyczących danych osobowych skontaktuj się z nami.
-                @if ($phone) Telefon: {{ $phone }}.@endif
-                @if ($email) E-mail: <a href="mailto:{{ $email }}">{{ $email }}</a>.@endif
-                </p>
-
-                <p style="margin-top:32px;color:var(--muted);font-size:14px">Ostatnia aktualizacja: {{ now()->format('d.m.Y') }}</p>
+                <div class="lc-item">
+                    <h2>8. Kontakt</h2>
+                    <p>W sprawach dotyczących danych osobowych skontaktuj się z nami.
+                    @if ($phone) Telefon: {{ $phone }}.@endif
+                    @if ($email) E-mail: <a href="mailto:{{ $email }}">{{ $email }}</a>.@endif
+                    </p>
+                </div>
             </div>
+            <p class="legal-updated">Ostatnia aktualizacja: {{ now()->format('d.m.Y') }}</p>
         </div>
     </section>
 @endsection
