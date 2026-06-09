@@ -45,6 +45,15 @@ class SettingsController extends Controller
                 ->all();
         }
 
+        // Edytowalne teksty strony kariery (tylko znane klucze).
+        if ($request->has('careers_texts')) {
+            $allowed = array_keys(config('rekruter.careers_texts', []));
+            $settings['careers_texts'] = collect($request->input('careers_texts', []))
+                ->only($allowed)
+                ->map(fn ($v) => is_string($v) ? trim($v) : '')
+                ->all();
+        }
+
         // Klucz API zapisujemy tylko gdy podano nowy (puste pole = bez zmian).
         if ($request->filled('openai_api_key')) {
             $settings['openai_api_key'] = $request->string('openai_api_key')->toString();
@@ -87,6 +96,9 @@ class SettingsController extends Controller
             'agency_website' => $s['agency_website'] ?? null,
             'careers_hero_image' => $s['careers_hero_image'] ?? null,
             'careers_hero_effective' => $tenant->careersHeroImage(),
+            'careers_texts' => collect(config('rekruter.careers_texts', []))
+                ->map(fn ($f, $k) => ['label' => $f['label'], 'type' => $f['type'], 'value' => $tenant->careersText($k)])
+                ->all(),
             'openai_model' => $tenant->openaiModel(),
             // Klucza nie zwracamy — tylko informację, czy jest ustawiony.
             'openai_configured' => ! empty($s['openai_api_key']),

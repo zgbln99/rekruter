@@ -64,6 +64,29 @@ async function resetHero() {
     heroLoading.value = false
   }
 }
+
+// --- Edytowalne teksty strony kariery ---
+const careersTexts = reactive<Record<string, string>>({})
+watch(
+  () => data.value?.careers_texts,
+  (ct) => {
+    if (ct) for (const k of Object.keys(ct)) careersTexts[k] = ct[k].value
+  },
+  { immediate: true },
+)
+const textsSaving = ref(false)
+const textsSaved = ref(false)
+async function saveCareersTexts() {
+  textsSaving.value = true
+  textsSaved.value = false
+  try {
+    await updateSettings.mutateAsync({ ...(data.value as any), careers_texts: { ...careersTexts } })
+    textsSaved.value = true
+    setTimeout(() => (textsSaved.value = false), 2500)
+  } finally {
+    textsSaving.value = false
+  }
+}
 const BRANDING = [
   { type: 'logo' as const, label: 'Logo (nagłówek)', hint: 'PNG/SVG, najlepiej poziome, na jasnym tle.' },
   { type: 'icon' as const, label: 'Ikona (kwadrat)', hint: 'PNG/SVG kwadratowe — znak bez napisu.' },
@@ -190,6 +213,33 @@ async function save() {
             Przywróć domyślne
           </button>
         </div>
+      </div>
+
+      <!-- Teksty strony kariery -->
+      <div v-if="data?.careers_texts" class="card space-y-4 p-5">
+        <div class="flex items-center justify-between gap-3">
+          <div>
+            <p class="text-[13px] font-semibold text-ink">Strona kariery — teksty</p>
+            <p class="text-xs text-stone">Nagłówki i opisy na publicznej stronie głównej. Puste = tekst domyślny.</p>
+          </div>
+          <span v-if="textsSaved" class="badge badge-accent shrink-0">Zapisano</span>
+        </div>
+        <div class="space-y-3">
+          <div v-for="(field, key) in data.careers_texts" :key="key">
+            <label class="field-label">{{ field.label }}</label>
+            <textarea
+              v-if="field.type === 'textarea'"
+              v-model="careersTexts[key]"
+              rows="2"
+              class="input-field !h-auto py-2.5"
+              :disabled="!auth.isAdmin"
+            />
+            <input v-else v-model="careersTexts[key]" type="text" class="input-field" :disabled="!auth.isAdmin" />
+          </div>
+        </div>
+        <button v-if="auth.isAdmin" class="btn-primary !w-auto" :disabled="textsSaving" @click="saveCareersTexts">
+          {{ textsSaving ? 'Zapisywanie…' : 'Zapisz teksty' }}
+        </button>
       </div>
 
       <!-- Integracja AI -->

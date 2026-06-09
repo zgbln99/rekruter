@@ -10,11 +10,11 @@
             <img src="{{ $tenant?->careersHeroImage() ?? config('rekruter.hero_image') }}" alt="" loading="eager" onerror="this.style.display='none'">
         </div>
         <div class="wrap">
-            <span class="kicker light"><span class="mk"></span> Agencja pracy dla kierowców</span>
-            <h1>Praca za kierownicą, na której można polegać.</h1>
-            <p class="lead">Sprawdzone oferty u solidnych pracodawców w Niemczech i Polsce. Bezpośrednie zatrudnienie, jasne warunki, kontakt w 24 godziny — bez pośredników i bez opłat dla kierowcy.</p>
+            <span class="kicker light"><span class="mk"></span> {{ $tenant?->careersText('hero_kicker') }}</span>
+            <h1>{{ $tenant?->careersText('hero_title') }}</h1>
+            <p class="lead">{{ $tenant?->careersText('hero_lead') }}</p>
             <div class="cta">
-                <a href="#oferty" class="btn btn-accent">Zobacz {{ $total }} ofert</a>
+                <a href="#oferty" class="btn btn-accent">{{ $tenant?->careersText('hero_cta') }}</a>
                 @if ($tenant?->agencyPhone())
                     <a href="tel:{{ preg_replace('/\s+/', '', $tenant->agencyPhone()) }}" class="btn btn-glass">Zadzwoń: {{ $tenant->agencyPhone() }}</a>
                 @endif
@@ -114,21 +114,21 @@
     <section class="section soft">
         <div class="wrap">
             <div class="section-head">
-                <span class="kicker"><span class="mk"></span> Dlaczego my</span>
-                <h2>Robimy to konkretnie</h2>
+                <span class="kicker"><span class="mk"></span> {{ $tenant?->careersText('values_kicker') }}</span>
+                <h2>{{ $tenant?->careersText('values_title') }}</h2>
             </div>
             <div class="values">
                 <div class="value">
                     <span class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg></span>
-                    <div><h3>Bezpośrednie zatrudnienie</h3><p>Kierujemy Cię prosto do pracodawcy. Jasna umowa i pewne, terminowe wynagrodzenie.</p></div>
+                    <div><h3>{{ $tenant?->careersText('value1_title') }}</h3><p>{{ $tenant?->careersText('value1_text') }}</p></div>
                 </div>
                 <div class="value">
                     <span class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span>
-                    <div><h3>Kontakt w 24 godziny</h3><p>Zostaw zgłoszenie lub zadzwoń — odzywamy się szybko i rozmawiamy po polsku.</p></div>
+                    <div><h3>{{ $tenant?->careersText('value2_title') }}</h3><p>{{ $tenant?->careersText('value2_text') }}</p></div>
                 </div>
                 <div class="value">
                     <span class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></span>
-                    <div><h3>Zero opłat dla kierowcy</h3><p>Rekrutacja jest dla Ciebie całkowicie bezpłatna. Płaci pracodawca, nie Ty.</p></div>
+                    <div><h3>{{ $tenant?->careersText('value3_title') }}</h3><p>{{ $tenant?->careersText('value3_text') }}</p></div>
                 </div>
             </div>
         </div>

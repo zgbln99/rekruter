@@ -22,6 +22,7 @@ export interface Settings {
   agency_website: string | null
   careers_hero_image?: string | null
   careers_hero_effective?: string
+  careers_texts?: Record<string, { label: string; type: string; value: string }>
   openai_model?: string
   openai_configured?: boolean
   // Tylko dla administratora (dane finansowe):

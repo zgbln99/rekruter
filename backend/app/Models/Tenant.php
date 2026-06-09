@@ -49,6 +49,17 @@ class Tenant extends Model
         return $phone !== '' ? $phone : null;
     }
 
+    /** Edytowalny tekst strony kariery (z ustawień lub domyślny z configu). */
+    public function careersText(string $key): string
+    {
+        $custom = $this->settings['careers_texts'][$key] ?? null;
+        if (is_string($custom) && trim($custom) !== '') {
+            return $custom;
+        }
+
+        return (string) (config('rekruter.careers_texts.'.$key.'.default') ?? '');
+    }
+
     /** Zdjęcie hero publicznej strony kariery (ustawione w panelu lub domyślne). */
     public function careersHeroImage(): string
     {

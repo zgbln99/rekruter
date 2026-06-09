@@ -136,6 +136,8 @@ class PublicCareersController extends Controller
             'city' => ['nullable', 'string', 'max:120'],
             'categories' => ['nullable', 'array'],
             'categories.*' => ['string', 'max:10'],
+            'qualifications' => ['nullable', 'array'],
+            'qualifications.*' => ['string', 'in:adr,code_95,card,international'],
             'message' => ['nullable', 'string', 'max:2000'],
             'cv' => ['nullable', 'file', 'mimes:pdf,doc,docx,jpg,jpeg,png', 'max:8192'],
             'consent' => ['accepted'],
@@ -181,6 +183,8 @@ class PublicCareersController extends Controller
             return $candidate;
         }
 
+        $quals = $data['qualifications'] ?? [];
+
         return Candidate::create([
             'first_name' => $data['first_name'],
             'last_name' => $data['last_name'],
@@ -189,6 +193,9 @@ class PublicCareersController extends Controller
             'email' => $data['email'] ?? null,
             'city' => $data['city'] ?? null,
             'license_categories' => $data['categories'] ?? [],
+            'has_adr' => in_array('adr', $quals, true),
+            'has_code_95' => in_array('code_95', $quals, true),
+            'exp_international' => in_array('international', $quals, true),
             'experience_notes' => $data['message'] ?? null,
             'status' => CandidateStatus::New->value,
             'source' => 'Strona kariery',

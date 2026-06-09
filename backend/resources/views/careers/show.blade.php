@@ -164,6 +164,15 @@
                                         @endforeach
                                     </div>
                                 </div>
+                                <div class="form-field full">
+                                    <label>Dodatkowe kwalifikacje</label>
+                                    <div class="cat-check">
+                                        <label><input type="checkbox" name="qualifications[]" value="adr"><span>ADR</span></label>
+                                        <label><input type="checkbox" name="qualifications[]" value="code_95"><span>Kod 95</span></label>
+                                        <label><input type="checkbox" name="qualifications[]" value="card"><span>Karta kierowcy</span></label>
+                                        <label><input type="checkbox" name="qualifications[]" value="international"><span>Doświadczenie międzynarodowe</span></label>
+                                    </div>
+                                </div>
                                 <div class="form-field full"><label>Wiadomość / doświadczenie</label><textarea name="message" rows="3" placeholder="Krótko o sobie, dyspozycyjność…">{{ old('message') }}</textarea></div>
                                 <div class="form-field full"><label>CV (opcjonalnie)</label><input type="file" name="cv" class="file-input" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"></div>
                                 <div class="form-field full">

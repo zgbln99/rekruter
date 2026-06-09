@@ -22,6 +22,8 @@ class UpdateSettingsRequest extends FormRequest
             'agency_email' => ['nullable', 'email', 'max:191'],
             'agency_website' => ['nullable', 'string', 'max:191'],
             'careers_hero_image' => ['nullable', 'string', 'max:1024'],
+            'careers_texts' => ['nullable', 'array'],
+            'careers_texts.*' => ['nullable', 'string', 'max:2000'],
             'openai_api_key' => ['nullable', 'string', 'max:255'],
             'openai_model' => ['nullable', 'string', 'max:60'],
             'placement_fee' => ['nullable', 'numeric', 'min:0'],
