@@ -11,7 +11,7 @@
     $faq = is_array($offer->faq) ? array_filter($offer->faq, fn ($f) => ! empty($f['q'])) : [];
     $agencyPhone = $tenant?->agencyPhone();
     $waPhone = $agencyPhone ? preg_replace('/\D+/', '', $agencyPhone) : null;
-    $metaDesc = \Illuminate\Support\Str::limit(trim(strip_tags($desc)) ?: $offer->title.($loc ? ' — '.$loc : ''), 155);
+    $metaDesc = \Illuminate\Support\Str::limit(trim(strip_tags($desc)) ?: $offer->title.($loc ? ' - '.$loc : ''), 155);
 
     $ic = [
         'lic' => '<path d="M3 5h18v14H3zM7 9h4M7 13h6"/><circle cx="17" cy="10" r="2"/>',
@@ -35,8 +35,8 @@
     if ($offer->required_language) $facts[] = ['Język obcy', $offer->required_language, $ic['globe']];
 @endphp
 
-@section('title', $offer->title.($loc ? ' — '.$loc : '').' | Praca dla kierowców')
-@section('og_title', $offer->title.($loc ? ' — '.$loc : ''))
+@section('title', $offer->title.($loc ? ' - '.$loc : '').' | Praca dla kierowców')
+@section('og_title', $offer->title.($loc ? ' - '.$loc : ''))
 @section('description', $metaDesc)
 
 @push('head')
@@ -114,13 +114,13 @@
                 </div>
             </div>
 
-            {{-- APLIKACJA — pełnoszeroka sekcja --}}
+            {{-- APLIKACJA - pełnoszeroka sekcja --}}
             <section class="apply" id="aplikuj">
                 <div class="apply-inner">
                     <div class="apply-head">
                         <span class="kicker"><span class="mk"></span> Aplikacja</span>
                         <h2>Zainteresowany? Aplikuj w minutę.</h2>
-                        <p>Wypełnij krótki formularz albo skontaktuj się z nami od razu — oddzwonimy.</p>
+                        <p>Wypełnij krótki formularz albo skontaktuj się z nami od razu - oddzwonimy.</p>
                     </div>
 
                     @if ($agencyPhone)

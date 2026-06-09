@@ -74,18 +74,18 @@ return [
     |
     */
     'careers_texts' => [
-        'hero_kicker' => ['label' => 'Hero — mała etykieta', 'default' => 'Agencja pracy dla kierowców', 'type' => 'input'],
-        'hero_title' => ['label' => 'Hero — nagłówek', 'default' => 'Praca za kierownicą, na której można polegać.', 'type' => 'input'],
-        'hero_lead' => ['label' => 'Hero — opis pod nagłówkiem', 'default' => 'Sprawdzone oferty u solidnych pracodawców w Niemczech i Polsce. Bezpośrednie zatrudnienie, jasne warunki, kontakt w 24 godziny — bez pośredników i bez opłat dla kierowcy.', 'type' => 'textarea'],
-        'hero_cta' => ['label' => 'Hero — przycisk główny', 'default' => 'Zobacz oferty', 'type' => 'input'],
-        'values_kicker' => ['label' => 'Sekcja „Dlaczego my" — etykieta', 'default' => 'Dlaczego my', 'type' => 'input'],
-        'values_title' => ['label' => 'Sekcja „Dlaczego my" — nagłówek', 'default' => 'Robimy to konkretnie', 'type' => 'input'],
-        'value1_title' => ['label' => 'Atut 1 — tytuł', 'default' => 'Bezpośrednie zatrudnienie', 'type' => 'input'],
-        'value1_text' => ['label' => 'Atut 1 — opis', 'default' => 'Kierujemy Cię prosto do pracodawcy. Jasna umowa i pewne, terminowe wynagrodzenie.', 'type' => 'textarea'],
-        'value2_title' => ['label' => 'Atut 2 — tytuł', 'default' => 'Kontakt w 24 godziny', 'type' => 'input'],
-        'value2_text' => ['label' => 'Atut 2 — opis', 'default' => 'Zostaw zgłoszenie lub zadzwoń — odzywamy się szybko i rozmawiamy po polsku.', 'type' => 'textarea'],
-        'value3_title' => ['label' => 'Atut 3 — tytuł', 'default' => 'Zero opłat dla kierowcy', 'type' => 'input'],
-        'value3_text' => ['label' => 'Atut 3 — opis', 'default' => 'Rekrutacja jest dla Ciebie całkowicie bezpłatna. Płaci pracodawca, nie Ty.', 'type' => 'textarea'],
+        'hero_kicker' => ['label' => 'Hero - mała etykieta', 'default' => 'Agencja pracy dla kierowców', 'type' => 'input'],
+        'hero_title' => ['label' => 'Hero - nagłówek', 'default' => 'Praca dla kierowców zawodowych. Niemcy i Polska.', 'type' => 'input'],
+        'hero_lead' => ['label' => 'Hero - opis pod nagłówkiem', 'default' => 'Łączymy kierowców z firmami, które płacą na czas i traktują po ludzku. Zadzwoń albo zostaw numer - resztą zajmiemy się my.', 'type' => 'textarea'],
+        'hero_cta' => ['label' => 'Hero - przycisk główny', 'default' => 'Zobacz oferty', 'type' => 'input'],
+        'values_kicker' => ['label' => 'Sekcja „Dlaczego my" - etykieta', 'default' => 'Dlaczego my', 'type' => 'input'],
+        'values_title' => ['label' => 'Sekcja „Dlaczego my" - nagłówek', 'default' => 'Konkretnie, bez kombinowania', 'type' => 'input'],
+        'value1_title' => ['label' => 'Atut 1 - tytuł', 'default' => 'Prosto do pracodawcy', 'type' => 'input'],
+        'value1_text' => ['label' => 'Atut 1 - opis', 'default' => 'Nie jesteśmy kolejnym pośrednikiem. Łączymy Cię bezpośrednio z firmą, która szuka kierowcy.', 'type' => 'textarea'],
+        'value2_title' => ['label' => 'Atut 2 - tytuł', 'default' => 'Oddzwaniamy szybko', 'type' => 'input'],
+        'value2_text' => ['label' => 'Atut 2 - opis', 'default' => 'Zostaw numer albo zadzwoń. Odzywamy się w ciągu doby i rozmawiamy po polsku.', 'type' => 'textarea'],
+        'value3_title' => ['label' => 'Atut 3 - tytuł', 'default' => 'Dla Ciebie za darmo', 'type' => 'input'],
+        'value3_text' => ['label' => 'Atut 3 - opis', 'default' => 'Za rekrutację płaci pracodawca. Ciebie nie kosztuje to ani złotówki.', 'type' => 'textarea'],
     ],
 
     'truck_queries' => [

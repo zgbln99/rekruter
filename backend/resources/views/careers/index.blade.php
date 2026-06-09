@@ -1,6 +1,6 @@
 @extends('careers.layout')
 
-@section('title', 'Praca dla kierowców zawodowych — '.($tenant?->agencyName() ?? 'edge recruiting'))
+@section('title', 'Praca dla kierowców zawodowych - '.($tenant?->agencyName() ?? 'edge recruiting'))
 @section('description', 'Sprawdzone oferty pracy dla kierowców zawodowych (kat. C, C+E, ADR) w Niemczech i Polsce. Bezpośrednie zatrudnienie, kontakt w 24h, zero opłat. Aplikuj online.')
 
 @section('content')
@@ -80,7 +80,7 @@
                     </div>
                     @foreach ($offers as $offer)
                         @php
-                            $loc = collect([$offer->region_base, $offer->country])->filter()->implode(', ') ?: ($offer->location ?: '—');
+                            $loc = collect([$offer->region_base, $offer->country])->filter()->implode(', ') ?: ($offer->location ?: '-');
                             $cats = is_array($offer->required_categories) ? $offer->required_categories : [];
                             $cat = count($cats) ? 'Kat. '.implode(' / ', $cats) : 'Kierowca';
                             $salary = trim((string) $offer->salary_amount) !== '' ? trim($offer->salary_amount.' '.$offer->currency) : null;
@@ -92,7 +92,7 @@
                                 <div class="ot-sub">{{ $loc }}@if ($offer->work_system) · System {{ $offer->work_system }}@endif</div>
                             </div>
                             <div class="ot-cell">{{ $loc }}</div>
-                            <div class="ot-cell">{{ $offer->work_system ?: '—' }}</div>
+                            <div class="ot-cell">{{ $offer->work_system ?: '-' }}</div>
                             <div class="ot-cell ot-sal">
                                 @if ($salary)<b>{{ $salary }}</b><span>na rękę</span>@else<span>do uzgodnienia</span>@endif
                             </div>

@@ -13,13 +13,13 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>@yield('title', 'Praca dla kierowców — '.$agencyName)</title>
+    <title>@yield('title', 'Praca dla kierowców - '.$agencyName)</title>
     <meta name="description" content="@yield('description', 'Aktualne oferty pracy dla kierowców zawodowych. Aplikuj online lub zadzwoń.')">
     <link rel="canonical" href="{{ url()->current() }}">
 
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="{{ $agencyName }}">
-    <meta property="og:title" content="@yield('og_title', 'Praca dla kierowców — '.$agencyName)">
+    <meta property="og:title" content="@yield('og_title', 'Praca dla kierowców - '.$agencyName)">
     <meta property="og:description" content="@yield('description', 'Aktualne oferty pracy dla kierowców zawodowych.')">
     <meta property="og:url" content="{{ url()->current() }}">
     @if ($hasLogo)<meta property="og:image" content="{{ $logoUrl }}">@endif
@@ -29,7 +29,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
-    <link rel="stylesheet" href="{{ asset('careers/careers.css') }}?v=17">
+    <link rel="stylesheet" href="{{ asset('careers/careers.css') }}?v=18">
     @stack('head')
 </head>
 <body>
@@ -62,7 +62,7 @@
             <div class="cols">
                 <div>
                     <div class="brand">{{ $agencyName }}</div>
-                    <p class="fdesc">Rekrutacja kierowców zawodowych. Sprawdzone oferty, bezpośredni kontakt, realne zatrudnienie.</p>
+                    <p class="fdesc">Pomagamy kierowcom znaleźć dobrą pracę u sprawdzonych pracodawców w Niemczech i w Polsce. Bez pośredników, bez opłat.</p>
                 </div>
                 <div class="fcol">
                     <h4>Kontakt</h4>
