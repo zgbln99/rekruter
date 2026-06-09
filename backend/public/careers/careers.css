@@ -180,12 +180,12 @@ img { max-width: 100%; display: block; }
 .detail-body { padding: 52px 0 130px; }
 .detail-content { max-width: 100%; }
 
-/* Fakty — szeroka, wielokolumnowa siatka */
-.facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; margin-bottom: 8px; }
-.fact { background: #fff; padding: 20px 22px; display: flex; gap: 14px; align-items: center; }
-.fact .ic { width: 42px; height: 42px; border-radius: 11px; background: var(--soft); color: var(--accent); display: flex; align-items: center; justify-content: center; flex: 0 0 auto; }
-.fact .k { font-size: 12.5px; color: var(--muted); }
-.fact .v { margin-top: 3px; font-size: 15.5px; font-weight: 600; color: var(--ink); letter-spacing: -.01em; }
+/* Fakty — osobne karty (brak szarych pustych komórek przy niepełnym rzędzie) */
+.facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; margin-bottom: 8px; }
+.fact { background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 18px 18px; display: flex; gap: 13px; align-items: flex-start; }
+.fact .ic { width: 40px; height: 40px; border-radius: 11px; background: var(--soft); color: var(--accent); display: flex; align-items: center; justify-content: center; flex: 0 0 auto; }
+.fact .k { font-size: 12px; color: var(--muted); }
+.fact .v { margin-top: 3px; font-size: 15px; font-weight: 600; color: var(--ink); letter-spacing: -.01em; line-height: 1.35; }
 
 /* Opis — pełna szerokość strony (jak sekcja aplikacji) */
 .prose-wrap { max-width: 100%; }
@@ -226,8 +226,8 @@ img { max-width: 100%; display: block; }
 .form-field { display: flex; flex-direction: column; gap: 7px; }
 .form-field.full { grid-column: 1 / -1; }
 .form-field label { font-size: 13px; font-weight: 600; color: var(--ink); }
-.form-field input, .form-field textarea { border: 1px solid var(--line-2); border-radius: 11px; padding: 13px 14px; font-size: 15px; font-family: inherit; color: var(--ink); background: #fff; outline: none; transition: border-color .15s, box-shadow .15s; width: 100%; }
-.form-field input:focus, .form-field textarea:focus { border-color: var(--ink); box-shadow: 0 0 0 3px rgba(13,15,20,.07); }
+.form-field input:not([type=checkbox]):not([type=file]), .form-field textarea { border: 1px solid var(--line-2); border-radius: 11px; padding: 13px 14px; font-size: 15px; font-family: inherit; color: var(--ink); background: #fff; outline: none; transition: border-color .15s, box-shadow .15s; width: 100%; }
+.form-field input:not([type=checkbox]):not([type=file]):focus, .form-field textarea:focus { border-color: var(--ink); box-shadow: 0 0 0 3px rgba(13,15,20,.07); }
 .cat-check { display: flex; flex-wrap: wrap; gap: 8px; }
 .cat-check label { display: inline-flex; cursor: pointer; }
 .cat-check input { position: absolute; opacity: 0; }
@@ -235,7 +235,8 @@ img { max-width: 100%; display: block; }
 .cat-check input:checked + span { background: var(--ink); color: #fff; border-color: var(--ink); }
 .file-input { font-size: 13.5px; color: var(--muted); }
 .consent { display: flex; gap: 10px; align-items: flex-start; font-size: 12.5px; color: var(--muted); line-height: 1.55; }
-.consent input { margin-top: 3px; flex: 0 0 auto; accent-color: var(--accent); }
+.consent input { margin: 2px 0 0; flex: 0 0 auto; width: 18px; height: 18px; accent-color: var(--accent); }
+.consent span { flex: 1 1 auto; min-width: 0; }
 .hp { position: absolute; left: -9999px; opacity: 0; height: 0; width: 0; }
 
 .flash-ok { display: flex; gap: 13px; align-items: flex-start; background: #f1faf3; border: 1px solid #c7eccd; color: #1c7c37; border-radius: 13px; padding: 18px; }

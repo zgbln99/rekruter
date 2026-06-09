@@ -29,9 +29,9 @@
     if (count($cats)) $facts[] = ['Prawo jazdy', implode(', ', $cats), $ic['lic']];
     if ($loc) $facts[] = ['Lokalizacja', $loc, $ic['pin']];
     if ($offer->trailer_type || $offer->vehicle_type) $facts[] = ['Zestaw', $offer->trailer_type ?: $offer->vehicle_type, $ic['truck']];
-    if ($offer->routes_info) $facts[] = ['Trasa', \Illuminate\Support\Str::limit($offer->routes_info, 40), $ic['route']];
+    if ($offer->routes_info) $facts[] = ['Trasa', \Illuminate\Support\Str::limit($offer->routes_info, 70), $ic['route']];
     if ($offer->work_system) $facts[] = ['System pracy', $offer->work_system, $ic['clock']];
-    if ($offer->accommodation) $facts[] = ['Zakwaterowanie', \Illuminate\Support\Str::limit($offer->accommodation, 40), $ic['home']];
+    if ($offer->accommodation) $facts[] = ['Zakwaterowanie', \Illuminate\Support\Str::limit($offer->accommodation, 90), $ic['home']];
     if ($offer->contract_type) $facts[] = ['Typ umowy', $offer->contract_type, $ic['doc']];
     if ($offer->required_language) $facts[] = ['Język obcy', $offer->required_language, $ic['globe']];
 @endphp

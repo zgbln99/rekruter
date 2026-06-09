@@ -18,6 +18,22 @@ class SafeHtml
             return '';
         }
 
+        // Zwykły tekst (bez tagów blokowych) → akapity + łamania linii,
+        // żeby opis nie był jedną ścianą tekstu.
+        if (! preg_match('/<(p|ul|ol|li|br|h[1-6]|div|table)\b/i', $html)) {
+            $blocks = preg_split('/\n{2,}/', trim($html)) ?: [];
+            $out = '';
+            foreach ($blocks as $block) {
+                $block = trim($block);
+                if ($block === '') {
+                    continue;
+                }
+                $out .= '<p>'.nl2br(e($block)).'</p>';
+            }
+
+            return $out;
+        }
+
         // Usuń całe bloki skryptów/styli wraz z zawartością.
         $html = preg_replace('#<(script|style|iframe)[^>]*>.*?</\1>#is', '', $html) ?? '';
 
