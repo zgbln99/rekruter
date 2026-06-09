@@ -37,6 +37,7 @@ class JobPosting extends Model
         'region_base',
         'work_system',
         'salary_amount',
+        'salary_by_system',
         'currency',
         'start_date',
         'required_language',
@@ -55,6 +56,7 @@ class JobPosting extends Model
         'is_featured',
         'published_at',
         'cover_image_url',
+        'internal_ref',
         'external_ref',
     ];
 
@@ -63,6 +65,7 @@ class JobPosting extends Model
         return [
             'required_categories' => 'array',
             'requirements' => 'array',
+            'salary_by_system' => 'array',
             'call_script' => 'array',
             'faq' => 'array',
             'start_date' => 'date',

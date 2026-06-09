@@ -35,6 +35,7 @@ const form = reactive<Partial<JobPosting>>({
   description: '',
   public_description: '',
   recruiter_notes: '',
+  internal_ref: '',
   status: 'open',
 })
 
@@ -42,6 +43,17 @@ const categories = ref<Set<LicenseCategory>>(new Set())
 const requirements = ref<Set<OfferRequirementKey>>(new Set())
 const callScript = ref<string[]>([''])
 const faqItems = ref<{ q: string; a: string }[]>([])
+
+// Wynagrodzenie zależne od systemu (opcjonalne).
+const salaryBySystem = ref(false)
+const salaryRows = ref<{ system: string; amount: string }[]>([{ system: '', amount: '' }])
+function addSalaryRow() {
+  salaryRows.value.push({ system: '', amount: '' })
+}
+function removeSalaryRow(i: number) {
+  salaryRows.value.splice(i, 1)
+  if (!salaryRows.value.length) salaryRows.value.push({ system: '', amount: '' })
+}
 const error = ref('')
 
 function addFaq(q = '') {
@@ -90,6 +102,9 @@ async function submit() {
       requirements: requirementsMap,
       call_script: callScript.value.map((s) => s.trim()).filter(Boolean),
       faq: faqItems.value.filter((f) => f.q.trim()),
+      salary_by_system: salaryBySystem.value
+        ? salaryRows.value.filter((r) => r.system.trim() && r.amount.trim())
+        : [],
     } as Partial<JobPosting>)
     await router.push(`/job-offers/${offer.id}`)
   } catch {
@@ -114,9 +129,15 @@ async function submit() {
         </select>
       </div>
 
-      <div>
-        <label class="field-label">Tytuł stanowiska</label>
-        <input v-model="form.title" placeholder="np. Kierowca C+E chłodnia DE" class="input-field" />
+      <div class="grid gap-3 sm:grid-cols-2">
+        <div>
+          <label class="field-label">Tytuł stanowiska</label>
+          <input v-model="form.title" placeholder="np. Kierowca C+E chłodnia DE" class="input-field" />
+        </div>
+        <div>
+          <label class="field-label">Oznaczenie wewnętrzne <span class="text-muted">(tylko w panelu)</span></label>
+          <input v-model="form.internal_ref" placeholder="np. HERM01-26 / Rossmann Lipsk" class="input-field" />
+        </div>
       </div>
 
       <div class="grid grid-cols-2 gap-3">
@@ -151,6 +172,27 @@ async function submit() {
         <div>
           <label class="field-label">Waluta</label>
           <input v-model="form.currency" class="input-field" />
+        </div>
+      </div>
+
+      <!-- Wynagrodzenie zależne od systemu (opcjonalne) -->
+      <div class="rounded-xl border border-hairline p-3.5">
+        <label class="flex cursor-pointer select-none items-center gap-2.5 text-sm font-medium text-ink">
+          <input v-model="salaryBySystem" type="checkbox" class="peer sr-only" />
+          <span class="flex h-[18px] w-[18px] items-center justify-center rounded-[5px] border border-hairline bg-canvas text-white transition peer-checked:border-brand peer-checked:bg-brand">
+            <AppIcon name="check" :size="12" />
+          </span>
+          Wynagrodzenie zależne od systemu pracy
+        </label>
+        <div v-if="salaryBySystem" class="mt-3 space-y-2">
+          <div v-for="(row, i) in salaryRows" :key="i" class="flex items-center gap-2">
+            <input v-model="row.system" placeholder="System (np. 3/1)" class="input-field" />
+            <input v-model="row.amount" placeholder="Kwota (np. 2500 EUR)" class="input-field" />
+            <button type="button" class="shrink-0 rounded-lg p-2 text-stone hover:bg-surface hover:text-red-600" @click="removeSalaryRow(i)">
+              <AppIcon name="x" :size="16" />
+            </button>
+          </div>
+          <button type="button" class="text-sm font-medium text-brand-deep" @click="addSalaryRow">+ Dodaj wiersz</button>
         </div>
       </div>
 

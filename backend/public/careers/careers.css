@@ -214,6 +214,14 @@ img { max-width: 100%; display: block; }
   .apply-bar .ab-salary { flex: 0 0 auto; text-align: right; padding: 0 22px; border-left: 1px solid var(--line); border-right: 1px solid var(--line); }
 }
 
+/* Wynagrodzenie zależne od systemu */
+.salary-systems { margin-top: 24px; border: 1px solid var(--line); border-radius: 16px; overflow: hidden; background: #fff; }
+.salary-systems .ss-title { padding: 14px 18px; background: var(--soft); font-size: 12.5px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--stone); border-bottom: 1px solid var(--line); }
+.ss-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 14px 18px; border-bottom: 1px solid var(--line); }
+.ss-row:last-child { border-bottom: 0; }
+.ss-row .ss-sys { font-size: 15px; color: var(--text); font-weight: 500; }
+.ss-row .ss-amt { font-size: 16px; font-weight: 700; color: var(--ink); white-space: nowrap; }
+
 /* Opis — pełna szerokość strony (jak sekcja aplikacji) */
 .prose-wrap { max-width: 100%; }
 .block-title { font-size: 22px; font-weight: 700; letter-spacing: -.03em; color: var(--ink); margin: 44px 0 18px; }

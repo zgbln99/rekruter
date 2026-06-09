@@ -103,6 +103,7 @@ function open(o: JobPosting) {
                   <svg v-if="o.is_featured" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" class="shrink-0 text-amber-500" title="Promowana"><path d="M12 2l2.9 6 6.6.6-5 4.3 1.5 6.5L12 16.9 5.9 19.4 7.4 12.9 2.4 8.6 9 8z"/></svg>
                   {{ o.title }}
                 </span>
+                <span v-if="o.internal_ref" class="mt-0.5 block font-mono text-xs text-muted">{{ o.internal_ref }}</span>
               </td>
               <td class="px-4 py-3 text-steel">{{ o.company?.name || '—' }}</td>
               <td class="px-4 py-3 text-steel">{{ location(o) }}</td>
@@ -137,6 +138,7 @@ function open(o: JobPosting) {
               <p class="min-w-0 flex-1 font-semibold leading-snug text-ink">
                 <svg v-if="o.is_featured" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" class="mr-1 inline shrink-0 text-amber-500"><path d="M12 2l2.9 6 6.6.6-5 4.3 1.5 6.5L12 16.9 5.9 19.4 7.4 12.9 2.4 8.6 9 8z"/></svg>
                 {{ o.title }}
+                <span v-if="o.internal_ref" class="mt-0.5 block font-mono text-xs font-normal text-muted">{{ o.internal_ref }}</span>
               </p>
               <div class="flex shrink-0 flex-col items-end gap-1">
                 <span class="badge" :class="statusTone[o.status] || 'badge-neutral'">{{ o.status_label }}</span>

@@ -200,6 +200,7 @@ async function saveQuick() {
   <section v-else-if="offer" class="mx-auto space-y-5 pb-8">
     <div class="flex flex-wrap items-start justify-between gap-3">
       <div>
+        <span v-if="offer.internal_ref" class="mb-1 inline-block rounded-md bg-surface px-2 py-0.5 font-mono text-xs text-steel">{{ offer.internal_ref }}</span>
         <h1 class="text-2xl font-bold tracking-tight text-ink">{{ offer.title }}</h1>
         <p class="text-sm text-stone">
           {{ offer.company?.name }} ·

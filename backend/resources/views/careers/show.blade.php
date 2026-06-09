@@ -97,6 +97,25 @@
                     </div>
                 @endif
 
+                @php
+                    $salaryRows = is_array($offer->salary_by_system)
+                        ? array_values(array_filter($offer->salary_by_system, fn ($r) => ! empty($r['system']) && ! empty($r['amount'])))
+                        : [];
+                @endphp
+                @if (count($salaryRows))
+                    <div class="salary-systems">
+                        <div class="ss-title">Wynagrodzenie zależnie od systemu pracy</div>
+                        <div class="ss-rows">
+                            @foreach ($salaryRows as $r)
+                                <div class="ss-row">
+                                    <span class="ss-sys">System {{ $r['system'] }}</span>
+                                    <span class="ss-amt">{{ $r['amount'] }}</span>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                @endif
+
                 <div class="prose-wrap">
                     @if ($desc)
                         <div class="block-title">Opis stanowiska</div>

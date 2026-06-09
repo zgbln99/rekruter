@@ -60,6 +60,10 @@ class UpdateJobPostingRequest extends FormRequest
             'status' => ['sometimes', new Enum(JobPostingStatus::class)],
             'is_public' => ['sometimes', 'boolean'],
             'is_featured' => ['sometimes', 'boolean'],
+            'internal_ref' => ['nullable', 'string', 'max:120'],
+            'salary_by_system' => ['nullable', 'array'],
+            'salary_by_system.*.system' => ['nullable', 'string', 'max:60'],
+            'salary_by_system.*.amount' => ['nullable', 'string', 'max:60'],
             'cover_image_url' => ['nullable', 'string', 'max:1024'],
         ];
     }

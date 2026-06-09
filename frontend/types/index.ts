@@ -253,6 +253,7 @@ export interface JobPosting {
   region_base: string | null
   work_system: string | null
   salary_amount: string | null
+  salary_by_system?: { system: string; amount: string }[]
   currency: string | null
   start_date: string | null
   required_language: string | null
@@ -269,6 +270,7 @@ export interface JobPosting {
   status_label: string
   is_public?: boolean
   is_featured?: boolean
+  internal_ref?: string | null
   public_url?: string | null
   cover_image_url?: string | null
   applications_count?: number
