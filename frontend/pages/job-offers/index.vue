@@ -99,7 +99,13 @@ function open(o: JobPosting) {
               </td>
               <td class="px-4 py-3 text-steel">{{ salary(o) }}</td>
               <td class="px-4 py-3">
-                <span class="badge" :class="statusTone[o.status] || 'badge-neutral'">{{ o.status_label }}</span>
+                <div class="flex flex-col items-start gap-1">
+                  <span class="badge" :class="statusTone[o.status] || 'badge-neutral'">{{ o.status_label }}</span>
+                  <span class="badge inline-flex items-center gap-1" :class="o.is_public ? 'bg-blue-50 text-blue-700' : 'bg-surface text-muted'">
+                    <span class="h-1.5 w-1.5 rounded-full" :class="o.is_public ? 'bg-blue-500' : 'bg-muted'" />
+                    {{ o.is_public ? 'Publiczna' : 'Ukryta' }}
+                  </span>
+                </div>
               </td>
               <td class="px-4 py-3 text-right font-semibold text-ink">{{ o.applications_count ?? 0 }}</td>
             </tr>
@@ -111,10 +117,16 @@ function open(o: JobPosting) {
       <ul class="grid gap-3 sm:grid-cols-2 lg:hidden">
         <li v-for="o in offers" :key="o.id">
           <NuxtLink :to="`/job-offers/${o.id}`" class="card-tile flex h-full flex-col p-4">
-            <!-- Tytuł + status -->
+            <!-- Tytuł + status + widoczność -->
             <div class="flex items-start justify-between gap-3">
               <p class="min-w-0 flex-1 font-semibold leading-snug text-ink">{{ o.title }}</p>
-              <span class="badge shrink-0" :class="statusTone[o.status] || 'badge-neutral'">{{ o.status_label }}</span>
+              <div class="flex shrink-0 flex-col items-end gap-1">
+                <span class="badge" :class="statusTone[o.status] || 'badge-neutral'">{{ o.status_label }}</span>
+                <span class="badge inline-flex items-center gap-1" :class="o.is_public ? 'bg-blue-50 text-blue-700' : 'bg-surface text-muted'">
+                  <span class="h-1.5 w-1.5 rounded-full" :class="o.is_public ? 'bg-blue-500' : 'bg-muted'" />
+                  {{ o.is_public ? 'Publiczna' : 'Ukryta' }}
+                </span>
+              </div>
             </div>
 
             <!-- Firma -->
