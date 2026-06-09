@@ -674,6 +674,13 @@ async function doSend() {
           <p v-if="completeness.missing.length" class="mt-2 text-sm text-amber-700">
             Braki do wysłania: {{ completeness.missing.join(', ') }}
           </p>
+          <NuxtLink
+            v-if="!completeness.complete"
+            :to="`/candidates/${id}/edit`"
+            class="mt-3 inline-flex h-10 w-full items-center justify-center gap-1.5 rounded-xl bg-brand text-sm font-semibold text-white transition hover:bg-brand-deep active:scale-[0.98]"
+          >
+            <AppIcon name="note" :size="16" /> Uzupełnij profil
+          </NuxtLink>
         </div>
 
         <!-- Status w ogłoszeniach -->
