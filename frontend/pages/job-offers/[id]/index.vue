@@ -30,6 +30,19 @@ async function toggleActive() {
   const next = offer.value?.status === 'open' ? 'paused' : 'open'
   await updateOffer.mutateAsync({ status: next } as any)
 }
+
+const publishing = ref(false)
+async function togglePublic() {
+  publishing.value = true
+  try {
+    await updateOffer.mutateAsync({ is_public: !offer.value?.is_public } as any)
+  } finally {
+    publishing.value = false
+  }
+}
+function copyPublicUrl() {
+  if (offer.value?.public_url) navigator.clipboard?.writeText(offer.value.public_url)
+}
 async function removeOffer() {
   if (!confirm('Usunąć to ogłoszenie? Operacja nieodwracalna.')) return
   await deleteOffer.mutateAsync(id.value)
@@ -187,6 +200,53 @@ async function saveQuick() {
         </button>
         <button v-if="auth.isAdmin" class="inline-flex h-9 items-center gap-1.5 rounded-xl border border-red-200 px-3.5 text-sm font-medium text-red-600 transition hover:bg-red-50" @click="removeOffer">
           Usuń
+        </button>
+      </div>
+    </div>
+
+    <!-- Publikacja na stronie kariery -->
+    <div class="card flex flex-wrap items-center gap-3 p-4">
+      <span
+        class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl"
+        :class="offer.is_public ? 'bg-emerald-50 text-emerald-600' : 'bg-surface text-stone'"
+      >
+        <AppIcon name="document" :size="20" />
+      </span>
+      <div class="min-w-0 flex-1">
+        <p class="text-sm font-semibold text-ink">
+          {{ offer.is_public ? 'Opublikowane na stronie kariery' : 'Niewidoczne publicznie' }}
+        </p>
+        <p v-if="offer.is_public && offer.public_url" class="truncate text-xs text-stone">
+          <a :href="offer.public_url" target="_blank" class="text-brand-deep hover:underline">{{ offer.public_url }}</a>
+        </p>
+        <p v-else class="text-xs text-stone">Włącz, aby kierowcy zobaczyli tę ofertę na publicznej stronie.</p>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <a
+          v-if="offer.is_public && offer.public_url"
+          :href="offer.public_url"
+          target="_blank"
+          class="inline-flex h-9 items-center gap-1.5 rounded-xl border border-hairline px-3.5 text-sm font-medium text-ink transition hover:bg-surface"
+        >
+          Podgląd ↗
+        </a>
+        <button
+          v-if="offer.is_public && offer.public_url"
+          class="inline-flex h-9 items-center gap-1.5 rounded-xl border border-hairline px-3.5 text-sm font-medium text-ink transition hover:bg-surface"
+          @click="copyPublicUrl"
+        >
+          Kopiuj link
+        </button>
+        <!-- Przełącznik -->
+        <button
+          class="relative inline-flex h-7 w-12 shrink-0 items-center rounded-full transition disabled:opacity-50"
+          :class="offer.is_public ? 'bg-emerald-500' : 'bg-hairline'"
+          :disabled="publishing"
+          :title="offer.is_public ? 'Wyłącz publikację' : 'Opublikuj'"
+          @click="togglePublic"
+        >
+          <span class="inline-block h-5 w-5 transform rounded-full bg-white shadow transition" :class="offer.is_public ? 'translate-x-6' : 'translate-x-1'" />
         </button>
       </div>
     </div>

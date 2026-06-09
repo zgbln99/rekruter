@@ -52,6 +52,8 @@ class JobPostingResource extends JsonResource
             'salary_range' => $this->salary_range,
             'status' => $this->status->value,
             'status_label' => $this->status->label(),
+            'is_public' => (bool) $this->is_public,
+            'public_url' => $this->isPublished() ? $this->publicUrl() : null,
             'applications_count' => $this->whenCounted('applications'),
             'created_at' => $this->created_at?->toIso8601String(),
         ];

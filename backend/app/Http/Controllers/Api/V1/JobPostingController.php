@@ -47,7 +47,14 @@ class JobPostingController extends Controller
 
     public function update(UpdateJobPostingRequest $request, JobPosting $jobPosting): JobPostingResource
     {
-        $jobPosting->update($request->validated());
+        $data = $request->validated();
+
+        // Znacznik pierwszej publikacji (data „dodano" w danych strukturalnych SEO).
+        if (($data['is_public'] ?? null) && ! $jobPosting->published_at) {
+            $data['published_at'] = now();
+        }
+
+        $jobPosting->update($data);
 
         return new JobPostingResource($jobPosting->refresh()->load('company'));
     }

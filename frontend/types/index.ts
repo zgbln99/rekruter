@@ -254,6 +254,8 @@ export interface JobPosting {
   salary_range: string | null
   status: 'open' | 'paused' | 'closed'
   status_label: string
+  is_public?: boolean
+  public_url?: string | null
   applications_count?: number
   created_at: string | null
 }

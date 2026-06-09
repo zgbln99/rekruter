@@ -51,6 +51,8 @@ class JobPosting extends Model
         'location',
         'salary_range',
         'status',
+        'is_public',
+        'published_at',
         'external_ref',
     ];
 
@@ -62,6 +64,8 @@ class JobPosting extends Model
             'call_script' => 'array',
             'faq' => 'array',
             'start_date' => 'date',
+            'published_at' => 'datetime',
+            'is_public' => 'boolean',
             'status' => JobPostingStatus::class,
         ];
     }
@@ -84,5 +88,36 @@ class JobPosting extends Model
     public function applications(): HasMany
     {
         return $this->hasMany(Application::class);
+    }
+
+    /** Ogłoszenia widoczne publicznie: ręcznie opublikowane i otwarte. */
+    public function scopePublished(\Illuminate\Database\Eloquent\Builder $query): \Illuminate\Database\Eloquent\Builder
+    {
+        return $query->where('is_public', true)
+            ->where('status', JobPostingStatus::Open->value);
+    }
+
+    /** Czy ogłoszenie może być pokazane na publicznej stronie kariery. */
+    public function isPublished(): bool
+    {
+        return (bool) $this->is_public && $this->status === JobPostingStatus::Open;
+    }
+
+    /** Slug z tytułu do ładnego, „SEO" adresu. */
+    public function publicSlug(): string
+    {
+        return \Illuminate\Support\Str::slug($this->title ?? '') ?: 'oferta-pracy';
+    }
+
+    /** Ścieżka publiczna ogłoszenia (z kluczowym slugiem + UUID). */
+    public function publicPath(): string
+    {
+        return '/kariera/'.$this->publicSlug().'/'.$this->id;
+    }
+
+    /** Pełny publiczny URL ogłoszenia. */
+    public function publicUrl(): string
+    {
+        return url($this->publicPath());
     }
 }
