@@ -25,7 +25,6 @@
         'cash' => '<rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/>',
     ];
     $facts = [];
-    if ($barSalary) $facts[] = ['Wynagrodzenie', $barSalary.' na rękę', $ic['cash']];
     if (count($cats)) $facts[] = ['Prawo jazdy', implode(', ', $cats), $ic['lic']];
     if ($loc) $facts[] = ['Lokalizacja', $loc, $ic['pin']];
     if ($offer->trailer_type || $offer->vehicle_type) $facts[] = ['Zestaw', $offer->trailer_type ?: $offer->vehicle_type, $ic['truck']];
@@ -55,17 +54,27 @@
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M11 18l-6-6 6-6"/></svg>
                 Wszystkie oferty
             </a>
-            <span class="kicker light"><span class="mk"></span> {{ $eyebrow }}</span>
-            <h1>{{ $offer->title }}</h1>
-            <div class="d-sub">
-                @if ($offer->company?->name)<span class="m">{{ $offer->company->name }}</span>@endif
-                @if ($loc)<span class="m"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7-5.3-7-11a7 7 0 1 1 14 0c0 5.7-7 11-7 11Z"/><circle cx="12" cy="10" r="2.4"/></svg>{{ $loc }}</span>@endif
-                @if ($barSalary)<span class="m"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.4"/></svg>{{ $barSalary }} na rękę</span>@endif
-            </div>
-            <div class="cta">
-                <a href="#aplikuj" class="btn btn-light">Aplikuj na tę ofertę</a>
-                @if ($agencyPhone)
-                    <a href="tel:{{ preg_replace('/\s+/', '', $agencyPhone) }}" class="btn btn-glass">Zadzwoń: {{ $agencyPhone }}</a>
+            <div class="dh-grid">
+                <div class="dh-main">
+                    <span class="kicker light"><span class="mk"></span> {{ $eyebrow }}</span>
+                    <h1>{{ $offer->title }}</h1>
+                    <div class="d-sub">
+                        @if ($offer->company?->name)<span class="m">{{ $offer->company->name }}</span>@endif
+                        @if ($loc)<span class="m"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7-5.3-7-11a7 7 0 1 1 14 0c0 5.7-7 11-7 11Z"/><circle cx="12" cy="10" r="2.4"/></svg>{{ $loc }}</span>@endif
+                    </div>
+                    <div class="cta">
+                        <a href="#aplikuj" class="btn btn-light">Aplikuj na tę ofertę</a>
+                        @if ($agencyPhone)
+                            <a href="tel:{{ preg_replace('/\s+/', '', $agencyPhone) }}" class="btn btn-glass">Zadzwoń: {{ $agencyPhone }}</a>
+                        @endif
+                    </div>
+                </div>
+                @if ($barSalary)
+                    <div class="dh-salary">
+                        <span class="dhs-label">Wynagrodzenie</span>
+                        <span class="dhs-amt">{{ $barSalary }}</span>
+                        <span class="dhs-suf">na rękę / miesiąc</span>
+                    </div>
                 @endif
             </div>
         </div>
