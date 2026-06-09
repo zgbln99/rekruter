@@ -187,8 +187,8 @@ img { max-width: 100%; display: block; }
 .fact .k { font-size: 12.5px; color: var(--muted); }
 .fact .v { margin-top: 3px; font-size: 15.5px; font-weight: 600; color: var(--ink); letter-spacing: -.01em; }
 
-/* Opis — ograniczona szerokość dla czytelności, ale na pełnej stronie */
-.prose-wrap { max-width: 780px; }
+/* Opis — pełna szerokość strony (jak sekcja aplikacji) */
+.prose-wrap { max-width: 100%; }
 .block-title { font-size: 22px; font-weight: 700; letter-spacing: -.03em; color: var(--ink); margin: 44px 0 18px; }
 .prose { font-size: 16.5px; color: var(--text); line-height: 1.8; }
 .prose h2, .prose h3, .prose h4 { color: var(--ink); margin: 28px 0 12px; font-weight: 600; letter-spacing: -.02em; }
@@ -255,6 +255,25 @@ img { max-width: 100%; display: block; }
 .apply-bar .ab-info span { font-size: 12px; color: var(--muted); }
 .apply-bar .btn { flex: 0 0 auto; height: 48px; padding: 0 22px; }
 
+/* ---------- Strona prawna (polityka prywatności) ---------- */
+.legal-hero { position: relative; background: var(--ink); color: #fff; }
+.legal-hero .wrap { padding: 132px 28px 48px; }
+.legal-hero h1 { margin-top: 18px; font-size: clamp(30px, 4.4vw, 46px); font-weight: 700; letter-spacing: -.04em; }
+.legal-hero p { margin-top: 12px; color: rgba(255,255,255,.7); font-size: 16px; }
+.legal-content { max-width: 760px; }
+.legal-content h2 { font-size: 19px; font-weight: 700; color: var(--ink); letter-spacing: -.02em; margin: 32px 0 10px; }
+.legal-content h2:first-child { margin-top: 0; }
+@media (min-width: 981px) { .legal-hero .wrap { padding: 150px 28px 56px; } }
+
+/* ---------- Baner cookies ---------- */
+.cookie-banner { position: fixed; left: 16px; right: 16px; bottom: 16px; z-index: 60; }
+@media (min-width: 560px) { .cookie-banner { left: 24px; right: auto; bottom: 24px; max-width: 440px; } }
+.cb-inner { background: #fff; border: 1px solid var(--line); border-radius: 16px; box-shadow: var(--shadow-lg); padding: 18px 20px; }
+.cb-inner p { font-size: 13.5px; color: var(--text); line-height: 1.55; }
+.cb-inner a { color: var(--ink); text-decoration: underline; }
+.cb-actions { margin-top: 14px; display: flex; gap: 10px; }
+.cookie-banner[hidden] { display: none; }
+
 /* ---------- Footer ---------- */
 .site-footer { background: var(--ink); color: rgba(255,255,255,.6); padding: 64px 0 40px; margin-top: auto; }
 .site-footer .cols { display: flex; justify-content: space-between; gap: 40px; flex-wrap: wrap; }
@@ -266,9 +285,6 @@ img { max-width: 100%; display: block; }
 .site-footer .legal { margin-top: 52px; padding-top: 24px; border-top: 1px solid rgba(255,255,255,.12); font-size: 13px; color: rgba(255,255,255,.4); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
 
 /* ---------- Responsive ---------- */
-@media (min-width: 560px) {
-  .facts { grid-template-columns: 1fr 1fr; }
-}
 @media (min-width: 680px) {
   .offers-grid { grid-template-columns: 1fr 1fr; }
   .values { grid-template-columns: repeat(3, 1fr); }

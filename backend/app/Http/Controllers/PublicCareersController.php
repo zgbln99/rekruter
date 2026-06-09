@@ -109,6 +109,12 @@ class PublicCareersController extends Controller
         ]);
     }
 
+    /** Polityka prywatności (RODO). */
+    public function privacy(): View
+    {
+        return view('careers.privacy', ['tenant' => $this->tenant()]);
+    }
+
     /** Obsługa aplikacji: tworzy kandydata + przypięcie do ogłoszenia. */
     public function apply(Request $request, string $jobPosting): RedirectResponse
     {

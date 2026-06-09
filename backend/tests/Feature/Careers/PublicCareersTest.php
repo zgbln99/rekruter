@@ -69,6 +69,14 @@ class PublicCareersTest extends TestCase
             ->assertRedirect($offer->publicPath());
     }
 
+    public function test_privacy_page_renders(): void
+    {
+        $this->get('/polityka-prywatnosci')
+            ->assertOk()
+            ->assertSee('Polityka prywatności')
+            ->assertSee('Administrator danych');
+    }
+
     public function test_application_creates_candidate_and_attaches_to_offer(): void
     {
         $offer = JobPosting::factory()->for($this->tenant)->create([

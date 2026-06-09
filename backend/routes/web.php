@@ -16,3 +16,6 @@ Route::prefix('kariera')->name('careers.')->group(function () {
         ->middleware('throttle:10,1')
         ->name('apply');
 });
+
+// Polityka prywatności (RODO) — publiczna.
+Route::get('/polityka-prywatnosci', [PublicCareersController::class, 'privacy'])->name('careers.privacy');

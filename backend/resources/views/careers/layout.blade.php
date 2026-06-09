@@ -29,7 +29,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
-    <link rel="stylesheet" href="{{ asset('careers/careers.css') }}?v=10">
+    <link rel="stylesheet" href="{{ asset('careers/careers.css') }}?v=11">
     @stack('head')
 </head>
 <body>
@@ -72,6 +72,7 @@
                 <div class="fcol">
                     <h4>Nawigacja</h4>
                     <a href="{{ route('careers.index') }}">Wszystkie oferty</a>
+                    <a href="{{ route('careers.privacy') }}">Polityka prywatności</a>
                 </div>
             </div>
             <div class="legal">
@@ -81,5 +82,30 @@
         </div>
     </footer>
 </div>
+
+{{-- Zgoda na cookies (RODO) --}}
+<div class="cookie-banner" id="cookieBanner" hidden>
+    <div class="cb-inner">
+        <p>Używamy niezbędnych plików cookie, aby strona działała poprawnie (m.in. bezpieczna obsługa formularza). Szczegóły w <a href="{{ route('careers.privacy') }}">Polityce prywatności</a>.</p>
+        <div class="cb-actions">
+            <button type="button" class="btn btn-dark btn-sm" id="cookieAccept">Akceptuję</button>
+        </div>
+    </div>
+</div>
+<script>
+(function () {
+    try {
+        var KEY = 'edge_cookie_consent';
+        var banner = document.getElementById('cookieBanner');
+        var btn = document.getElementById('cookieAccept');
+        if (!banner) return;
+        if (!localStorage.getItem(KEY)) banner.hidden = false;
+        if (btn) btn.addEventListener('click', function () {
+            try { localStorage.setItem(KEY, '1'); } catch (e) {}
+            banner.hidden = true;
+        });
+    } catch (e) {}
+})();
+</script>
 </body>
 </html>
