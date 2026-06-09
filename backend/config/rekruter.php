@@ -29,4 +29,26 @@ return [
 
     'careers_url' => rtrim((string) env('CAREERS_URL', env('APP_URL', '')), '/'),
 
+    /*
+    |--------------------------------------------------------------------------
+    | Zdjęcia (stock) na publiczną stronę kariery
+    |--------------------------------------------------------------------------
+    |
+    | Profesjonalne zdjęcia ciężarówek (Unsplash) — ładowane w przeglądarce
+    | odwiedzającego. Hero + okładki ofert. Pod spodem zawsze jest gradient,
+    | więc strona wygląda dobrze nawet gdy zdjęcie się nie wczyta.
+    |
+    */
+
+    'hero_image' => env('CAREERS_HERO_IMAGE', 'https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?auto=format&fit=crop&w=1920&q=70'),
+
+    'stock_images' => [
+        'https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?auto=format&fit=crop&w=900&q=70',
+        'https://images.unsplash.com/photo-1586191582151-f73872dfd183?auto=format&fit=crop&w=900&q=70',
+        'https://images.unsplash.com/photo-1519003722824-194d4455a60c?auto=format&fit=crop&w=900&q=70',
+        'https://images.unsplash.com/photo-1558981403-c5f9899a28bc?auto=format&fit=crop&w=900&q=70',
+        'https://images.unsplash.com/photo-1591768793355-74d04bb6608f?auto=format&fit=crop&w=900&q=70',
+        'https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?auto=format&fit=crop&w=900&q=70',
+    ],
+
 ];

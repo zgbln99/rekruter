@@ -103,6 +103,17 @@ class JobPosting extends Model
         return (bool) $this->is_public && $this->status === JobPostingStatus::Open;
     }
 
+    /** Deterministyczne zdjęcie okładkowe oferty (stock, z puli configu). */
+    public function coverImage(): string
+    {
+        $imgs = config('rekruter.stock_images', []);
+        if (empty($imgs)) {
+            return '';
+        }
+
+        return $imgs[abs(crc32((string) $this->id)) % count($imgs)];
+    }
+
     /** Slug z tytułu do ładnego, „SEO" adresu. */
     public function publicSlug(): string
     {

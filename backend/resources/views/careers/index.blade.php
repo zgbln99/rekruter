@@ -4,94 +4,74 @@
 @section('description', 'Sprawdzone oferty pracy dla kierowców zawodowych (kat. C, C+E, ADR) w Niemczech i Polsce. Bezpośrednie zatrudnienie, kontakt w 24h, zero opłat. Aplikuj online.')
 
 @section('content')
-    {{-- Hero --}}
+    {{-- Hero ze zdjęciem --}}
     <section class="hero">
+        <div class="hero-media cover">
+            <img src="{{ config('rekruter.hero_image') }}" alt="" loading="eager" onerror="this.style.display='none'">
+        </div>
         <div class="wrap">
-            <div class="hero-grid">
-                <div class="hero-left">
-                    <span class="kicker"><span class="mk">●</span>&nbsp;&nbsp;Agencja pracy dla kierowców</span>
-                    <h1>Praca za kierownicą<br>w Niemczech <span class="accent">i Polsce.</span></h1>
-                    <p class="lead">Sprawdzone oferty u solidnych pracodawców. Bezpośrednie zatrudnienie, jasne warunki, kontakt w ciągu 24 godzin — bez pośredników i bez opłat dla kierowcy.</p>
-                    <div class="cta">
-                        <a href="#oferty" class="btn btn-dark">Zobacz oferty</a>
-                        @if ($tenant?->agencyPhone())
-                            <a href="tel:{{ preg_replace('/\s+/', '', $tenant->agencyPhone()) }}" class="btn btn-ghost">Zadzwoń</a>
-                        @endif
-                    </div>
-                    <div class="hero-meta">
-                        <span class="hm"><span class="d"></span> <b>{{ $total }}</b>&nbsp;aktywnych ofert</span>
-                        <span class="hm">Bezpośrednie zatrudnienie</span>
-                        <span class="hm">Kontakt w 24h</span>
-                    </div>
-                </div>
-
-                @if ($featured)
-                    @php
-                        $fLoc = collect([$featured->region_base, $featured->country])->filter()->implode(', ');
-                        $fCats = is_array($featured->required_categories) ? $featured->required_categories : [];
-                        $fSalary = trim((string) $featured->salary_amount) !== '' ? trim($featured->salary_amount.' '.$featured->currency) : null;
-                    @endphp
-                    <a class="featured" href="{{ $featured->publicPath() }}">
-                        <span class="f-kicker"><span class="d"></span> Wyróżniona oferta</span>
-                        <div class="f-cat">{{ count($fCats) ? 'Kat. '.implode(' / ', $fCats) : 'Kierowca' }}</div>
-                        <h3>{{ \Illuminate\Support\Str::limit($featured->title, 64) }}</h3>
-                        <div class="f-meta">
-                            @if ($fLoc)<span class="m">{{ $fLoc }}</span>@endif
-                            @if ($featured->work_system)<span class="m">System {{ $featured->work_system }}</span>@endif
-                        </div>
-                        <div class="f-foot">
-                            @if ($fSalary)<div class="f-salary"><b>{{ $fSalary }}</b><span>na rękę</span></div>@endif
-                            <span class="f-go"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
-                        </div>
-                    </a>
+            <span class="kicker light"><span class="mk"></span> Agencja pracy dla kierowców</span>
+            <h1>Praca za kierownicą, na której można polegać.</h1>
+            <p class="lead">Sprawdzone oferty u solidnych pracodawców w Niemczech i Polsce. Bezpośrednie zatrudnienie, jasne warunki, kontakt w 24 godziny — bez pośredników i bez opłat dla kierowcy.</p>
+            <div class="cta">
+                <a href="#oferty" class="btn btn-accent">Zobacz {{ $total }} ofert</a>
+                @if ($tenant?->agencyPhone())
+                    <a href="tel:{{ preg_replace('/\s+/', '', $tenant->agencyPhone()) }}" class="btn btn-glass">Zadzwoń: {{ $tenant->agencyPhone() }}</a>
                 @endif
             </div>
         </div>
     </section>
 
+    {{-- Wyszukiwarka --}}
+    <div class="searchbar">
+        <div class="wrap">
+            <form method="GET" action="{{ route('careers.index') }}#oferty">
+                <div class="field has-ic">
+                    <svg class="lead-ic" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+                    <input type="search" name="q" value="{{ $filters['q'] }}" placeholder="Szukaj: C+E, Niemcy, ADR, tandem…">
+                </div>
+                <div class="field">
+                    <select name="category">
+                        <option value="">Kategoria</option>
+                        @foreach ($categories as $c)<option value="{{ $c }}" @selected($filters['category'] === $c)>{{ $c }}</option>@endforeach
+                    </select>
+                </div>
+                <div class="field">
+                    <select name="country">
+                        <option value="">Kraj</option>
+                        @foreach ($countries as $c)<option value="{{ $c }}" @selected($filters['country'] === $c)>{{ $c }}</option>@endforeach
+                    </select>
+                </div>
+                <div class="go"><button type="submit" class="btn btn-dark">Szukaj</button></div>
+            </form>
+        </div>
+    </div>
+
     {{-- Oferty --}}
-    <section class="section tight" id="oferty">
+    <section class="section" id="oferty">
         <div class="wrap">
             @php $anyFilter = $filters['q'] || $filters['category'] || $filters['country'] || $filters['system']; @endphp
 
-            <div class="sec-label">
-                <span class="kicker">{{ $anyFilter ? 'Wyniki' : 'Aktualne oferty' }}</span>
-                <span class="rule"></span>
-                <span class="count">{{ sprintf('%02d', $offers->total()) }}</span>
+            <div class="section-head">
+                <span class="kicker"><span class="mk"></span> Oferty pracy</span>
+                <h2>{{ $anyFilter ? 'Wyniki wyszukiwania' : 'Aktualne oferty' }}</h2>
+                <p>{{ $offers->total() }} {{ \Illuminate\Support\Str::plural('oferta', $offers->total()) }} dla kierowców zawodowych</p>
             </div>
-
-            <form class="toolbar" method="GET" action="{{ route('careers.index') }}">
-                <div class="search-input-wrap">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
-                    <input type="search" name="q" value="{{ $filters['q'] }}" placeholder="Szukaj: C+E, Niemcy, tandem, ADR…">
-                </div>
-                <select name="category" onchange="this.form.submit()">
-                    <option value="">Kategoria</option>
-                    @foreach ($categories as $c)<option value="{{ $c }}" @selected($filters['category'] === $c)>{{ $c }}</option>@endforeach
-                </select>
-                <select name="country" onchange="this.form.submit()">
-                    <option value="">Kraj</option>
-                    @foreach ($countries as $c)<option value="{{ $c }}" @selected($filters['country'] === $c)>{{ $c }}</option>@endforeach
-                </select>
-                <div class="go"><button type="submit" class="btn btn-dark">Szukaj</button></div>
-            </form>
 
             @if ($anyFilter)
                 <div class="active-filters">
                     @foreach (array_filter($filters) as $k => $v)
                         <span class="fpill">{{ $v }}
-                            <a href="{{ route('careers.index', array_merge(array_filter($filters), [$k => null])) }}" aria-label="Usuń">
-                                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6 6 18M6 6l12 12"/></svg>
-                            </a>
+                            <a href="{{ route('careers.index', array_merge(array_filter($filters), [$k => null])) }}#oferty" aria-label="Usuń"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6 6 18M6 6l12 12"/></svg></a>
                         </span>
                     @endforeach
-                    <a href="{{ route('careers.index') }}" class="fpill" style="color:var(--muted)">Wyczyść</a>
+                    <a href="{{ route('careers.index') }}#oferty" class="fpill" style="color:var(--muted)">Wyczyść</a>
                 </div>
             @endif
 
-            <div class="offers">
+            <div class="offers-grid">
                 @forelse ($offers as $offer)
-                    @include('careers.partials.offer-card', ['offer' => $offer, 'no' => $offers->firstItem() + $loop->index])
+                    @include('careers.partials.offer-card', ['offer' => $offer])
                 @empty
                     <div class="empty">
                         <b>Brak ofert dla wybranych kryteriów</b>
@@ -104,18 +84,25 @@
         </div>
     </section>
 
-    {{-- Kontakt --}}
-    <section class="section tight">
+    {{-- Dlaczego my --}}
+    <section class="section soft">
         <div class="wrap">
-            <div class="contact-strip">
-                <h2>Wolisz porozmawiać? Zadzwoń.</h2>
-                <div class="cs-side">
-                    <span class="kicker">Kontakt bezpośredni</span>
-                    @if ($tenant?->agencyPhone())
-                        <a href="tel:{{ preg_replace('/\s+/', '', $tenant->agencyPhone()) }}" class="btn btn-accent">{{ $tenant->agencyPhone() }}</a>
-                    @else
-                        <a href="#oferty" class="btn btn-dark">Przeglądaj oferty</a>
-                    @endif
+            <div class="section-head">
+                <span class="kicker"><span class="mk"></span> Dlaczego my</span>
+                <h2>Robimy to konkretnie</h2>
+            </div>
+            <div class="values">
+                <div class="value">
+                    <span class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg></span>
+                    <div><h3>Bezpośrednie zatrudnienie</h3><p>Kierujemy Cię prosto do pracodawcy. Jasna umowa i pewne, terminowe wynagrodzenie.</p></div>
+                </div>
+                <div class="value">
+                    <span class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span>
+                    <div><h3>Kontakt w 24 godziny</h3><p>Zostaw zgłoszenie lub zadzwoń — odzywamy się szybko i rozmawiamy po polsku.</p></div>
+                </div>
+                <div class="value">
+                    <span class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></span>
+                    <div><h3>Zero opłat dla kierowcy</h3><p>Rekrutacja jest dla Ciebie całkowicie bezpłatna. Płaci pracodawca, nie Ty.</p></div>
                 </div>
             </div>
         </div>
