@@ -28,12 +28,19 @@
     @if ($faviconUrl)<link rel="icon" href="{{ $faviconUrl }}">@endif
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
-    <link rel="stylesheet" href="{{ asset('careers/careers.css') }}?v=4">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap">
+    <link rel="stylesheet" href="{{ asset('careers/careers.css') }}?v=5">
     @stack('head')
 </head>
 <body>
 <div class="page">
+    <div class="topbar">
+        <div class="wrap">
+            <span>Agencja pracy <span class="sep">/</span> Kierowcy zawodowi</span>
+            @if ($agencyPhone)<a href="tel:{{ preg_replace('/\s+/', '', $agencyPhone) }}">{{ $agencyPhone }}</a>@endif
+        </div>
+    </div>
+
     <header class="site-header">
         <div class="wrap bar">
             <a href="{{ route('careers.index') }}" class="brand">

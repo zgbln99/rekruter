@@ -41,7 +41,7 @@
             <div class="detail-grid">
                 {{-- Lewa kolumna --}}
                 <div>
-                    <span class="eyebrow"><span class="dot"></span> {{ $eyebrow }}</span>
+                    <span class="kicker"><span class="mk">●</span>&nbsp;&nbsp;{{ $eyebrow }}</span>
                     <h1>{{ $offer->title }}</h1>
                     @if ($offer->company?->name || $loc)
                         <div class="d-sub">
