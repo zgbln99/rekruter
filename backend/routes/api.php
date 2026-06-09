@@ -217,6 +217,7 @@ Route::prefix('v1')->group(function () {
         // Ustawienia organizacji (nazwa agencji itp.).
         Route::get('settings', [SettingsController::class, 'show'])->name('settings.show');
         Route::put('settings', [SettingsController::class, 'update'])->name('settings.update');
+        Route::post('settings/careers-hero', [SettingsController::class, 'randomHero'])->name('settings.careers-hero');
 
         // Branding — upload/usuwanie (administrator).
         Route::post('settings/branding', [BrandingController::class, 'upload'])->name('settings.branding.upload');

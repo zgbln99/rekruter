@@ -49,6 +49,14 @@ class Tenant extends Model
         return $phone !== '' ? $phone : null;
     }
 
+    /** Zdjęcie hero publicznej strony kariery (ustawione w panelu lub domyślne). */
+    public function careersHeroImage(): string
+    {
+        $url = trim((string) ($this->settings['careers_hero_image'] ?? ''));
+
+        return $url !== '' ? $url : (string) config('rekruter.hero_image');
+    }
+
     /** Klucz API OpenAI (ChatGPT) — z ustawień organizacji. */
     public function openaiApiKey(): ?string
     {

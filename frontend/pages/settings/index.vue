@@ -44,6 +44,26 @@ const branding = useBranding()
 const uploadBranding = useUploadBranding()
 const deleteBranding = useDeleteBranding()
 const brandingError = ref('')
+
+// --- Zdjęcie hero strony kariery ---
+const randomHero = useRandomCareersHero()
+const heroLoading = ref(false)
+async function randomizeHero() {
+  heroLoading.value = true
+  try {
+    await randomHero.mutateAsync()
+  } finally {
+    heroLoading.value = false
+  }
+}
+async function resetHero() {
+  heroLoading.value = true
+  try {
+    await updateSettings.mutateAsync({ ...(data.value as any), careers_hero_image: null })
+  } finally {
+    heroLoading.value = false
+  }
+}
 const BRANDING = [
   { type: 'logo' as const, label: 'Logo (nagłówek)', hint: 'PNG/SVG, najlepiej poziome, na jasnym tle.' },
   { type: 'icon' as const, label: 'Ikona (kwadrat)', hint: 'PNG/SVG kwadratowe — znak bez napisu.' },
@@ -145,6 +165,31 @@ async function save() {
           </div>
         </div>
         <p v-if="brandingError" class="text-sm text-red-600">{{ brandingError }}</p>
+      </div>
+
+      <!-- Zdjęcie hero strony kariery -->
+      <div class="card space-y-4 p-5">
+        <p class="text-[13px] font-semibold text-ink">Strona kariery — zdjęcie hero</p>
+        <p class="text-xs text-stone">Duże zdjęcie u góry publicznej strony z ofertami. Losuj europejską ciężarówkę z Unsplash.</p>
+        <div class="overflow-hidden rounded-xl border border-hairline">
+          <div
+            class="h-40 bg-gradient-to-br from-slate-800 to-ink"
+            :style="data?.careers_hero_effective ? `background-image:url('${data.careers_hero_effective}');background-size:cover;background-position:center` : ''"
+          />
+        </div>
+        <div v-if="auth.isAdmin" class="flex flex-wrap items-center gap-2">
+          <button class="btn-sm" :disabled="heroLoading" @click="randomizeHero">
+            <AppIcon name="camera" :size="16" /> {{ heroLoading ? 'Pobieram…' : 'Losuj zdjęcie' }}
+          </button>
+          <button
+            v-if="data?.careers_hero_image"
+            class="inline-flex h-9 items-center gap-1.5 rounded-lg border border-hairline px-3.5 text-sm font-medium text-ink transition hover:bg-surface disabled:opacity-50"
+            :disabled="heroLoading"
+            @click="resetHero"
+          >
+            Przywróć domyślne
+          </button>
+        </div>
       </div>
 
       <!-- Integracja AI -->

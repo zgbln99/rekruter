@@ -103,7 +103,33 @@ img { max-width: 100%; display: block; }
 .fpill a { display: inline-flex; width: 20px; height: 20px; align-items: center; justify-content: center; border-radius: 50%; color: var(--muted); }
 .fpill a:hover { background: var(--soft); color: var(--ink); }
 
-/* ---------- Kafle ofert ze zdjęciami ---------- */
+/* ---------- Tabela ofert ---------- */
+.offers-table { border: 1px solid var(--line); border-radius: 16px; overflow: hidden; background: #fff; }
+.ot-head { display: none; }
+.ot-row { display: flex; flex-direction: column; gap: 6px; padding: 18px 20px; border-bottom: 1px solid var(--line); transition: background .14s; }
+.ot-row:last-child { border-bottom: 0; }
+.ot-row:hover { background: var(--soft); }
+.ot-cat { font-size: 11.5px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); }
+.ot-name { font-size: 17px; font-weight: 600; letter-spacing: -.02em; color: var(--ink); line-height: 1.3; margin-top: 3px; }
+.ot-sub { font-size: 13.5px; color: var(--muted); margin-top: 3px; }
+.ot-cell { display: none; font-size: 14.5px; color: var(--text); }
+.ot-sal { display: flex; align-items: baseline; gap: 6px; }
+.ot-sal b { font-size: 15.5px; font-weight: 700; color: var(--ink); white-space: nowrap; }
+.ot-sal span { font-size: 12px; color: var(--muted); }
+.ot-arrow { display: none; width: 40px; height: 40px; border-radius: 10px; background: var(--soft); align-items: center; justify-content: center; color: var(--ink); transition: background .15s, color .15s; }
+.ot-row:hover .ot-arrow { background: var(--accent); color: #fff; }
+@media (min-width: 760px) {
+  .ot-head { display: grid; grid-template-columns: 2.4fr 1.4fr 1fr 1.3fr 56px; gap: 20px; align-items: center; padding: 14px 24px; background: var(--soft); border-bottom: 1px solid var(--line); font-size: 11.5px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+  .ot-head .ot-r { text-align: right; }
+  .ot-row { display: grid; grid-template-columns: 2.4fr 1.4fr 1fr 1.3fr 56px; gap: 20px; align-items: center; padding: 18px 24px; }
+  .ot-sub { display: none; }
+  .ot-cell { display: block; }
+  .ot-sal { justify-content: flex-end; text-align: right; }
+  .ot-sal { display: flex; }
+  .ot-arrow { display: flex; }
+}
+
+/* ---------- Kafle ofert ze zdjęciami (podobne oferty) ---------- */
 .offers-grid { display: grid; grid-template-columns: 1fr; gap: 24px; }
 .offer-card { display: flex; flex-direction: column; background: #fff; border: 1px solid var(--line); border-radius: 18px; overflow: hidden; transition: transform .15s ease, box-shadow .18s ease, border-color .15s ease; }
 .offer-card:hover { transform: translateY(-4px); box-shadow: var(--shadow); border-color: var(--line-2); }
@@ -151,19 +177,18 @@ img { max-width: 100%; display: block; }
 .detail-hero .d-sub { margin-top: 18px; display: flex; flex-wrap: wrap; gap: 8px 22px; font-size: 15px; color: rgba(255,255,255,.8); }
 .detail-hero .d-sub .m { display: inline-flex; align-items: center; gap: 8px; }
 
-.detail-body { padding: 56px 0 96px; }
-.detail-grid { display: grid; grid-template-columns: 1fr; gap: 44px; align-items: start; }
+.detail-body { padding: 52px 0 130px; }
+.detail-content { max-width: 100%; }
 
-.salary-line { display: flex; align-items: baseline; gap: 14px; padding: 22px 24px; background: var(--soft); border-radius: 14px; margin-bottom: 36px; }
-.salary-line .amt { font-size: clamp(28px, 4vw, 40px); font-weight: 700; letter-spacing: -.03em; color: var(--ink); white-space: nowrap; }
-.salary-line .suf { font-size: 14px; color: var(--muted); }
-
-.facts { display: grid; grid-template-columns: 1fr; gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; }
-.fact { background: #fff; padding: 18px 20px; display: flex; gap: 14px; align-items: center; }
+/* Fakty — szeroka, wielokolumnowa siatka */
+.facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; margin-bottom: 8px; }
+.fact { background: #fff; padding: 20px 22px; display: flex; gap: 14px; align-items: center; }
 .fact .ic { width: 42px; height: 42px; border-radius: 11px; background: var(--soft); color: var(--accent); display: flex; align-items: center; justify-content: center; flex: 0 0 auto; }
 .fact .k { font-size: 12.5px; color: var(--muted); }
 .fact .v { margin-top: 3px; font-size: 15.5px; font-weight: 600; color: var(--ink); letter-spacing: -.01em; }
 
+/* Opis — ograniczona szerokość dla czytelności, ale na pełnej stronie */
+.prose-wrap { max-width: 780px; }
 .block-title { font-size: 22px; font-weight: 700; letter-spacing: -.03em; color: var(--ink); margin: 44px 0 18px; }
 .prose { font-size: 16.5px; color: var(--text); line-height: 1.8; }
 .prose h2, .prose h3, .prose h4 { color: var(--ink); margin: 28px 0 12px; font-weight: 600; letter-spacing: -.02em; }
@@ -184,18 +209,20 @@ img { max-width: 100%; display: block; }
 .faq details[open] summary::after { content: '–'; }
 .faq p { padding: 0 0 18px; color: var(--text); }
 
-/* ---------- Aside / formularz ---------- */
-.aside { position: static; }
-.apply-card { border: 1px solid var(--line); border-radius: 18px; background: #fff; overflow: hidden; box-shadow: var(--shadow); }
-.apply-card .ac-head { padding: 24px 26px 20px; background: var(--ink); color: #fff; }
-.apply-card .ac-head h3 { font-size: 19px; font-weight: 600; letter-spacing: -.02em; }
-.apply-card .ac-head p { font-size: 13.5px; color: rgba(255,255,255,.65); margin-top: 4px; }
-.apply-card .ac-body { padding: 22px 26px 26px; display: flex; flex-direction: column; gap: 14px; }
-.contact-row { display: flex; flex-direction: column; gap: 9px; }
-.divider { display: flex; align-items: center; gap: 14px; color: var(--faint); font-size: 12px; letter-spacing: .04em; text-transform: uppercase; }
-.divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: var(--line); }
+/* ---------- Sekcja aplikacji (pełnoszeroka) ---------- */
+.apply { margin-top: 64px; background: var(--soft); border: 1px solid var(--line); border-radius: 22px; padding: 40px 28px; }
+.apply-inner { max-width: 680px; margin: 0 auto; }
+.apply-head { text-align: center; margin-bottom: 26px; }
+.apply-head .kicker { justify-content: center; }
+.apply-head h2 { margin-top: 12px; font-size: clamp(24px, 3.4vw, 34px); font-weight: 700; letter-spacing: -.035em; color: var(--ink); line-height: 1.08; }
+.apply-head p { margin-top: 10px; color: var(--muted); font-size: 15.5px; }
+.contacts { display: grid; grid-template-columns: 1fr; gap: 10px; margin-bottom: 18px; }
+.contacts .btn { width: 100%; }
+.divider { display: flex; align-items: center; gap: 14px; color: var(--faint); font-size: 12px; letter-spacing: .04em; text-transform: uppercase; margin-bottom: 18px; }
+.divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: var(--line-2); }
 
-.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.apply form { background: #fff; border: 1px solid var(--line); border-radius: 16px; padding: 24px; }
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
 .form-field { display: flex; flex-direction: column; gap: 7px; }
 .form-field.full { grid-column: 1 / -1; }
 .form-field label { font-size: 13px; font-weight: 600; color: var(--ink); }
@@ -227,7 +254,6 @@ img { max-width: 100%; display: block; }
 .apply-bar .ab-info b { display: block; font-size: 16px; font-weight: 700; color: var(--ink); letter-spacing: -.02em; white-space: nowrap; }
 .apply-bar .ab-info span { font-size: 12px; color: var(--muted); }
 .apply-bar .btn { flex: 0 0 auto; height: 48px; padding: 0 22px; }
-@media (max-width: 899px) { .detail-body { padding-bottom: 104px; } }
 
 /* ---------- Footer ---------- */
 .site-footer { background: var(--ink); color: rgba(255,255,255,.6); padding: 64px 0 40px; margin-top: auto; }
@@ -248,15 +274,12 @@ img { max-width: 100%; display: block; }
   .values { grid-template-columns: repeat(3, 1fr); }
   .searchbar form { grid-template-columns: 1fr 200px 180px auto; align-items: center; }
 }
-/* Oferta 2-kolumnowa już na laptopach + ukrycie pływającego paska. */
-@media (min-width: 900px) {
-  .detail-grid { grid-template-columns: minmax(0, 1fr) 360px; gap: 48px; }
-  .aside { position: sticky; top: 32px; }
-  .apply-bar { display: none; }
+@media (min-width: 620px) {
+  .contacts { grid-template-columns: 1fr 1fr; }
+  .apply { padding: 48px 40px; }
 }
 @media (min-width: 981px) {
   .offers-grid { grid-template-columns: repeat(2, 1fr); }
-  .detail-grid { gap: 56px; grid-template-columns: minmax(0, 1fr) 380px; }
   .hero .wrap { padding: 172px 28px 80px; }
   .detail-hero .wrap { padding: 160px 28px 56px; }
 }

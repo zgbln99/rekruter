@@ -28,7 +28,7 @@ class SettingsController extends Controller
         $tenant = $request->user()->tenant;
         $settings = $tenant->settings ?? [];
 
-        foreach (['agency_name', 'agency_phone', 'agency_email', 'agency_website', 'openai_model', 'placement_currency'] as $key) {
+        foreach (['agency_name', 'agency_phone', 'agency_email', 'agency_website', 'openai_model', 'placement_currency', 'careers_hero_image'] as $key) {
             $settings[$key] = $request->input($key);
         }
 
@@ -56,6 +56,23 @@ class SettingsController extends Controller
         return response()->json($this->payload($tenant->refresh(), $request->user()->isAdmin()));
     }
 
+    /** Losuje zdjęcie hero strony kariery (europejska ciężarówka z Unsplash). */
+    public function randomHero(Request $request, \App\Actions\Offers\FetchTruckPhotoAction $action): JsonResponse
+    {
+        abort_unless($request->user()->isAdmin(), 403);
+
+        $url = $action();
+        abort_if($url === '', 422, 'Nie udało się pobrać zdjęcia.');
+
+        $tenant = $request->user()->tenant;
+        $settings = $tenant->settings ?? [];
+        $settings['careers_hero_image'] = $url;
+        $tenant->settings = $settings;
+        $tenant->save();
+
+        return response()->json($this->payload($tenant->refresh(), true));
+    }
+
     /**
      * @return array<string, mixed>
      */
@@ -68,6 +85,8 @@ class SettingsController extends Controller
             'agency_phone' => $s['agency_phone'] ?? null,
             'agency_email' => $s['agency_email'] ?? null,
             'agency_website' => $s['agency_website'] ?? null,
+            'careers_hero_image' => $s['careers_hero_image'] ?? null,
+            'careers_hero_effective' => $tenant->careersHeroImage(),
             'openai_model' => $tenant->openaiModel(),
             // Klucza nie zwracamy — tylko informację, czy jest ustawiony.
             'openai_configured' => ! empty($s['openai_api_key']),

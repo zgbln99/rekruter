@@ -20,6 +20,8 @@ export interface Settings {
   agency_phone: string | null
   agency_email: string | null
   agency_website: string | null
+  careers_hero_image?: string | null
+  careers_hero_effective?: string
   openai_model?: string
   openai_configured?: boolean
   // Tylko dla administratora (dane finansowe):

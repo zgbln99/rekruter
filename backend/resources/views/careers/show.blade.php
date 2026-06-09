@@ -3,7 +3,6 @@
 @php
     $loc = collect([$offer->region_base, $offer->country])->filter()->implode(', ') ?: ($offer->location ?: null);
     $salary = trim((string) $offer->salary_amount) !== '' ? trim($offer->salary_amount) : null;
-    // Dane dla pływającego paska — liczone z góry (pętla „Podobne oferty" nadpisuje $offer).
     $barSalary = $salary ? trim($salary.' '.$offer->currency) : null;
     $barTitle = $offer->title;
     $cats = is_array($offer->required_categories) ? $offer->required_categories : [];
@@ -23,8 +22,10 @@
         'home' => '<path d="M3 11l9-8 9 8M5 10v10h14V10"/>',
         'doc' => '<path d="M14 3H6v18h12V7l-4-4Z"/><path d="M14 3v4h4"/>',
         'globe' => '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.5 2.5 15 0 18M12 3c-2.5 2.5-2.5 15 0 18"/>',
+        'cash' => '<rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/>',
     ];
     $facts = [];
+    if ($barSalary) $facts[] = ['Wynagrodzenie', $barSalary.' na rękę', $ic['cash']];
     if (count($cats)) $facts[] = ['Prawo jazdy', implode(', ', $cats), $ic['lic']];
     if ($loc) $facts[] = ['Lokalizacja', $loc, $ic['pin']];
     if ($offer->trailer_type || $offer->vehicle_type) $facts[] = ['Zestaw', $offer->trailer_type ?: $offer->vehicle_type, $ic['truck']];
@@ -59,6 +60,7 @@
             <div class="d-sub">
                 @if ($offer->company?->name)<span class="m">{{ $offer->company->name }}</span>@endif
                 @if ($loc)<span class="m"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7-5.3-7-11a7 7 0 1 1 14 0c0 5.7-7 11-7 11Z"/><circle cx="12" cy="10" r="2.4"/></svg>{{ $loc }}</span>@endif
+                @if ($barSalary)<span class="m"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.4"/></svg>{{ $barSalary }} na rękę</span>@endif
             </div>
             <div class="cta">
                 <a href="#aplikuj" class="btn btn-light">Aplikuj na tę ofertę</a>
@@ -71,24 +73,19 @@
 
     <section class="detail-body">
         <div class="wrap">
-            <div class="detail-grid">
-                {{-- Lewa kolumna --}}
-                <div>
-                    @if ($salary)
-                        <div class="salary-line"><span class="amt">{{ $salary }} {{ $offer->currency }}</span><span class="suf">na rękę / miesiąc</span></div>
-                    @endif
+            <div class="detail-content">
+                @if (count($facts))
+                    <div class="facts">
+                        @foreach ($facts as [$k, $v, $icon])
+                            <div class="fact">
+                                <span class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">{!! $icon !!}</svg></span>
+                                <span><span class="k">{{ $k }}</span><span class="v" style="display:block">{{ $v }}</span></span>
+                            </div>
+                        @endforeach
+                    </div>
+                @endif
 
-                    @if (count($facts))
-                        <div class="facts">
-                            @foreach ($facts as [$k, $v, $icon])
-                                <div class="fact">
-                                    <span class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">{!! $icon !!}</svg></span>
-                                    <span><span class="k">{{ $k }}</span><span class="v" style="display:block">{{ $v }}</span></span>
-                                </div>
-                            @endforeach
-                        </div>
-                    @endif
-
+                <div class="prose-wrap">
                     @if ($desc)
                         <div class="block-title">Opis stanowiska</div>
                         <div class="prose">{!! $desc !!}</div>
@@ -103,72 +100,72 @@
                         </div>
                     @endif
                 </div>
-
-                {{-- Aside: aplikacja --}}
-                <aside class="aside" id="aplikuj">
-                    <div class="apply-card">
-                        <div class="ac-head">
-                            <h3>Aplikuj na tę ofertę</h3>
-                            <p>Wypełnij formularz albo skontaktuj się od razu.</p>
-                        </div>
-                        <div class="ac-body">
-                            @if ($agencyPhone)
-                                <div class="contact-row">
-                                    <a href="tel:{{ preg_replace('/\s+/', '', $agencyPhone) }}" class="btn btn-dark btn-block">
-                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M6.6 10.8c1.4 2.8 3.8 5.2 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1C10.6 21 3 13.4 3 4c0-.6.4-1 1-1h3.4c.6 0 1 .4 1 1 0 1.2.2 2.4.6 3.6.1.4 0 .8-.3 1l-2.1 2.2z"/></svg>
-                                        {{ $agencyPhone }}
-                                    </a>
-                                    @if ($waPhone)
-                                        <a href="https://wa.me/{{ $waPhone }}?text={{ urlencode('Dzień dobry, piszę w sprawie oferty: '.$offer->title) }}" target="_blank" rel="noopener" class="btn btn-wa btn-block">
-                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15l-1.3 4.7 4.8-1.3A10 10 0 1 0 12 2Zm5.3 14c-.2.6-1.3 1.2-1.8 1.2-.5.1-1 .1-1.7-.1-.4-.1-.9-.3-1.6-.6-2.8-1.2-4.6-4-4.7-4.2-.1-.2-1.1-1.5-1.1-2.8s.7-2 .9-2.2c.2-.2.5-.3.7-.3h.5c.2 0 .4 0 .6.5l.8 2c.1.2.1.3 0 .5l-.4.6c-.2.2-.3.4-.1.7.2.3.8 1.3 1.7 2.1 1.2 1 2.1 1.4 2.4 1.5.2.1.4.1.6-.1l.7-.9c.2-.2.4-.2.6-.1l1.9.9c.3.1.4.2.5.3.1.3.1.7-.1 1.4Z"/></svg>
-                                            Napisz na WhatsApp
-                                        </a>
-                                    @endif
-                                </div>
-                                <div class="divider">albo wyślij zgłoszenie</div>
-                            @endif
-
-                            @if (session('applied'))
-                                <div class="flash-ok">
-                                    <span class="ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6 9 17l-5-5"/></svg></span>
-                                    <div><b>Dziękujemy!</b><br>Twoja aplikacja została wysłana. Odezwiemy się wkrótce.</div>
-                                </div>
-                            @else
-                                @if ($errors->any())
-                                    <div class="err-box">@foreach ($errors->all() as $e)<div>{{ $e }}</div>@endforeach</div>
-                                @endif
-                                <form method="POST" action="{{ route('careers.apply', ['jobPosting' => $offer->id]) }}" enctype="multipart/form-data">
-                                    @csrf
-                                    <input type="text" name="company" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true">
-                                    <div class="form-grid">
-                                        <div class="form-field"><label>Imię *</label><input name="first_name" value="{{ old('first_name') }}" required></div>
-                                        <div class="form-field"><label>Nazwisko *</label><input name="last_name" value="{{ old('last_name') }}" required></div>
-                                        <div class="form-field full"><label>Telefon *</label><input name="phone" type="tel" value="{{ old('phone') }}" required placeholder="+48 600 100 200"></div>
-                                        <div class="form-field full"><label>E-mail</label><input name="email" type="email" value="{{ old('email') }}"></div>
-                                        <div class="form-field full">
-                                            <label>Posiadane kategorie</label>
-                                            <div class="cat-check">
-                                                @foreach (['B','C','C+E','D'] as $c)
-                                                    <label><input type="checkbox" name="categories[]" value="{{ $c }}"><span>{{ $c }}</span></label>
-                                                @endforeach
-                                            </div>
-                                        </div>
-                                        <div class="form-field full"><label>Wiadomość / doświadczenie</label><textarea name="message" rows="3" placeholder="Krótko o sobie, dyspozycyjność…">{{ old('message') }}</textarea></div>
-                                        <div class="form-field full"><label>CV (opcjonalnie)</label><input type="file" name="cv" class="file-input" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"></div>
-                                        <div class="form-field full">
-                                            <label class="consent">
-                                                <input type="checkbox" name="consent" value="1" required>
-                                                <span>Wyrażam zgodę na przetwarzanie moich danych osobowych w celu przeprowadzenia procesu rekrutacji (RODO).</span>
-                                            </label>
-                                        </div>
-                                    </div>
-                                    <button type="submit" class="btn btn-accent btn-block" style="margin-top:6px">Wyślij aplikację</button>
-                                </form>
-                            @endif
-                        </div>
-                    </div>
-                </aside>
             </div>
+
+            {{-- APLIKACJA — pełnoszeroka sekcja --}}
+            <section class="apply" id="aplikuj">
+                <div class="apply-inner">
+                    <div class="apply-head">
+                        <span class="kicker"><span class="mk"></span> Aplikacja</span>
+                        <h2>Zainteresowany? Aplikuj w minutę.</h2>
+                        <p>Wypełnij krótki formularz albo skontaktuj się z nami od razu — oddzwonimy.</p>
+                    </div>
+
+                    @if ($agencyPhone)
+                        <div class="contacts">
+                            <a href="tel:{{ preg_replace('/\s+/', '', $agencyPhone) }}" class="btn btn-dark">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M6.6 10.8c1.4 2.8 3.8 5.2 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1C10.6 21 3 13.4 3 4c0-.6.4-1 1-1h3.4c.6 0 1 .4 1 1 0 1.2.2 2.4.6 3.6.1.4 0 .8-.3 1l-2.1 2.2z"/></svg>
+                                {{ $agencyPhone }}
+                            </a>
+                            @if ($waPhone)
+                                <a href="https://wa.me/{{ $waPhone }}?text={{ urlencode('Dzień dobry, piszę w sprawie oferty: '.$offer->title) }}" target="_blank" rel="noopener" class="btn btn-wa">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15l-1.3 4.7 4.8-1.3A10 10 0 1 0 12 2Zm5.3 14c-.2.6-1.3 1.2-1.8 1.2-.5.1-1 .1-1.7-.1-.4-.1-.9-.3-1.6-.6-2.8-1.2-4.6-4-4.7-4.2-.1-.2-1.1-1.5-1.1-2.8s.7-2 .9-2.2c.2-.2.5-.3.7-.3h.5c.2 0 .4 0 .6.5l.8 2c.1.2.1.3 0 .5l-.4.6c-.2.2-.3.4-.1.7.2.3.8 1.3 1.7 2.1 1.2 1 2.1 1.4 2.4 1.5.2.1.4.1.6-.1l.7-.9c.2-.2.4-.2.6-.1l1.9.9c.3.1.4.2.5.3.1.3.1.7-.1 1.4Z"/></svg>
+                                    Napisz na WhatsApp
+                                </a>
+                            @endif
+                        </div>
+                        <div class="divider">albo wyślij zgłoszenie online</div>
+                    @endif
+
+                    @if (session('applied'))
+                        <div class="flash-ok">
+                            <span class="ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6 9 17l-5-5"/></svg></span>
+                            <div><b>Dziękujemy!</b><br>Twoja aplikacja została wysłana. Odezwiemy się wkrótce.</div>
+                        </div>
+                    @else
+                        @if ($errors->any())
+                            <div class="err-box">@foreach ($errors->all() as $e)<div>{{ $e }}</div>@endforeach</div>
+                        @endif
+                        <form method="POST" action="{{ route('careers.apply', ['jobPosting' => $offer->id]) }}" enctype="multipart/form-data">
+                            @csrf
+                            <input type="text" name="company" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true">
+                            <div class="form-grid">
+                                <div class="form-field"><label>Imię *</label><input name="first_name" value="{{ old('first_name') }}" required></div>
+                                <div class="form-field"><label>Nazwisko *</label><input name="last_name" value="{{ old('last_name') }}" required></div>
+                                <div class="form-field"><label>Telefon *</label><input name="phone" type="tel" value="{{ old('phone') }}" required placeholder="+48 600 100 200"></div>
+                                <div class="form-field"><label>E-mail</label><input name="email" type="email" value="{{ old('email') }}"></div>
+                                <div class="form-field full">
+                                    <label>Posiadane kategorie</label>
+                                    <div class="cat-check">
+                                        @foreach (['B','C','C+E','D'] as $c)
+                                            <label><input type="checkbox" name="categories[]" value="{{ $c }}"><span>{{ $c }}</span></label>
+                                        @endforeach
+                                    </div>
+                                </div>
+                                <div class="form-field full"><label>Wiadomość / doświadczenie</label><textarea name="message" rows="3" placeholder="Krótko o sobie, dyspozycyjność…">{{ old('message') }}</textarea></div>
+                                <div class="form-field full"><label>CV (opcjonalnie)</label><input type="file" name="cv" class="file-input" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"></div>
+                                <div class="form-field full">
+                                    <label class="consent">
+                                        <input type="checkbox" name="consent" value="1" required>
+                                        <span>Wyrażam zgodę na przetwarzanie moich danych osobowych w celu przeprowadzenia procesu rekrutacji (RODO).</span>
+                                    </label>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-accent btn-block" style="margin-top:8px">Wyślij aplikację</button>
+                        </form>
+                    @endif
+                </div>
+            </section>
 
             @if ($related->count())
                 <div class="block-title" style="margin-top:64px">Podobne oferty</div>
@@ -181,7 +178,7 @@
         </div>
     </section>
 
-    {{-- Pływający pasek aplikowania (mobile/tablet) --}}
+    {{-- Pływający pasek aplikowania --}}
     @unless (session('applied'))
         <div class="apply-bar">
             <div class="ab-info">

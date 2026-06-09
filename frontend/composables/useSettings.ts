@@ -29,6 +29,16 @@ export function useDeleteBranding() {
   })
 }
 
+/** Losuje zdjęcie hero strony kariery (europejska ciężarówka z Unsplash). */
+export function useRandomCareersHero() {
+  const api = useApi()
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: () => api<Settings>('/settings/careers-hero', { method: 'POST' }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['settings'] }),
+  })
+}
+
 export function useUpdateSettings() {
   const api = useApi()
   const queryClient = useQueryClient()

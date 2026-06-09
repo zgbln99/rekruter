@@ -34,9 +34,19 @@ class JobPostingController extends Controller
         return JobPostingResource::collection($query->paginate($request->integer('per_page', 25)));
     }
 
-    public function store(StoreJobPostingRequest $request): JsonResponse
+    public function store(StoreJobPostingRequest $request, FetchTruckPhotoAction $cover): JsonResponse
     {
         $posting = JobPosting::create($request->validated());
+
+        // Automatyczna okładka (europejska ciężarówka) — nie blokuje tworzenia.
+        try {
+            $url = $cover();
+            if ($url !== '') {
+                $posting->forceFill(['cover_image_url' => $url])->saveQuietly();
+            }
+        } catch (\Throwable $e) {
+            // ignorujemy — okładkę można ustawić ręcznie później
+        }
 
         return (new JobPostingResource($posting->refresh()->load('company')))->response()->setStatusCode(201);
     }

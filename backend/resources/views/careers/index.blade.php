@@ -7,7 +7,7 @@
     {{-- Hero ze zdjęciem --}}
     <section class="hero">
         <div class="hero-media cover">
-            <img src="{{ config('rekruter.hero_image') }}" alt="" loading="eager" onerror="this.style.display='none'">
+            <img src="{{ $tenant?->careersHeroImage() ?? config('rekruter.hero_image') }}" alt="" loading="eager" onerror="this.style.display='none'">
         </div>
         <div class="wrap">
             <span class="kicker light"><span class="mk"></span> Agencja pracy dla kierowców</span>
@@ -69,18 +69,44 @@
                 </div>
             @endif
 
-            <div class="offers-grid">
-                @forelse ($offers as $offer)
-                    @include('careers.partials.offer-card', ['offer' => $offer])
-                @empty
-                    <div class="empty">
-                        <b>Brak ofert dla wybranych kryteriów</b>
-                        <p>Zmień filtry albo <a href="{{ route('careers.index') }}" style="color:var(--ink);text-decoration:underline">zobacz wszystkie oferty</a>.</p>
+            @if ($offers->count())
+                <div class="offers-table">
+                    <div class="ot-head">
+                        <div>Stanowisko</div>
+                        <div>Lokalizacja</div>
+                        <div>System</div>
+                        <div class="ot-r">Wynagrodzenie</div>
+                        <div></div>
                     </div>
-                @endforelse
-            </div>
-
-            {{ $offers->links('careers.partials.pagination') }}
+                    @foreach ($offers as $offer)
+                        @php
+                            $loc = collect([$offer->region_base, $offer->country])->filter()->implode(', ') ?: ($offer->location ?: '—');
+                            $cats = is_array($offer->required_categories) ? $offer->required_categories : [];
+                            $cat = count($cats) ? 'Kat. '.implode(' / ', $cats) : 'Kierowca';
+                            $salary = trim((string) $offer->salary_amount) !== '' ? trim($offer->salary_amount.' '.$offer->currency) : null;
+                        @endphp
+                        <a href="{{ $offer->publicPath() }}" class="ot-row">
+                            <div class="ot-title">
+                                <div class="ot-cat">{{ $cat }}</div>
+                                <div class="ot-name">{{ $offer->title }}</div>
+                                <div class="ot-sub">{{ $loc }}@if ($offer->work_system) · System {{ $offer->work_system }}@endif</div>
+                            </div>
+                            <div class="ot-cell">{{ $loc }}</div>
+                            <div class="ot-cell">{{ $offer->work_system ?: '—' }}</div>
+                            <div class="ot-cell ot-sal">
+                                @if ($salary)<b>{{ $salary }}</b><span>na rękę</span>@else<span>do uzgodnienia</span>@endif
+                            </div>
+                            <span class="ot-arrow"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+                        </a>
+                    @endforeach
+                </div>
+                {{ $offers->links('careers.partials.pagination') }}
+            @else
+                <div class="empty">
+                    <b>Brak ofert dla wybranych kryteriów</b>
+                    <p>Zmień filtry albo <a href="{{ route('careers.index') }}" style="color:var(--ink);text-decoration:underline">zobacz wszystkie oferty</a>.</p>
+                </div>
+            @endif
         </div>
     </section>
 
