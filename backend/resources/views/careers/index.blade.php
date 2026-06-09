@@ -55,7 +55,7 @@
             <div class="section-head">
                 <span class="kicker"><span class="mk"></span> Oferty pracy</span>
                 <h2>{{ $anyFilter ? 'Wyniki wyszukiwania' : 'Aktualne oferty' }}</h2>
-                <p>{{ $offers->total() }} {{ \Illuminate\Support\Str::plural('oferta', $offers->total()) }} dla kierowców zawodowych</p>
+                <p>{{ $offers->total() }} {{ \App\Support\Plural::pl($offers->total(), 'oferta', 'oferty', 'ofert') }} dla kierowców zawodowych</p>
             </div>
 
             @if ($anyFilter)
