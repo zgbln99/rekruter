@@ -152,7 +152,7 @@ const metrics = computed(() => {
       <div class="space-y-3 lg:col-span-2">
         <h2 class="text-lg font-semibold text-ink">Twoje zadania</h2>
 
-        <p v-if="tasksLoading" class="py-6 text-center text-muted">Ładowanie…</p>
+        <UiSkeletonList v-if="tasksLoading" variant="rows" :count="3" />
         <div v-else-if="!tasks?.length" class="card flex items-center gap-3 p-5">
           <span class="flex h-10 w-10 items-center justify-center rounded-full bg-brand-soft text-brand-deep">
             <AppIcon name="check" :size="20" />
@@ -216,8 +216,8 @@ const metrics = computed(() => {
                 <component :is="ev.candidate_id ? 'NuxtLink' : 'span'" :to="ev.candidate_id ? `/candidates/${ev.candidate_id}` : undefined" class="text-sm font-medium text-ink">
                   {{ ev.label }}
                 </component>
-                <p class="text-xs text-stone">
-                  {{ ev.at ? new Date(ev.at).toLocaleString('pl-PL') : '' }}<span v-if="ev.by"> · {{ ev.by }}</span>
+                <p class="text-xs text-stone" :title="fullDateTime(ev.at)">
+                  {{ timeAgo(ev.at) }}<span v-if="ev.by"> · {{ ev.by }}</span>
                 </p>
               </div>
             </li>

@@ -177,7 +177,12 @@ async function markInstallment(ev: CalendarEvent, status: 'invoiced' | 'paid' | 
       <div class="card p-4 lg:sticky lg:top-20">
         <p class="mb-3 text-[13px] font-semibold capitalize text-ink">{{ dayLabel(selected) }}</p>
 
-        <p v-if="isLoading" class="text-sm text-muted">Ładowanie…</p>
+        <div v-if="isLoading" class="space-y-2.5">
+          <div v-for="i in 3" :key="i" class="space-y-2 rounded-xl border border-hairline p-3">
+            <div class="skeleton h-3.5 w-2/3" />
+            <div class="skeleton h-3 w-1/3" />
+          </div>
+        </div>
         <p v-else-if="!selectedEvents.length" class="text-sm text-muted">Brak wydarzeń tego dnia.</p>
 
         <ul v-else class="space-y-2.5">

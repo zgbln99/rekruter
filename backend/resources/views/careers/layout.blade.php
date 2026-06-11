@@ -26,10 +26,12 @@
     <meta name="twitter:card" content="summary">
 
     @if ($faviconUrl)<link rel="icon" href="{{ $faviconUrl }}">@endif
+    {{-- Klasa .js włącza animacje reveal — bez JS treść jest widoczna od razu. --}}
+    <script>document.documentElement.classList.add('js')</script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
-    <link rel="stylesheet" href="{{ asset('careers/careers.css') }}?v=20">
+    <link rel="stylesheet" href="{{ asset('careers/careers.css') }}?v=21">
     @stack('head')
 </head>
 <body>
@@ -93,6 +95,23 @@
     </div>
 </div>
 <script>
+// Łagodne pojawianie się sekcji przy przewijaniu.
+(function () {
+    var els = document.querySelectorAll('[data-reveal]');
+    if (!('IntersectionObserver' in window)) {
+        els.forEach(function (el) { el.classList.add('in'); });
+        return;
+    }
+    var io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (e) {
+            if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+        });
+    }, { rootMargin: '0px 0px -7% 0px', threshold: 0.05 });
+    els.forEach(function (el, i) {
+        el.style.transitionDelay = (i % 3) * 70 + 'ms';
+        io.observe(el);
+    });
+})();
 (function () {
     try {
         var KEY = 'edge_cookie_consent';

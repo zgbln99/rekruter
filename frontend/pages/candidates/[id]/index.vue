@@ -300,7 +300,7 @@ async function doSend() {
 </script>
 
 <template>
-  <section v-if="isLoading" class="py-10 text-center text-muted">Ładowanie…</section>
+  <UiSkeletonDetail v-if="isLoading" />
 
   <section v-else-if="candidate" class="mx-auto pb-8">
     <!-- Nagłówek + zdjęcie -->
@@ -703,8 +703,8 @@ async function doSend() {
             <li v-for="(ev, i) in timeline" :key="i" class="relative">
               <span class="absolute -left-[1.32rem] top-1.5 h-2 w-2 rounded-full bg-brand" />
               <p class="text-sm font-medium text-ink">{{ ev.label }}</p>
-              <p class="text-xs text-stone">
-                {{ ev.at ? new Date(ev.at).toLocaleString('pl-PL') : '' }}<span v-if="ev.by"> · {{ ev.by }}</span>
+              <p class="text-xs text-stone" :title="fullDateTime(ev.at)">
+                {{ timeAgo(ev.at) }}<span v-if="ev.by"> · {{ ev.by }}</span>
               </p>
             </li>
           </ul>

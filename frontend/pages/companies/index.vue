@@ -38,7 +38,7 @@ async function add() {
       <input v-model="search" type="search" placeholder="Szukaj firmy…" class="input-field pl-10" />
     </div>
 
-    <p v-if="isLoading" class="py-10 text-center text-muted">Ładowanie…</p>
+    <UiSkeletonList v-if="isLoading" />
 
     <div v-else-if="!companies.length" class="card flex flex-col items-center px-6 py-12 text-center">
       <div class="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-surface text-stone">

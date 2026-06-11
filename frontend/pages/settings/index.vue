@@ -153,7 +153,7 @@ async function save() {
   <section class="mx-auto max-w-6xl">
     <UiPageHeader title="Ustawienia" subtitle="Dane agencji i integracje" />
 
-    <p v-if="isLoading" class="py-10 text-center text-muted">Ładowanie…</p>
+    <UiSkeletonDetail v-if="isLoading" />
     <div v-else-if="isError" class="card p-6 text-center text-stone">Brak dostępu do ustawień.</div>
 
     <form v-else class="space-y-5" @submit.prevent="save">

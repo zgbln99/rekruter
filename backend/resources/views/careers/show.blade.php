@@ -84,7 +84,7 @@
         <div class="wrap">
             <div class="detail-content">
                 @if (count($facts))
-                    <div class="facts">
+                    <div class="facts" data-reveal>
                         @foreach ($facts as [$k, $v, $icon])
                             <div class="fact">
                                 <div class="f-top">
@@ -103,7 +103,7 @@
                         : [];
                 @endphp
                 @if (count($salaryRows))
-                    <div class="salary-systems">
+                    <div class="salary-systems" data-reveal>
                         <div class="ss-title">Wynagrodzenie zależnie od systemu pracy</div>
                         <div class="ss-rows">
                             @foreach ($salaryRows as $r)
@@ -116,7 +116,7 @@
                     </div>
                 @endif
 
-                <div class="prose-wrap">
+                <div class="prose-wrap" data-reveal>
                     @if ($desc)
                         <div class="block-title">Opis stanowiska</div>
                         <div class="prose">{!! $desc !!}</div>
@@ -136,7 +136,7 @@
             {{-- APLIKACJA - pełnoszeroka sekcja --}}
             <section class="apply" id="aplikuj">
                 <div class="apply-inner">
-                    <div class="apply-head">
+                    <div class="apply-head" data-reveal>
                         <span class="kicker"><span class="mk"></span> Aplikacja</span>
                         <h2>Zainteresowany? Aplikuj w minutę.</h2>
                         <p>Wypełnij krótki formularz albo skontaktuj się z nami od razu - oddzwonimy.</p>

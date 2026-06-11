@@ -18,7 +18,7 @@ async function moveTo(status: string) {
 </script>
 
 <template>
-  <section v-if="isLoading" class="py-10 text-center text-muted">Ładowanie…</section>
+  <UiSkeletonDetail v-if="isLoading" />
 
   <section v-else-if="board">
     <header class="mb-4">

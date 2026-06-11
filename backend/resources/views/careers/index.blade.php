@@ -52,7 +52,7 @@
         <div class="wrap">
             @php $anyFilter = $filters['q'] || $filters['category'] || $filters['country'] || $filters['system']; @endphp
 
-            <div class="section-head">
+            <div class="section-head" data-reveal>
                 <span class="kicker"><span class="mk"></span> Oferty pracy</span>
                 <h2>{{ $anyFilter ? 'Wyniki wyszukiwania' : 'Aktualne oferty' }}</h2>
                 <p>{{ $offers->total() }} {{ \App\Support\Plural::pl($offers->total(), 'oferta', 'oferty', 'ofert') }} dla kierowców zawodowych</p>
@@ -70,7 +70,7 @@
             @endif
 
             @if ($offers->count())
-                <div class="offers-table">
+                <div class="offers-table" data-reveal>
                     <div class="ot-head">
                         <div>Stanowisko</div>
                         <div>Lokalizacja</div>
@@ -113,20 +113,20 @@
     {{-- Dlaczego my --}}
     <section class="section soft">
         <div class="wrap">
-            <div class="section-head">
+            <div class="section-head" data-reveal>
                 <span class="kicker"><span class="mk"></span> {{ $tenant?->careersText('values_kicker') }}</span>
                 <h2>{{ $tenant?->careersText('values_title') }}</h2>
             </div>
             <div class="values">
-                <div class="value">
+                <div class="value" data-reveal>
                     <span class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg></span>
                     <div><h3>{{ $tenant?->careersText('value1_title') }}</h3><p>{{ $tenant?->careersText('value1_text') }}</p></div>
                 </div>
-                <div class="value">
+                <div class="value" data-reveal>
                     <span class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span>
                     <div><h3>{{ $tenant?->careersText('value2_title') }}</h3><p>{{ $tenant?->careersText('value2_text') }}</p></div>
                 </div>
-                <div class="value">
+                <div class="value" data-reveal>
                     <span class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></span>
                     <div><h3>{{ $tenant?->careersText('value3_title') }}</h3><p>{{ $tenant?->careersText('value3_text') }}</p></div>
                 </div>

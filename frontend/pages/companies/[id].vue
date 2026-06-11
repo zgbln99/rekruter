@@ -66,7 +66,7 @@ async function addPosting() {
 </script>
 
 <template>
-  <section v-if="isLoading" class="py-10 text-center text-muted">Ładowanie…</section>
+  <UiSkeletonDetail v-if="isLoading" />
 
   <section v-else-if="company" class="mx-auto max-w-7xl space-y-5 pb-8">
     <div class="flex items-center gap-3">

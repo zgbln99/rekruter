@@ -88,14 +88,18 @@ function remove(u: User) {
       </button>
     </div>
 
-    <p v-if="isLoading" class="py-10 text-center text-muted">Ładowanie…</p>
+    <UiSkeletonList v-if="isLoading" :count="3" />
 
     <div v-else-if="isError" class="card p-6 text-center text-stone">
       Brak uprawnień do zarządzania użytkownikami (tylko administrator).
     </div>
 
-    <div v-else-if="!users?.length" class="card p-6 text-center text-stone">
-      Brak użytkowników. Dodaj pierwszego przyciskiem „Dodaj".
+    <div v-else-if="!users?.length" class="card flex flex-col items-center px-6 py-12 text-center">
+      <div class="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-surface text-stone">
+        <AppIcon name="users" :size="24" />
+      </div>
+      <p class="font-semibold text-ink">Brak użytkowników</p>
+      <p class="mt-1 text-sm text-stone">Dodaj pierwszego przyciskiem „Dodaj".</p>
     </div>
 
     <ul v-else class="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">

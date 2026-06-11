@@ -208,7 +208,7 @@ async function saveQuick() {
 </script>
 
 <template>
-  <section v-if="isLoading" class="py-10 text-center text-muted">Ładowanie…</section>
+  <UiSkeletonDetail v-if="isLoading" />
 
   <section v-else-if="offer" class="mx-auto space-y-5 pb-8">
     <div class="flex flex-wrap items-start justify-between gap-3">

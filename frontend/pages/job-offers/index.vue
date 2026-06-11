@@ -71,7 +71,7 @@ function open(o: JobPosting) {
       </UiChip>
     </div>
 
-    <p v-if="isLoading" class="py-10 text-center text-muted">Ładowanie…</p>
+    <UiSkeletonList v-if="isLoading" />
 
     <div v-else-if="!offers.length" class="card flex flex-col items-center px-6 py-12 text-center">
       <div class="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-surface text-stone">
