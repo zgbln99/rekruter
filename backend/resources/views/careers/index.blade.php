@@ -110,6 +110,42 @@
         </div>
     </section>
 
+    {{-- Zostaw numer - oddzwonimy --}}
+    <section class="section" id="oddzwonimy" style="padding-top:0">
+        <div class="wrap">
+            <div class="callback" data-reveal>
+                <div class="cb-text">
+                    <span class="kicker light"><span class="mk"></span> Szybki kontakt</span>
+                    <h2>Nie znalazłeś oferty dla siebie?</h2>
+                    <p>Zostaw numer - oddzwonimy i dopasujemy pracę do Twoich uprawnień, doświadczenia i oczekiwań. Bez zobowiązań.</p>
+                </div>
+                <div class="cb-form">
+                    @if (session('callback_ok'))
+                        <div class="cb-ok">
+                            <span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6 9 17l-5-5"/></svg></span>
+                            <div><b>Dziękujemy!</b><br>Mamy Twój numer - oddzwonimy najszybciej, jak to możliwe.</div>
+                        </div>
+                    @else
+                        @if ($errors->any())
+                            <div class="cb-err">@foreach ($errors->all() as $e)<div>{{ $e }}</div>@endforeach</div>
+                        @endif
+                        <form method="POST" action="{{ route('careers.callback') }}">
+                            @csrf
+                            <input type="text" name="company" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true">
+                            <input type="text" name="name" value="{{ old('name') }}" placeholder="Imię (opcjonalnie)" aria-label="Imię">
+                            <input type="tel" name="phone" value="{{ old('phone') }}" required placeholder="+48 600 100 200" aria-label="Numer telefonu">
+                            <label class="consent">
+                                <input type="checkbox" name="consent" value="1" required>
+                                <span>Wyrażam zgodę na kontakt telefoniczny i przetwarzanie danych w celach rekrutacyjnych (RODO).</span>
+                            </label>
+                            <button type="submit" class="btn btn-accent btn-block">Poproś o telefon</button>
+                        </form>
+                    @endif
+                </div>
+            </div>
+        </div>
+    </section>
+
     {{-- Dlaczego my --}}
     <section class="section soft">
         <div class="wrap">

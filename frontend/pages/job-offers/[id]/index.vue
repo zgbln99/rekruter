@@ -12,6 +12,7 @@ const updateOffer = useUpdateJobOffer(id)
 const deleteOffer = useDeleteJobOffer()
 const duplicateOffer = useDuplicateJobOffer()
 const auth = useAuthStore()
+const toast = useToast()
 
 // Duplikacja ogłoszenia → otwórz edycję kopii.
 const duplicating = ref(false)
@@ -33,9 +34,13 @@ async function toggleActive() {
 
 const publishing = ref(false)
 async function togglePublic() {
+  const next = !offer.value?.is_public
   publishing.value = true
   try {
-    await updateOffer.mutateAsync({ is_public: !offer.value?.is_public } as any)
+    await updateOffer.mutateAsync({ is_public: next } as any)
+    toast.success(next ? 'Oferta opublikowana na stronie.' : 'Oferta ukryta ze strony.')
+  } catch {
+    toast.error('Nie udało się zmienić widoczności.')
   } finally {
     publishing.value = false
   }
@@ -43,9 +48,13 @@ async function togglePublic() {
 
 const featuring = ref(false)
 async function toggleFeatured() {
+  const next = !offer.value?.is_featured
   featuring.value = true
   try {
-    await updateOffer.mutateAsync({ is_featured: !offer.value?.is_featured } as any)
+    await updateOffer.mutateAsync({ is_featured: next } as any)
+    toast.success(next ? 'Oferta promowana - będzie wyżej na liście.' : 'Wyłączono promowanie oferty.')
+  } catch {
+    toast.error('Nie udało się zmienić promowania.')
   } finally {
     featuring.value = false
   }
@@ -59,6 +68,9 @@ async function toggleArchive() {
   archiving.value = true
   try {
     await archiveOffer.mutateAsync(!isArch)
+    toast.success(isArch ? 'Przywrócono ofertę z archiwum.' : 'Oferta zarchiwizowana.')
+  } catch {
+    toast.error('Nie udało się zmienić archiwizacji.')
   } finally {
     archiving.value = false
   }

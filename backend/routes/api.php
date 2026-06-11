@@ -69,6 +69,10 @@ Route::prefix('v1')->group(function () {
             ->middleware('throttle:60,1')
             ->name('candidates.lookup');
 
+        // Eksport listy kandydatów do CSV (uwzględnia wyszukiwanie i filtr statusu).
+        Route::get('candidates/export-csv', [CandidateController::class, 'exportCsv'])
+            ->name('candidates.export-csv');
+
         Route::apiResource('candidates', CandidateController::class)->except(['create', 'edit']);
 
         // Łączenie duplikatów (źródło → bieżący kandydat).

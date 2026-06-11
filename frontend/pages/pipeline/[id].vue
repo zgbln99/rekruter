@@ -2,11 +2,13 @@
 import type { Application } from '~/types'
 
 // Tablica kanban dla ogłoszenia. Na telefonie przenoszenie kandydata między
-// etapami realizowane przez bottom-sheet (DESIGN.md, mitygacja R10).
+// etapami realizowane przez bottom-sheet (DESIGN.md, mitygacja R10);
+// na desktopie dodatkowo drag & drop między kolumnami.
 const route = useRoute()
 const id = computed(() => route.params.id as string)
 const { data: board, isLoading } = usePipelineBoardQuery(id)
 const moveApplication = useMoveApplication(id)
+const toast = useToast()
 
 const selected = ref<Application | null>(null)
 
@@ -14,6 +16,48 @@ async function moveTo(status: string) {
   if (!selected.value) return
   await moveApplication.mutateAsync({ id: selected.value.id, status })
   selected.value = null
+}
+
+// --- Drag & drop (desktop) ---
+const draggingId = ref<string | null>(null)
+const dragOverStage = ref<string | null>(null)
+
+function findApplication(appId: string): Application | undefined {
+  for (const stage of board.value?.stages ?? []) {
+    const found = stage.applications.find((a: Application) => a.id === appId)
+    if (found) return found
+  }
+}
+
+function onDragStart(app: Application, e: DragEvent) {
+  draggingId.value = app.id
+  if (e.dataTransfer) {
+    e.dataTransfer.setData('text/plain', app.id)
+    e.dataTransfer.effectAllowed = 'move'
+  }
+}
+
+function onDragEnd() {
+  draggingId.value = null
+  dragOverStage.value = null
+}
+
+async function onDrop(stageId: string) {
+  const appId = draggingId.value
+  draggingId.value = null
+  dragOverStage.value = null
+  if (!appId) return
+
+  const app = findApplication(appId)
+  if (!app || app.status === stageId) return
+
+  const stageName = board.value?.stages.find((s) => s.id === stageId)?.name
+  try {
+    await moveApplication.mutateAsync({ id: appId, status: stageId })
+    toast.success(`${app.candidate?.full_name || 'Kandydat'} → ${stageName || 'nowy etap'}`)
+  } catch {
+    toast.error('Nie udało się przenieść kandydata.')
+  }
 }
 </script>
 
@@ -31,7 +75,11 @@ async function moveTo(status: string) {
       <div
         v-for="stage in board.stages"
         :key="stage.id"
-        class="w-[17rem] shrink-0 rounded-xl bg-surface p-2.5"
+        class="w-[17rem] shrink-0 rounded-xl bg-surface p-2.5 transition"
+        :class="dragOverStage === stage.id && draggingId ? 'ring-2 ring-brand/50 bg-brand-soft/50' : ''"
+        @dragover.prevent="dragOverStage = stage.id"
+        @dragleave="dragOverStage === stage.id && (dragOverStage = null)"
+        @drop.prevent="onDrop(stage.id)"
       >
         <div class="mb-2.5 flex items-center gap-2 px-1">
           <span class="h-2.5 w-2.5 rounded-full" :style="{ background: stage.color }" />
@@ -45,8 +93,12 @@ async function moveTo(status: string) {
           <button
             v-for="app in stage.applications"
             :key="app.id"
-            class="block w-full rounded-lg border border-hairline bg-canvas p-3 text-left shadow-subtle transition active:scale-[0.99]"
+            draggable="true"
+            class="block w-full cursor-grab rounded-lg border border-hairline bg-canvas p-3 text-left shadow-subtle transition active:scale-[0.99]"
+            :class="draggingId === app.id ? 'opacity-40' : ''"
             @click="selected = app"
+            @dragstart="onDragStart(app, $event)"
+            @dragend="onDragEnd"
           >
             <p class="font-semibold text-ink">{{ app.candidate?.full_name }}</p>
             <p class="text-sm text-stone">{{ app.candidate?.phone }}</p>

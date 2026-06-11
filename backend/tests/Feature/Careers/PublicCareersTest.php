@@ -117,6 +117,63 @@ class PublicCareersTest extends TestCase
         $this->assertDatabaseCount('candidates', 0);
     }
 
+    public function test_callback_creates_lead_candidate_with_follow_up_task(): void
+    {
+        $this->post(route('careers.callback'), [
+            'name' => 'Marek',
+            'phone' => '600 700 800',
+            'consent' => '1',
+        ])->assertRedirect();
+
+        $this->assertDatabaseHas('candidates', [
+            'first_name' => 'Marek',
+            'source' => 'Strona kariery - prośba o kontakt',
+        ]);
+
+        $candidate = Candidate::query()->first();
+        $this->assertDatabaseHas('tasks', [
+            'candidate_id' => $candidate->id,
+            'status' => 'open',
+            'title' => 'Oddzwonić - prośba ze strony kariery',
+        ]);
+    }
+
+    public function test_callback_reuses_existing_candidate_by_phone_but_adds_task(): void
+    {
+        $existing = Candidate::factory()->for($this->tenant)->create([
+            'phone' => '+48 600 700 800',
+            'phone_normalized' => \App\Support\PhoneNumber::normalize('+48 600 700 800'),
+        ]);
+
+        $this->post(route('careers.callback'), [
+            'phone' => '600 700 800',
+            'consent' => '1',
+        ])->assertRedirect();
+
+        $this->assertDatabaseCount('candidates', 1);
+        $this->assertDatabaseHas('tasks', ['candidate_id' => $existing->id, 'status' => 'open']);
+    }
+
+    public function test_callback_honeypot_creates_nothing(): void
+    {
+        $this->post(route('careers.callback'), [
+            'phone' => '600 700 800',
+            'consent' => '1',
+            'company' => 'spam-corp',
+        ])->assertRedirect();
+
+        $this->assertDatabaseCount('candidates', 0);
+        $this->assertDatabaseCount('tasks', 0);
+    }
+
+    public function test_callback_requires_consent_and_phone(): void
+    {
+        $this->post(route('careers.callback'), ['name' => 'Jan'])
+            ->assertSessionHasErrors(['phone', 'consent']);
+
+        $this->assertDatabaseCount('candidates', 0);
+    }
+
     public function test_honeypot_blocks_bot_without_creating_candidate(): void
     {
         $offer = JobPosting::factory()->for($this->tenant)->create([

@@ -42,6 +42,53 @@ class CandidateController extends Controller
         );
     }
 
+    /** Eksport listy do CSV (te same filtry co index; BOM dla Excela). */
+    public function exportCsv(Request $request): \Symfony\Component\HttpFoundation\StreamedResponse
+    {
+        $query = Candidate::query()->latest();
+
+        if ($status = $request->string('status')->toString()) {
+            $query->where('status', $status);
+        }
+        if ($term = trim($request->string('q')->toString())) {
+            $like = '%'.$term.'%';
+            $normalized = PhoneNumber::normalize($term);
+            $query->where(function ($q) use ($like, $normalized) {
+                $q->where('first_name', 'ilike', $like)
+                    ->orWhere('last_name', 'ilike', $like)
+                    ->orWhere('city', 'ilike', $like)
+                    ->orWhere('phone_normalized', 'ilike', '%'.$normalized.'%');
+            });
+        }
+
+        $filename = 'kandydaci-'.now()->format('Y-m-d').'.csv';
+
+        return response()->streamDownload(function () use ($query) {
+            $out = fopen('php://output', 'w');
+            // BOM — żeby Excel poprawnie odczytał polskie znaki (UTF-8).
+            fwrite($out, "\xEF\xBB\xBF");
+            fputcsv($out, ['Imię', 'Nazwisko', 'Telefon', 'E-mail', 'Miasto', 'Kraj', 'Status', 'Kategorie', 'ADR', 'Kod 95', 'Źródło', 'Dodano'], ';');
+
+            foreach ($query->cursor() as $c) {
+                fputcsv($out, [
+                    $c->first_name,
+                    $c->last_name,
+                    $c->phone,
+                    $c->email,
+                    $c->city,
+                    $c->country,
+                    $c->status?->label() ?? (string) $c->status,
+                    implode(', ', is_array($c->license_categories) ? $c->license_categories : []),
+                    $c->has_adr ? 'tak' : 'nie',
+                    $c->has_code_95 ? 'tak' : 'nie',
+                    $c->source,
+                    optional($c->created_at)->format('Y-m-d'),
+                ], ';');
+            }
+            fclose($out);
+        }, $filename, ['Content-Type' => 'text/csv; charset=UTF-8']);
+    }
+
     public function store(StoreCandidateRequest $request, CreateCandidateAction $action): JsonResponse
     {
         // Deduplikacja: jeśli numer już istnieje, zwróć istniejącego kandydata (409).

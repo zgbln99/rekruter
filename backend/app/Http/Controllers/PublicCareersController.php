@@ -158,6 +158,57 @@ class PublicCareersController extends Controller
         return redirect()->to($offer->publicPath().'#aplikuj')->with('applied', true);
     }
 
+    /**
+     * Szybki kontakt „Zostaw numer - oddzwonimy": tworzy kandydata (lead)
+     * i zadanie follow-up dla rekrutera, widoczne na pulpicie panelu.
+     */
+    public function callback(Request $request): RedirectResponse
+    {
+        $this->tenant();
+
+        // Honeypot — boty wypełniają ukryte pole „company".
+        if (trim((string) $request->input('company')) !== '') {
+            return redirect()->to(url('/').'#oddzwonimy')->with('callback_ok', true);
+        }
+
+        $data = $request->validate([
+            'name' => ['nullable', 'string', 'max:120'],
+            'phone' => ['required', 'string', 'max:40'],
+            'consent' => ['accepted'],
+        ], [
+            'phone.required' => 'Podaj numer telefonu.',
+            'consent.accepted' => 'Wymagana jest zgoda na przetwarzanie danych.',
+        ]);
+
+        $normalized = PhoneNumber::normalize($data['phone']);
+        $candidate = $normalized
+            ? Candidate::query()->where('phone_normalized', $normalized)->first()
+            : null;
+
+        if (! $candidate) {
+            $candidate = Candidate::create([
+                'first_name' => trim((string) ($data['name'] ?? '')) ?: 'Kierowca',
+                'phone' => $data['phone'],
+                'phone_normalized' => $normalized,
+                'status' => CandidateStatus::New->value,
+                'source' => 'Strona kariery - prośba o kontakt',
+                'consent_rodo_at' => now(),
+            ]);
+        }
+
+        // Zadanie „oddzwonić" — trafia od razu na pulpit rekrutera.
+        \App\Models\Task::create([
+            'candidate_id' => $candidate->id,
+            'type' => \App\Enums\TaskType::FollowUp->value,
+            'status' => \App\Enums\TaskStatus::Open->value,
+            'title' => 'Oddzwonić - prośba ze strony kariery',
+            'description' => 'Kierowca zostawił numer na stronie i czeka na telefon.',
+            'due_at' => now()->addHour(),
+        ]);
+
+        return redirect()->to(url('/').'#oddzwonimy')->with('callback_ok', true);
+    }
+
     /** Pierwszy tenant + związanie kontekstu (dla scope'ów i tworzenia rekordów). */
     private function tenant(): Tenant
     {

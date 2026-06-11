@@ -28,12 +28,16 @@ function startEdit() {
   })
   editing.value = true
 }
+const toast = useToast()
 async function saveCompany() {
   if (!form.name.trim()) return
   saving.value = true
   try {
     await updateCompany.mutateAsync({ ...form })
     editing.value = false
+    toast.success('Zapisano dane firmy.')
+  } catch {
+    toast.error('Nie udało się zapisać zmian.')
   } finally {
     saving.value = false
   }

@@ -54,6 +54,9 @@ useHead({
     <!-- Globalna wyszukiwarka (Ctrl/Cmd+K) -->
     <GlobalSearch />
 
+    <!-- Powiadomienia toast (potwierdzenia akcji) -->
+    <UiToasts />
+
     <!-- Nawigacja mobile -->
     <NewCandidateFab />
     <BottomNav />

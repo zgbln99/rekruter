@@ -28,12 +28,39 @@ function fmtDate(d: string | null) {
 function open(c: Candidate) {
   router.push(`/candidates/${c.id}`)
 }
+
+// Eksport widocznej listy (z filtrami) do CSV.
+const toast = useToast()
+const exporting = ref(false)
+async function exportCsv() {
+  exporting.value = true
+  try {
+    const params = new URLSearchParams()
+    if (search.value) params.set('q', search.value)
+    if (status.value) params.set('status', status.value)
+    const qs = params.toString()
+    const blob = await fetchBlob(`/candidates/export-csv${qs ? `?${qs}` : ''}`)
+    openBlob(blob, `kandydaci-${new Date().toISOString().slice(0, 10)}.csv`)
+    toast.success('Wyeksportowano listę do CSV.')
+  } catch {
+    toast.error('Nie udało się wyeksportować CSV.')
+  } finally {
+    exporting.value = false
+  }
+}
 </script>
 
 <template>
   <section>
     <UiPageHeader title="Kandydaci" :subtitle="`${total} w bazie`">
       <template #actions>
+        <button
+          class="inline-flex h-9 items-center gap-1.5 rounded-lg border border-hairline px-3 text-sm font-medium text-ink transition hover:bg-surface disabled:opacity-50"
+          :disabled="exporting"
+          @click="exportCsv"
+        >
+          <AppIcon name="download" :size="16" /> {{ exporting ? 'Eksport…' : 'CSV' }}
+        </button>
         <NuxtLink to="/candidates/new" class="btn-sm">
           <AppIcon name="plus" :size="16" /> Nowy
         </NuxtLink>
